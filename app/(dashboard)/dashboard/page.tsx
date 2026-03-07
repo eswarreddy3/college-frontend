@@ -1,85 +1,67 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { StatsCard } from "@/components/stats-card"
-import { CourseCard } from "@/components/course-card"
-import { ActivityFeed } from "@/components/activity-feed"
 import { StreakCalendar } from "@/components/streak-calendar"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
-import { Trophy, Star, Flame, Hash, Code, FileQuestion, BarChart3 } from "lucide-react"
+import { Trophy, Star, Flame, Code, FileQuestion, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import api from "@/lib/api"
+import { useAuthStore } from "@/store/authStore"
 
-const mockActivities = [
-  {
-    id: "1",
-    type: "mcq" as const,
-    title: "Completed Python Quiz",
-    description: "Scored 8/10 in Data Types quiz",
-    timestamp: "2 min ago",
-    points: 50,
-  },
-  {
-    id: "2",
-    type: "coding" as const,
-    title: "Solved Two Sum",
-    description: "Easy difficulty - Arrays",
-    timestamp: "1 hour ago",
-    points: 100,
-  },
-  {
-    id: "3",
-    type: "streak" as const,
-    title: "Streak Extended!",
-    description: "12 day streak maintained",
-    timestamp: "Today",
-    points: 25,
-  },
-  {
-    id: "4",
-    type: "lesson" as const,
-    title: "SQL Joins Lesson",
-    description: "Completed Module 3",
-    timestamp: "Yesterday",
-    points: 75,
-  },
-  {
-    id: "5",
-    type: "achievement" as const,
-    title: "First Week Champion",
-    description: "Completed 7-day streak",
-    timestamp: "2 days ago",
-    points: 200,
-  },
-]
+interface DashboardData {
+  points: number
+  streak: number
+  rank: number
+  total_in_college: number
+  solved_count: number
+  active_days: number[]
+  recent_activity: {
+    id: number
+    action: string
+    details: Record<string, any> | null
+    created_at: string
+  }[]
+}
 
-const activeDays = [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 14, 15, 16, 18, 19, 20, 21, 23, 24, 25, 26, 27, 28, 29, 30]
-
-// Course icons with their colors
-const PythonIcon = () => (
-  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-    <path d="M12 6c-1.1 0-2 .9-2 2v2h4V8c0-1.1-.9-2-2-2zm-2 6v4c0 1.1.9 2 2 2s2-.9 2-2v-2h-4z"/>
-  </svg>
-)
-
-const SQLIcon = () => (
-  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
-    <path d="M12 3C7.58 3 4 4.79 4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7c0-2.21-3.58-4-8-4zm0 2c3.87 0 6 1.5 6 2s-2.13 2-6 2-6-1.5-6-2 2.13-2 6-2zm6 12c0 .5-2.13 2-6 2s-6-1.5-6-2v-2.23c1.61.78 3.72 1.23 6 1.23s4.39-.45 6-1.23V17z"/>
-  </svg>
-)
-
-const DataScienceIcon = () => (
-  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
-    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-  </svg>
-)
+function timeAgo(iso: string): string {
+  const d = new Date(iso)
+  const now = new Date()
+  const diffMs = now.getTime() - d.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  if (diffMins < 1) return "Just now"
+  if (diffMins < 60) return `${diffMins}m ago`
+  const diffHrs = Math.floor(diffMins / 60)
+  if (diffHrs < 24) return `${diffHrs}h ago`
+  const diffDays = Math.floor(diffHrs / 24)
+  if (diffDays === 1) return "Yesterday"
+  return `${diffDays} days ago`
+}
 
 export default function DashboardPage() {
-  const handleQuickAction = (action: string) => {
-    toast.success(`Starting ${action}...`, {
-      description: "Redirecting you now",
-    })
+  const { user, updateUser } = useAuthStore()
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get("/student/dashboard")
+      .then((res) => {
+        setData(res.data)
+        // Sync points from DB into authStore so sidebar reflects real value
+        updateUser({ points: res.data.points })
+      })
+      .catch(() => toast.error("Failed to load dashboard"))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 text-primary animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -87,7 +69,7 @@ export default function DashboardPage() {
       {/* Hero Section */}
       <div>
         <h1 className="text-3xl font-bold font-serif text-foreground">
-          Welcome back, <span className="gradient-text">Rahul</span> 
+          Welcome back, <span className="gradient-text">{user?.name?.split(" ")[0] ?? "Student"}</span>
         </h1>
         <p className="text-muted-foreground mt-2">Continue your placement preparation journey</p>
       </div>
@@ -96,28 +78,26 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Total Points"
-          value="4,200"
+          value={data?.points.toLocaleString() ?? "0"}
           icon={Star}
           iconColor="text-amber-500"
-          trend={{ value: 12, isPositive: true }}
         />
         <StatsCard
-          title="Stars Earned"
-          value="7"
-          icon={Star}
-          iconColor="text-amber-500"
+          title="Problems Solved"
+          value={data?.solved_count ?? 0}
+          icon={Code}
+          iconColor="text-blue-400"
         />
         <StatsCard
           title="Current Streak"
-          value="12"
+          value={data?.streak ?? 0}
           suffix="days"
           icon={Flame}
           iconColor="text-orange-500"
-          trend={{ value: 5, isPositive: true }}
         />
         <StatsCard
-          title="Leaderboard Rank"
-          value="#34"
+          title="College Rank"
+          value={data ? `#${data.rank}` : "—"}
           icon={Trophy}
           iconColor="text-primary"
         />
@@ -125,99 +105,106 @@ export default function DashboardPage() {
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Continue Learning Section */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold font-serif text-foreground">Continue Learning</h2>
-            <Link href="/learn">
-              <Button variant="ghost" className="text-primary hover:text-primary/80">
-                View All
-              </Button>
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            <CourseCard
-              title="Python"
-              icon={Code}
-              iconColor="text-blue-400"
-              lessonsCompleted={17}
-              totalLessons={25}
-              difficulty="Beginner"
-              stars={150}
-              progress={68}
-              onContinue={() => handleQuickAction("Python course")}
-            />
-            <CourseCard
-              title="SQL"
-              icon={BarChart3}
-              iconColor="text-cyan-400"
-              lessonsCompleted={8}
-              totalLessons={20}
-              difficulty="Intermediate"
-              stars={100}
-              progress={40}
-              onContinue={() => handleQuickAction("SQL course")}
-            />
-            <CourseCard
-              title="Data Science"
-              icon={BarChart3}
-              iconColor="text-purple-400"
-              lessonsCompleted={5}
-              totalLessons={20}
-              difficulty="Advanced"
-              stars={200}
-              progress={25}
-              onContinue={() => handleQuickAction("Data Science course")}
-            />
-          </div>
+        {/* Recent Activity */}
+        <div className="lg:col-span-2">
+          <GlassCard>
+            <h2 className="text-lg font-semibold font-serif text-foreground mb-4">Recent Activity</h2>
+            {data && data.recent_activity.length > 0 ? (
+              <div className="space-y-3">
+                {data.recent_activity.map((activity) => (
+                  <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30">
+                    <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{activity.action}</p>
+                      {activity.details?.description && (
+                        <p className="text-xs text-muted-foreground mt-0.5">{activity.details.description}</p>
+                      )}
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      {activity.details?.points && (
+                        <p className="text-xs font-medium text-primary">+{activity.details.points} pts</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">{timeAgo(activity.created_at)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <Code className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                <p className="text-sm text-muted-foreground">No activity yet</p>
+                <p className="text-xs text-muted-foreground/70">Start solving problems to see your activity here</p>
+              </div>
+            )}
+          </GlassCard>
         </div>
-
-        {/* Activity Feed */}
-        <div className="lg:col-span-1">
-          <ActivityFeed activities={mockActivities} />
-        </div>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Streak Calendar */}
-        <StreakCalendar activeDays={activeDays} currentStreak={12} />
 
         {/* Quick Actions */}
-        <GlassCard>
-          <h3 className="font-semibold font-serif mb-4 text-foreground">Quick Actions</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <Link href="/coding">
-              <Button 
-                variant="outline" 
-                className="w-full h-auto py-4 flex-col gap-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-foreground"
-              >
-                <Code className="h-6 w-6 text-primary" />
-                <span className="text-sm">Solve a Problem</span>
-              </Button>
-            </Link>
-            <Link href="/practice-mcq">
-              <Button 
-                variant="outline" 
-                className="w-full h-auto py-4 flex-col gap-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-foreground"
-              >
-                <FileQuestion className="h-6 w-6 text-amber-500" />
-                <span className="text-sm">Practice MCQ</span>
-              </Button>
-            </Link>
-            <Link href="/leaderboard">
-              <Button 
-                variant="outline" 
-                className="w-full h-auto py-4 flex-col gap-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-foreground"
-              >
-                <Trophy className="h-6 w-6 text-purple-400" />
-                <span className="text-sm">View Leaderboard</span>
-              </Button>
-            </Link>
-          </div>
-        </GlassCard>
+        <div className="space-y-4">
+          <GlassCard>
+            <h3 className="font-semibold font-serif mb-4 text-foreground">Quick Actions</h3>
+            <div className="space-y-2">
+              <Link href="/coding">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 border-border hover:border-primary/50 hover:bg-primary/5 text-foreground"
+                >
+                  <Code className="h-5 w-5 text-primary" />
+                  Solve a Problem
+                </Button>
+              </Link>
+              <Link href="/practice-mcq">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 border-border hover:border-primary/50 hover:bg-primary/5 text-foreground"
+                >
+                  <FileQuestion className="h-5 w-5 text-amber-500" />
+                  Practice MCQ
+                </Button>
+              </Link>
+              <Link href="/leaderboard">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 border-border hover:border-primary/50 hover:bg-primary/5 text-foreground"
+                >
+                  <Trophy className="h-5 w-5 text-purple-400" />
+                  View Leaderboard
+                  {data && (
+                    <span className="ml-auto text-xs text-muted-foreground">#{data.rank}</span>
+                  )}
+                </Button>
+              </Link>
+            </div>
+          </GlassCard>
+
+          {/* Mini stats */}
+          {data && (
+            <GlassCard>
+              <h3 className="font-semibold font-serif mb-3 text-foreground text-sm">Your Standing</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Rank in college</span>
+                  <span className="font-medium text-foreground">#{data.rank} / {data.total_in_college}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Problems solved</span>
+                  <span className="font-medium text-foreground">{data.solved_count}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Current streak</span>
+                  <span className="font-medium text-foreground">{data.streak} days</span>
+                </div>
+              </div>
+            </GlassCard>
+          )}
+        </div>
       </div>
+
+      {/* Streak Calendar */}
+      <StreakCalendar
+        activeDays={data?.active_days ?? []}
+        currentStreak={data?.streak ?? 0}
+      />
     </div>
   )
 }

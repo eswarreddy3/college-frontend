@@ -19,6 +19,9 @@ export interface User {
   linkedin_url?: string
   points: number
   streak: number
+  email_notifications?: boolean
+  assignment_reminders?: boolean
+  leaderboard_updates?: boolean
 }
 
 interface AuthState {

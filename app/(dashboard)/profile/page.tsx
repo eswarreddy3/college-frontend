@@ -1,13 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Pencil, Loader2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import { GlassCard } from "@/components/glass-card"
-import { ActivityFeed } from "@/components/activity-feed"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -34,24 +33,43 @@ const passwordSchema = z
 
 type PasswordForm = z.infer<typeof passwordSchema>
 
-const mockActivities = [
-  { id: "1", type: "mcq" as const, title: "Python Quiz Completed", description: "Scored 9/10", timestamp: "2 hours ago", points: 50 },
-  { id: "2", type: "coding" as const, title: "Solved Two Sum", description: "Easy — Arrays", timestamp: "Yesterday", points: 100 },
-  { id: "3", type: "streak" as const, title: "Streak Extended!", description: "12-day streak maintained", timestamp: "Today", points: 25 },
-  { id: "4", type: "lesson" as const, title: "SQL Joins Lesson", description: "Completed Module 3", timestamp: "2 days ago", points: 75 },
-  { id: "5", type: "achievement" as const, title: "First Week Champion", description: "7-day streak badge", timestamp: "3 days ago", points: 200 },
-]
+interface Activity {
+  id: number
+  action: string
+  details: Record<string, any> | null
+  created_at: string
+}
+
+function timeAgo(iso: string): string {
+  const d = new Date(iso)
+  const now = new Date()
+  const diffMins = Math.floor((now.getTime() - d.getTime()) / 60000)
+  if (diffMins < 1) return "Just now"
+  if (diffMins < 60) return `${diffMins}m ago`
+  const diffHrs = Math.floor(diffMins / 60)
+  if (diffHrs < 24) return `${diffHrs}h ago`
+  const diffDays = Math.floor(diffHrs / 24)
+  if (diffDays === 1) return "Yesterday"
+  return `${diffDays} days ago`
+}
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuthStore()
   const [showCurrent, setShowCurrent] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [activities, setActivities] = useState<Activity[]>([])
   const [notifications, setNotifications] = useState({
-    emailReminders: true,
-    streakAlerts: true,
-    assignmentReminders: false,
+    email_notifications: user?.email_notifications ?? true,
+    assignment_reminders: user?.assignment_reminders ?? true,
+    leaderboard_updates: user?.leaderboard_updates ?? false,
   })
+
+  useEffect(() => {
+    api.get("/student/dashboard")
+      .then((res) => setActivities(res.data.recent_activity ?? []))
+      .catch(() => {})
+  }, [])
 
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -81,7 +99,7 @@ export default function ProfilePage() {
 
   const onNotificationSave = async () => {
     try {
-      await api.patch("/student/profile", { notifications })
+      await api.patch("/student/profile", notifications)
       toast.success("Notification settings saved")
     } catch {
       toast.error("Failed to save notification settings")
@@ -266,19 +284,19 @@ export default function ProfilePage() {
                 <div className="space-y-4 max-w-sm">
                   {[
                     {
-                      key: "emailReminders" as const,
-                      label: "Email Reminders",
+                      key: "email_notifications" as const,
+                      label: "Email Notifications",
                       desc: "Get daily learning reminders via email",
                     },
                     {
-                      key: "streakAlerts" as const,
-                      label: "Streak Alerts",
-                      desc: "Be notified before your streak breaks",
-                    },
-                    {
-                      key: "assignmentReminders" as const,
+                      key: "assignment_reminders" as const,
                       label: "Assignment Reminders",
                       desc: "Reminders for upcoming assignment deadlines",
+                    },
+                    {
+                      key: "leaderboard_updates" as const,
+                      label: "Leaderboard Updates",
+                      desc: "Get notified when your rank changes",
                     },
                   ].map(({ key, label, desc }) => (
                     <div
@@ -310,8 +328,26 @@ export default function ProfilePage() {
 
               {/* Activity tab */}
               <TabsContent value="activity">
-                <div className="max-h-[400px] overflow-y-auto">
-                  <ActivityFeed activities={mockActivities} />
+                <div className="max-h-[400px] overflow-y-auto space-y-3">
+                  {activities.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">No activity yet</p>
+                  ) : activities.map((a) => (
+                    <div key={a.id} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30">
+                      <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground">{a.action}</p>
+                        {a.details?.description && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{a.details.description}</p>
+                        )}
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        {a.details?.points && (
+                          <p className="text-xs font-medium text-primary">+{a.details.points} pts</p>
+                        )}
+                        <p className="text-xs text-muted-foreground">{timeAgo(a.created_at)}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </TabsContent>
             </Tabs>
