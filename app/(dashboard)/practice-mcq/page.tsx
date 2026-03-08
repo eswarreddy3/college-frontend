@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { Suspense, useState, useEffect, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
@@ -55,7 +55,7 @@ const difficultyColors = {
   Hard: "bg-red-500/20 text-red-400 border-red-500/30",
 }
 
-export default function PracticeMCQPage() {
+function PracticeMCQContent() {
   const searchParams = useSearchParams()
   const [topics, setTopics] = useState<Topic[]>([])
   const [expandedTopics, setExpandedTopics] = useState<string[]>([])
@@ -462,5 +462,13 @@ export default function PracticeMCQPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function PracticeMCQPage() {
+  return (
+    <Suspense>
+      <PracticeMCQContent />
+    </Suspense>
   )
 }

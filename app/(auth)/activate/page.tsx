@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { CheckCircle, XCircle, Loader2, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import api from "@/lib/api"
 
-export default function ActivatePage() {
+function ActivateContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
@@ -181,5 +181,13 @@ export default function ActivatePage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function ActivatePage() {
+  return (
+    <Suspense>
+      <ActivateContent />
+    </Suspense>
   )
 }
