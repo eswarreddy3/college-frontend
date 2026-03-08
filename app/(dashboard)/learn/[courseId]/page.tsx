@@ -5,11 +5,22 @@ import { useParams, useRouter } from "next/navigation"
 import {
   ArrowLeft,
   CheckCircle,
+  CheckCircle2,
+  XCircle,
   PlayCircle,
   Clock,
   ArrowRight,
   Loader2,
   BookOpen,
+  Brain,
+  ClipboardList,
+  ChevronUp,
+  ChevronRight,
+  ChevronLeft,
+  Star,
+  Timer,
+  FileText,
+  RotateCcw,
 } from "lucide-react"
 import { GlassCard } from "@/components/glass-card"
 import { ProgressRing } from "@/components/progress-ring"
@@ -21,6 +32,9 @@ import { toast } from "sonner"
 import api from "@/lib/api"
 import { useAuthStore } from "@/store/authStore"
 import { getLessonContent } from "@/content"
+import { PYTHON_TOPIC_META } from "@/lib/python-topics"
+import { getMockQuestions, type MockQuestion } from "@/lib/mcq-data"
+import { pythonModuleAssignments } from "@/lib/assignment-data"
 
 interface Lesson {
   id: number
@@ -323,6 +337,49 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true)
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null)
   const [completing, setCompleting] = useState(false)
+  const [expandedModules, setExpandedModules] = useState<number[]>([1, 2, 3])
+
+  // Top-level tab (only used for Python)
+  const [activeTab, setActiveTab] = useState<"lessons" | "practice" | "assignment">("lessons")
+
+  // Inline MCQ state
+  const [mcqTopic, setMcqTopic] = useState<{ topic: string; subtopic: string; lessonOrder: number } | null>(null)
+  const [mcqQuestions, setMcqQuestions] = useState<MockQuestion[]>([])
+  const [mcqIndex, setMcqIndex] = useState(0)
+  const [mcqSelected, setMcqSelected] = useState<number | null>(null)
+  const [mcqSubmitted, setMcqSubmitted] = useState(false)
+  const [mcqScores, setMcqScores] = useState<Record<string, { correct: number; total: number }>>({})
+
+  function openMcqTopic(topic: string, subtopic: string, lessonOrder: number) {
+    const qs = getMockQuestions(topic, subtopic)
+    setMcqTopic({ topic, subtopic, lessonOrder })
+    setMcqQuestions(qs)
+    setMcqIndex(0)
+    setMcqSelected(null)
+    setMcqSubmitted(false)
+  }
+
+  function mcqSubmit() {
+    if (mcqSelected === null) return
+    setMcqSubmitted(true)
+    const q = mcqQuestions[mcqIndex]
+    const correct = mcqSelected === q.correctIndex
+    const key = `${mcqTopic?.topic}|${mcqTopic?.subtopic}`
+    setMcqScores(prev => {
+      const cur = prev[key] ?? { correct: 0, total: 0 }
+      return { ...prev, [key]: { correct: cur.correct + (correct ? 1 : 0), total: cur.total + 1 } }
+    })
+    if (correct) toast.success(`Correct! +${q.points} pts`)
+    else toast.error("Incorrect — see the explanation")
+  }
+
+  function mcqNext() {
+    if (mcqIndex < mcqQuestions.length - 1) {
+      setMcqIndex(i => i + 1)
+      setMcqSelected(null)
+      setMcqSubmitted(false)
+    }
+  }
 
   useEffect(() => {
     api.get(`/learn/courses/${courseId}`)
@@ -394,6 +451,18 @@ export default function CourseDetailPage() {
 
   const activeIdx = course.lessons.findIndex(l => l.id === activeLesson?.id)
 
+  // ── Python: group lessons into 3 modules ──────────────────────────────────
+  const PYTHON_MODULES = [
+    { id: 1, title: "Python Basics",        emoji: "🌱", lessonOrders: [1, 2, 3, 4],   bar: "bg-emerald-500" },
+    { id: 2, title: "Python Intermediate",  emoji: "⚙️",  lessonOrders: [5, 6, 7, 8],   bar: "bg-amber-500"   },
+    { id: 3, title: "Python Advanced",      emoji: "🚀", lessonOrders: [9, 10, 11, 12], bar: "bg-violet-500"  },
+  ]
+  function toggleModule(mid: number) {
+    setExpandedModules(prev => prev.includes(mid) ? prev.filter(x => x !== mid) : [...prev, mid])
+  }
+
+  const isPython = courseId === "python"
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -422,127 +491,464 @@ export default function CourseDetailPage() {
         <Progress value={progress} className="h-2" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lesson list */}
-        <div className="lg:col-span-1">
-          <GlassCard className="p-0 overflow-hidden">
-            <div className="p-4 border-b border-border">
-              <h2 className="font-semibold font-serif text-foreground">Lessons</h2>
-            </div>
-            <div className="max-h-[600px] overflow-y-auto">
-              {course.lessons.map((lesson, idx) => (
-                <button
-                  key={lesson.id}
-                  onClick={() => setActiveLesson(lesson)}
-                  className={cn(
-                    "w-full flex items-start gap-3 p-4 text-left border-b border-border/50 last:border-0 transition-colors hover:bg-secondary/30",
-                    activeLesson?.id === lesson.id && "bg-primary/10 border-l-2 border-l-primary"
-                  )}
-                >
-                  <div className="mt-0.5 flex-shrink-0">
-                    {lesson.is_completed ? (
-                      <CheckCircle className="h-5 w-5 text-emerald-400" />
-                    ) : (
-                      <PlayCircle className={cn(
-                        "h-5 w-5",
-                        activeLesson?.id === lesson.id ? "text-primary" : "text-muted-foreground"
-                      )} />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={cn(
-                      "text-sm font-medium truncate",
-                      lesson.is_completed ? "text-muted-foreground line-through" : "text-foreground"
-                    )}>
-                      {idx + 1}. {lesson.title}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Clock className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">{lesson.duration_mins} min</span>
-                      <span className="text-xs text-amber-500">+{lesson.points} pts</span>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </GlassCard>
+      {/* ── Python: 3-tab nav bar ────────────────────────────────────────────── */}
+      {isPython && (
+        <div className="flex gap-1 p-1 rounded-xl bg-secondary/40 border border-white/5 w-fit">
+          {(["lessons", "practice", "assignment"] as const).map((tab) => {
+            const labels = { lessons: "📖 Lessons", practice: "🧠 MCQ Practice", assignment: "📋 Assignment" }
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "px-5 py-2 rounded-lg text-sm font-medium transition-all",
+                  activeTab === tab
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                )}
+              >
+                {labels[tab]}
+              </button>
+            )
+          })}
         </div>
+      )}
 
-        {/* Lesson content */}
-        <div className="lg:col-span-2">
-          {activeLesson ? (
-            <GlassCard>
-              <div className="flex items-start justify-between mb-6">
-                <div>
+      {/* ── TAB: Lessons (+ non-Python courses) ────────────────────────────── */}
+      {(!isPython || activeTab === "lessons") && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Module / lesson nav */}
+          <div className="lg:col-span-1">
+            <GlassCard className="p-0 overflow-hidden">
+              <div className="p-4 border-b border-white/5">
+                <h2 className="font-semibold font-serif text-foreground">
+                  {isPython ? "Modules" : "Lessons"}
+                </h2>
+              </div>
+              <div className="max-h-[640px] overflow-y-auto">
+                {isPython ? (
+                  PYTHON_MODULES.map((mod) => {
+                    const modLessons = course.lessons.filter(l => mod.lessonOrders.includes(l.order))
+                    const completed = modLessons.filter(l => l.is_completed).length
+                    const total = modLessons.length
+                    const modProgress = total > 0 ? Math.round((completed / total) * 100) : 0
+                    const isExpanded = expandedModules.includes(mod.id)
+                    const hasActive = modLessons.some(l => l.id === activeLesson?.id)
+
+                    return (
+                      <div key={mod.id} className="border-b border-white/5 last:border-0">
+                        <button
+                          onClick={() => toggleModule(mod.id)}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary/30",
+                            hasActive && "bg-primary/5"
+                          )}
+                        >
+                          <span className="text-xl flex-shrink-0">{mod.emoji}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={cn("text-sm font-semibold", hasActive ? "text-foreground" : "text-foreground/80")}>
+                              {mod.title}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1.5">
+                              <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                                <div className={cn("h-full rounded-full transition-all", mod.bar)} style={{ width: `${modProgress}%` }} />
+                              </div>
+                              <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">{completed}/{total}</span>
+                            </div>
+                          </div>
+                          {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
+                        </button>
+
+                        {isExpanded && (
+                          <div className="bg-secondary/10">
+                            {modLessons.map((lesson) => {
+                              const isActive = activeLesson?.id === lesson.id
+                              const lessonNum = mod.lessonOrders.indexOf(lesson.order) + 1
+                              return (
+                                <button
+                                  key={lesson.id}
+                                  onClick={() => setActiveLesson(lesson)}
+                                  className={cn(
+                                    "w-full flex items-start gap-3 pl-6 pr-4 py-3 text-left border-t border-white/3 transition-colors hover:bg-secondary/30",
+                                    isActive && "bg-primary/10 border-l-2 border-l-primary pl-[22px]"
+                                  )}
+                                >
+                                  <div className="mt-0.5 flex-shrink-0">
+                                    {lesson.is_completed
+                                      ? <CheckCircle className="h-4 w-4 text-emerald-400" />
+                                      : <div className={cn("w-4 h-4 rounded-full border-2 flex items-center justify-center", isActive ? "border-primary bg-primary/20" : "border-white/20")}>
+                                          {isActive && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                                        </div>
+                                    }
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className={cn("text-xs font-medium leading-snug", isActive ? "text-foreground" : lesson.is_completed ? "text-muted-foreground" : "text-foreground/80")}>
+                                      {lessonNum}. {lesson.title}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <Clock className="h-2.5 w-2.5 text-muted-foreground" />
+                                      <span className="text-[10px] text-muted-foreground">{lesson.duration_mins} min</span>
+                                      <span className="text-[10px] text-amber-500">+{lesson.points} pts</span>
+                                    </div>
+                                  </div>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })
+                ) : (
+                  course.lessons.map((lesson, idx) => (
+                    <button
+                      key={lesson.id}
+                      onClick={() => setActiveLesson(lesson)}
+                      className={cn(
+                        "w-full flex items-start gap-3 p-4 text-left border-b border-white/5 last:border-0 transition-colors hover:bg-secondary/30",
+                        activeLesson?.id === lesson.id && "bg-primary/10 border-l-2 border-l-primary"
+                      )}
+                    >
+                      <div className="mt-0.5 flex-shrink-0">
+                        {lesson.is_completed
+                          ? <CheckCircle className="h-5 w-5 text-emerald-400" />
+                          : <PlayCircle className={cn("h-5 w-5", activeLesson?.id === lesson.id ? "text-primary" : "text-muted-foreground")} />
+                        }
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("text-sm font-medium truncate", lesson.is_completed ? "text-muted-foreground line-through" : "text-foreground")}>
+                          {idx + 1}. {lesson.title}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Clock className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">{lesson.duration_mins} min</span>
+                          <span className="text-xs text-amber-500">+{lesson.points} pts</span>
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </GlassCard>
+          </div>
+
+          {/* Lesson content */}
+          <div className="lg:col-span-2">
+            {activeLesson ? (
+              <GlassCard>
+                <div className="mb-6">
                   <h2 className="text-xl font-bold font-serif text-foreground">{activeLesson.title}</h2>
                   <div className="flex items-center gap-3 mt-1">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {activeLesson.duration_mins} min
+                      <Clock className="h-3 w-3" />{activeLesson.duration_mins} min
                     </div>
                     <span className="text-xs text-amber-500 font-medium">+{activeLesson.points} pts</span>
                     {activeLesson.is_completed && (
-                      <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-xs">
-                        Completed
-                      </Badge>
+                      <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-xs">Completed</Badge>
                     )}
                   </div>
                 </div>
-              </div>
 
-              {/* Content — loaded from local content files, not from DB */}
-              <div className="prose-sm max-w-none mb-8">
-                {(() => {
-                  const content = getLessonContent(courseId, activeLesson.order)
-                  return content
-                    ? renderContent(content)
-                    : <p className="text-muted-foreground text-sm italic">Content coming soon for this lesson.</p>
-                })()}
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-border">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={activeIdx <= 0}
-                  onClick={() => setActiveLesson(course.lessons[activeIdx - 1])}
-                >
-                  <ArrowLeft className="h-4 w-4 mr-1" /> Previous
-                </Button>
-
-                <div className="flex gap-2">
-                  {!activeLesson.is_completed && (
-                    <Button
-                      onClick={markComplete}
-                      disabled={completing}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                    >
-                      {completing && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Mark Complete
-                    </Button>
-                  )}
-                  {activeIdx < course.lessons.length - 1 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setActiveLesson(course.lessons[activeIdx + 1])}
-                    >
-                      Next <ArrowRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  )}
+                <div className="prose-sm max-w-none mb-8">
+                  {(() => {
+                    const content = getLessonContent(courseId, activeLesson.order)
+                    return content
+                      ? renderContent(content)
+                      : <p className="text-muted-foreground text-sm italic">Content coming soon for this lesson.</p>
+                  })()}
                 </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <Button variant="outline" size="sm" disabled={activeIdx <= 0} onClick={() => setActiveLesson(course.lessons[activeIdx - 1])}>
+                    <ArrowLeft className="h-4 w-4 mr-1" /> Previous
+                  </Button>
+                  <div className="flex gap-2">
+                    {!activeLesson.is_completed && (
+                      <Button onClick={markComplete} disabled={completing} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                        {completing && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Mark Complete
+                      </Button>
+                    )}
+                    {activeIdx < course.lessons.length - 1 && (
+                      <Button variant="outline" size="sm" onClick={() => setActiveLesson(course.lessons[activeIdx + 1])}>
+                        Next <ArrowRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </GlassCard>
+            ) : (
+              <GlassCard className="flex flex-col items-center justify-center h-64">
+                <BookOpen className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                <p className="text-muted-foreground">Select a lesson to start learning</p>
+              </GlassCard>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB: MCQ Practice ───────────────────────────────────────────────── */}
+      {isPython && activeTab === "practice" && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Topic list by module */}
+          <div className="lg:col-span-1">
+            <GlassCard className="p-0 overflow-hidden">
+              <div className="p-4 border-b border-white/5">
+                <h2 className="font-semibold font-serif text-foreground">Topics</h2>
+              </div>
+              <div className="max-h-[640px] overflow-y-auto">
+                {PYTHON_MODULES.map((mod) => (
+                  <div key={mod.id} className="border-b border-white/5 last:border-0">
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-secondary/20">
+                      <span className="text-base">{mod.emoji}</span>
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{mod.title}</span>
+                    </div>
+                    {mod.lessonOrders.map((order) => {
+                      const meta = PYTHON_TOPIC_META[order]
+                      if (!meta) return null
+                      const scoreKey = `${meta.topic}|${meta.subtopic}`
+                      const score = mcqScores[scoreKey]
+                      const isSelected = mcqTopic?.lessonOrder === order
+                      return (
+                        <button
+                          key={order}
+                          onClick={() => openMcqTopic(meta.topic, meta.subtopic, order)}
+                          className={cn(
+                            "w-full flex items-center justify-between pl-6 pr-4 py-3 text-left border-t border-white/3 transition-colors hover:bg-secondary/30",
+                            isSelected && "bg-primary/10 border-l-2 border-l-primary pl-[22px]"
+                          )}
+                        >
+                          <span className={cn("text-xs font-medium", isSelected ? "text-foreground" : "text-foreground/80")}>
+                            {meta.subtopic}
+                          </span>
+                          {score ? (
+                            <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded", score.correct === score.total ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400")}>
+                              {score.correct}/{score.total}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground">5 Qs</span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                ))}
               </div>
             </GlassCard>
-          ) : (
-            <GlassCard className="flex flex-col items-center justify-center h-64">
-              <BookOpen className="h-10 w-10 text-muted-foreground/30 mb-3" />
-              <p className="text-muted-foreground">Select a lesson to start learning</p>
-            </GlassCard>
-          )}
+          </div>
+
+          {/* MCQ question panel */}
+          <div className="lg:col-span-2">
+            {!mcqTopic ? (
+              <GlassCard className="flex flex-col items-center justify-center h-64 text-center gap-3">
+                <Brain className="h-10 w-10 text-primary/40" />
+                <h3 className="font-semibold font-serif text-foreground">Select a Topic</h3>
+                <p className="text-sm text-muted-foreground">Pick a topic from the left to start practicing</p>
+              </GlassCard>
+            ) : mcqQuestions.length === 0 ? (
+              <GlassCard className="flex flex-col items-center justify-center h-64">
+                <p className="text-muted-foreground text-sm">No questions for this topic yet.</p>
+              </GlassCard>
+            ) : (() => {
+              const q = mcqQuestions[mcqIndex]
+              const isCorrect = mcqSubmitted && mcqSelected === q.correctIndex
+              const isWrong = mcqSubmitted && mcqSelected !== q.correctIndex
+              return (
+                <GlassCard className="space-y-5">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">{mcqTopic.subtopic}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-foreground">
+                          Question {mcqIndex + 1} / {mcqQuestions.length}
+                        </span>
+                        <Badge variant="outline" className={cn("text-[10px] border", q.difficulty === "Easy" ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : q.difficulty === "Medium" ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-red-500/20 text-red-400 border-red-500/30")}>
+                          {q.difficulty}
+                        </Badge>
+                        <span className="text-xs text-amber-500">+{q.points} pts</span>
+                      </div>
+                    </div>
+                    <Progress value={((mcqIndex + 1) / mcqQuestions.length) * 100} className="w-24 h-1.5" />
+                  </div>
+
+                  {/* Question */}
+                  <p className="text-base font-medium text-foreground leading-relaxed">{q.question}</p>
+
+                  {/* Options */}
+                  <div className="space-y-2.5">
+                    {q.options.map((opt, idx) => {
+                      const isSelected = mcqSelected === idx
+                      const showCorrect = mcqSubmitted && idx === q.correctIndex
+                      const showWrong = mcqSubmitted && isSelected && idx !== q.correctIndex
+                      return (
+                        <button
+                          key={idx}
+                          disabled={mcqSubmitted}
+                          onClick={() => setMcqSelected(idx)}
+                          className={cn(
+                            "w-full text-left rounded-xl border px-4 py-3 flex items-start gap-3 transition-all",
+                            !mcqSubmitted && isSelected && "border-primary bg-primary/10 text-foreground",
+                            !mcqSubmitted && !isSelected && "border-white/8 bg-secondary/30 text-muted-foreground hover:border-white/20 hover:text-foreground",
+                            showCorrect && "border-emerald-500/60 bg-emerald-500/10 text-emerald-300",
+                            showWrong && "border-red-500/60 bg-red-500/10 text-red-300",
+                            mcqSubmitted && !showCorrect && !showWrong && "border-white/5 bg-secondary/20 text-muted-foreground opacity-50"
+                          )}
+                        >
+                          <span className={cn("flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold mt-0.5",
+                            !mcqSubmitted && isSelected ? "border-primary bg-primary text-primary-foreground" : "",
+                            showCorrect ? "border-emerald-500 bg-emerald-500 text-white" : "",
+                            showWrong ? "border-red-500 bg-red-500 text-white" : "",
+                            !mcqSubmitted && !isSelected ? "border-white/20 text-muted-foreground" : "",
+                            mcqSubmitted && !showCorrect && !showWrong ? "border-white/10" : ""
+                          )}>
+                            {String.fromCharCode(65 + idx)}
+                          </span>
+                          <span className="flex-1 text-sm leading-relaxed pt-0.5">{opt}</span>
+                          {showCorrect && <CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0 mt-0.5" />}
+                          {showWrong && <XCircle className="h-4 w-4 text-red-400 flex-shrink-0 mt-0.5" />}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Explanation */}
+                  {mcqSubmitted && (
+                    <div className={cn("p-3 rounded-xl border text-sm", isCorrect ? "bg-emerald-500/5 border-emerald-500/20" : "bg-red-500/5 border-red-500/20")}>
+                      <p className={cn("font-semibold text-xs mb-1", isCorrect ? "text-emerald-400" : "text-red-400")}>
+                        {isCorrect ? "✓ Correct!" : "✗ Incorrect"}
+                      </p>
+                      <p className="text-muted-foreground leading-relaxed">{q.explanation}</p>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                    <button
+                      onClick={() => { setMcqIndex(i => Math.max(0, i - 1)); setMcqSelected(null); setMcqSubmitted(false) }}
+                      disabled={mcqIndex === 0}
+                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+                    >
+                      <ChevronLeft className="h-4 w-4" /> Prev
+                    </button>
+
+                    <div className="flex gap-2">
+                      {!mcqSubmitted ? (
+                        <Button
+                          size="sm"
+                          disabled={mcqSelected === null}
+                          onClick={mcqSubmit}
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
+                          Submit
+                        </Button>
+                      ) : mcqIndex < mcqQuestions.length - 1 ? (
+                        <Button size="sm" onClick={mcqNext} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                          Next <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      ) : (
+                        <Button size="sm" variant="outline" className="gap-2 border-white/10" onClick={() => { setMcqIndex(0); setMcqSelected(null); setMcqSubmitted(false) }}>
+                          <RotateCcw className="h-3.5 w-3.5" /> Restart
+                        </Button>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => { if (mcqIndex < mcqQuestions.length - 1) { setMcqIndex(i => i + 1); setMcqSelected(null); setMcqSubmitted(false) } }}
+                      disabled={mcqIndex === mcqQuestions.length - 1}
+                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+                    >
+                      Next <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Question dots */}
+                  <div className="flex gap-1.5 justify-center flex-wrap">
+                    {mcqQuestions.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => { setMcqIndex(i); setMcqSelected(null); setMcqSubmitted(false) }}
+                        className={cn("w-2 h-2 rounded-full transition-all", i === mcqIndex ? "bg-primary w-4" : "bg-white/20 hover:bg-white/40")}
+                      />
+                    ))}
+                  </div>
+                </GlassCard>
+              )
+            })()}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ── TAB: Assignment ─────────────────────────────────────────────────── */}
+      {isPython && activeTab === "assignment" && (
+        <div className="space-y-6">
+          <p className="text-sm text-muted-foreground">
+            Complete the timed assessment for each module to earn points and test your understanding.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {pythonModuleAssignments.map((a, i) => {
+              const mod = PYTHON_MODULES[i]
+              const pct = a.totalQuestions > 0 ? Math.round((a.completedQuestions / a.totalQuestions) * 100) : 0
+              return (
+                <GlassCard key={a.id} hover className="flex flex-col gap-4">
+                  {/* Module identity */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{mod?.emoji}</span>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Module {i + 1}</p>
+                      <h3 className="font-bold font-serif text-foreground text-base">{a.title}</h3>
+                    </div>
+                  </div>
+
+                  {/* Covered topics */}
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground font-medium">Covers:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {PYTHON_MODULES[i]?.lessonOrders.map((order) => (
+                        <span key={order} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary/60 text-muted-foreground border border-white/5">
+                          {PYTHON_TOPIC_META[order]?.subtopic}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      <Timer className="h-3.5 w-3.5" />{a.durationMins} min
+                    </span>
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      <FileText className="h-3.5 w-3.5" />{a.totalQuestions} questions
+                    </span>
+                    <span className="flex items-center gap-1 text-amber-500">
+                      <Star className="h-3.5 w-3.5 fill-amber-500" />{a.points} pts
+                    </span>
+                  </div>
+
+                  {/* Progress */}
+                  {pct > 0 && (
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Progress</span><span>{pct}%</span>
+                      </div>
+                      <Progress value={pct} className="h-1.5" />
+                    </div>
+                  )}
+
+                  <Button
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 mt-auto"
+                    onClick={() => router.push(`/assignments/${a.id}`)}
+                  >
+                    <ClipboardList className="h-4 w-4" />
+                    {a.status === "completed" ? "Review" : a.completedQuestions > 0 ? "Continue" : "Start Assessment"}
+                  </Button>
+                </GlassCard>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
