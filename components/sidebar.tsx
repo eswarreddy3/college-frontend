@@ -23,6 +23,7 @@ import {
   Package,
   LogOut,
   ChevronDown,
+  Newspaper,
 } from "lucide-react"
 import { useState } from "react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -39,6 +40,7 @@ const studentNavItems = [
   { href: "/coding", label: "Coding", icon: Code2 },
   { href: "/company-prep", label: "Company Prep", icon: Building2 },
   { href: "/domain-programs", label: "Domain Programs", icon: Layers },
+  { href: "/feed", label: "College Feed", icon: Newspaper },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/profile", label: "Profile", icon: User },
 ]
@@ -47,6 +49,7 @@ const collegeAdminNavItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/students", label: "Students", icon: Users },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/feed", label: "College Feed", icon: Newspaper },
 ]
 
 const superAdminNavItems = [
