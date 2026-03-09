@@ -75,7 +75,7 @@ export default function LearnPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-secondary/50 p-1">
-          {["all", "programming", "aptitude", "domain"].map((tab) => (
+          {["all", "programming", "aptitude"].map((tab) => (
             <TabsTrigger
               key={tab}
               value={tab}
