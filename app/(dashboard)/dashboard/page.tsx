@@ -14,6 +14,7 @@ import { useAuthStore } from "@/store/authStore"
 interface DashboardData {
   points: number
   streak: number
+  longest_streak: number
   rank: number
   total_in_college: number
   solved_count: number
@@ -49,8 +50,8 @@ export default function DashboardPage() {
     api.get("/student/dashboard")
       .then((res) => {
         setData(res.data)
-        // Sync points from DB into authStore so sidebar reflects real value
-        updateUser({ points: res.data.points })
+        // Sync points + streak from DB into authStore so sidebar reflects real values
+        updateUser({ points: res.data.points, streak: res.data.streak })
       })
       .catch(() => toast.error("Failed to load dashboard"))
       .finally(() => setLoading(false))
@@ -204,6 +205,7 @@ export default function DashboardPage() {
       <StreakCalendar
         activeDays={data?.active_days ?? []}
         currentStreak={data?.streak ?? 0}
+        longestStreak={data?.longest_streak ?? 0}
       />
     </div>
   )
