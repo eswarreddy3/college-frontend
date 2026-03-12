@@ -170,7 +170,7 @@ function renderBlockLines(lines: string[], baseKey: number): React.ReactNode[] {
           'rounded-lg p-3 overflow-x-auto text-xs font-mono mt-2 leading-relaxed',
           isOutput
             ? 'bg-[#050A10] text-emerald-400 border border-emerald-900/40'
-            : 'bg-[#0D1224] text-foreground border border-white/5'
+            : 'bg-card text-card-foreground border border-border'
         )}>
           <code>{codeLines.join('\n')}</code>
         </pre>
@@ -255,7 +255,7 @@ function renderContent(content: string): React.ReactNode[] {
             'rounded-xl p-4 pt-7 overflow-x-auto text-sm font-mono leading-relaxed',
             isOutput
               ? 'bg-[#040810] text-emerald-400 border border-emerald-900/40'
-              : 'bg-[#0D1224] text-foreground border border-white/5'
+              : 'bg-card text-card-foreground border border-border'
           )}>
             <code>{codeLines.join('\n')}</code>
           </pre>

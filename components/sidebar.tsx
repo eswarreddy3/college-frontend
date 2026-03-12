@@ -30,6 +30,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuthStore } from "@/store/authStore"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { toast } from "sonner"
 
 const studentNavItems = [
@@ -248,6 +249,9 @@ export function Sidebar() {
               </div>
             </div>
           )}
+
+          {/* Theme toggle */}
+          <ThemeToggle collapsed={isCollapsed} />
 
           {/* Logout */}
           <Button

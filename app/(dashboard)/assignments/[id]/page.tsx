@@ -453,7 +453,7 @@ export default function AssignmentExamPage() {
 
       {/* Submit confirmation dialog */}
       <Dialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
-        <DialogContent className="bg-[#0d1220] border-white/10 text-foreground max-w-md">
+        <DialogContent className="bg-popover border-border text-foreground max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif">Submit Assignment?</DialogTitle>
             <DialogDescription className="text-muted-foreground mt-2">

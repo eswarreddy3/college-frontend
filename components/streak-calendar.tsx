@@ -192,14 +192,14 @@ export function StreakCalendar({ activeDays, currentStreak, longestStreak = 0 }:
                       ? "bg-primary text-primary-foreground border-primary/50"
                       : isToday
                       ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                      : "bg-[#1A1F35] text-foreground border-border",
+                      : "bg-secondary text-foreground border-border",
                   )}>
                     <p className="font-semibold">{MONTHS[month].slice(0, 3)} {day}</p>
                     <p className="opacity-80">{isActive ? "Active day" : isToday ? "Today" : "No activity"}</p>
                     {/* Arrow */}
                     <div className={cn(
                       "absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent",
-                      isActive ? "border-t-primary" : isToday ? "border-t-amber-500/20" : "border-t-[#1A1F35]",
+                      isActive ? "border-t-primary" : isToday ? "border-t-amber-500/20" : "border-t-secondary",
                     )} />
                   </div>
                 )}
