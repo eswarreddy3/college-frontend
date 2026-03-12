@@ -110,10 +110,10 @@ function renderInline(text: string): React.ReactNode[] {
 const BLOCK_CFG = {
   scenario: {
     bg: 'bg-[rgba(0,212,200,0.05)]',
-    border: 'border-l-[3px] border-[#00D4C8]',
+    border: 'border-l-[3px] border-primary',
     icon: '📍',
     label: 'Real Scenario',
-    labelClass: 'text-[#00D4C8]',
+    labelClass: 'text-primary',
   },
   insight: {
     bg: 'bg-[rgba(245,158,11,0.05)]',

@@ -47,7 +47,7 @@ function ScoreCircle({ score, max }: { score: number; max: number }) {
   const r = 52
   const circ = 2 * Math.PI * r
   const dash = (pct / 100) * circ
-  const color = pct >= 80 ? "#00D4C8" : pct >= 50 ? "#F59E0B" : "#EF4444"
+  const color = pct >= 80 ? "#8B5CF6" : pct >= 50 ? "#F59E0B" : "#EF4444"
 
   return (
     <div className="relative w-36 h-36 mx-auto">
@@ -177,7 +177,7 @@ export default function AssignmentResultsPage() {
               className="h-full rounded-full transition-all duration-1000"
               style={{
                 width: `${accuracy}%`,
-                background: accuracy >= 75 ? "#00D4C8" : accuracy >= 50 ? "#F59E0B" : "#EF4444",
+                background: accuracy >= 75 ? "#8B5CF6" : accuracy >= 50 ? "#F59E0B" : "#EF4444",
               }}
             />
           </div>

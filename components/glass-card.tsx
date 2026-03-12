@@ -14,8 +14,8 @@ export function GlassCard({ children, className, hover = false, glow = false, ..
       {...props}
       className={cn(
         "glass-card rounded-xl p-6",
-        hover && "transition-all duration-300 hover:border-primary/30 teal-glow-hover cursor-pointer",
-        glow && "teal-glow",
+        hover && "card-hover primary-glow-hover cursor-pointer",
+        glow && "primary-glow",
         className
       )}
     >

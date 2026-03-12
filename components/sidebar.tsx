@@ -134,7 +134,7 @@ export function Sidebar() {
           )}
         >
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-teal-dark flex items-center justify-center teal-glow">
+            <div className="relative w-10 h-10 rounded-xl gradient-bg flex items-center justify-center primary-glow-sm">
               <span className="text-xl font-bold text-primary-foreground font-serif">F</span>
             </div>
             {!isCollapsed && (
@@ -173,7 +173,7 @@ export function Sidebar() {
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                       isCollapsed && "justify-center px-2",
                       isActive
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[0_0_20px_rgba(0,212,200,0.2)]"
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[0_0_16px_var(--glow-primary)]"
                         : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/50"
                     )}
                   >

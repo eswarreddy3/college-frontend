@@ -292,7 +292,7 @@ export default function PostDetailPage() {
         {/* Top accent line */}
         <div className={cn(
           "absolute top-0 left-0 right-0 h-0.5",
-          isBlog ? "bg-gradient-to-r from-purple-500 to-pink-500" : "bg-gradient-to-r from-primary to-teal-400"
+          isBlog ? "bg-gradient-to-r from-purple-500 to-pink-500" : "bg-gradient-to-r from-primary to-accent"
         )} />
 
         {/* Cover image */}

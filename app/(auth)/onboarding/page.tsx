@@ -193,7 +193,7 @@ export default function OnboardingPage() {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-teal-dark flex items-center justify-center teal-glow">
+            <div className="w-10 h-10 rounded-full gradient-bg flex items-center justify-center primary-glow-sm">
               <span className="text-lg font-bold text-primary-foreground font-serif">F</span>
             </div>
             <h1 className="text-xl font-bold font-serif gradient-text">Fynity</h1>

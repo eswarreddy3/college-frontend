@@ -53,17 +53,10 @@ export default function LoginPage() {
 
   return (
     <div className="w-full max-w-md">
-      <div
-        className="rounded-2xl p-8"
-        style={{
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          backdropFilter: "blur(10px)",
-        }}
-      >
+      <div className="glass-card gradient-border rounded-2xl p-8">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-teal-dark flex items-center justify-center teal-glow mb-4">
+          <div className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center primary-glow-sm mb-4">
             <span className="text-2xl font-bold text-primary-foreground font-serif">F</span>
           </div>
           <h1 className="text-2xl font-bold font-serif gradient-text">Fynity</h1>
@@ -132,7 +125,7 @@ export default function LoginPage() {
 
           <Button
             type="submit"
-            className="w-full bg-primary hover:brightness-110 text-primary-foreground font-semibold transition-all"
+            className="w-full gradient-bg hover:brightness-110 text-white font-semibold transition-all primary-glow-hover border-0"
             disabled={isSubmitting}
           >
             {isSubmitting ? (

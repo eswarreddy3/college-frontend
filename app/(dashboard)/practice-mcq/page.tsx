@@ -320,7 +320,7 @@ function PracticeMCQContent() {
             onClick={() => setView("programming")}
             className="group text-left"
           >
-            <GlassCard className="h-full transition-all duration-200 hover:border-primary/50 group-hover:teal-glow cursor-pointer">
+            <GlassCard className="h-full transition-all duration-200 hover:border-primary/50 group-hover:primary-glow cursor-pointer">
               <div className="flex flex-col gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                   <Code2 className="h-6 w-6 text-primary" />

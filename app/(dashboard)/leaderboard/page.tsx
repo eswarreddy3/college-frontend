@@ -105,7 +105,7 @@ export default function LeaderboardPage() {
           {topThree.length >= 3 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* 2nd Place */}
-              <GlassCard className={cn("order-2 md:order-1 relative overflow-hidden", topThree[1]?.is_current_user && "teal-glow")}>
+              <GlassCard className={cn("order-2 md:order-1 relative overflow-hidden", topThree[1]?.is_current_user && "primary-glow")}>
                 <div className={cn("absolute top-0 left-0 right-0 h-1 bg-gradient-to-r", podiumColors[2])} />
                 <div className="flex flex-col items-center text-center pt-4">
                   <div className="relative mb-4">
@@ -137,7 +137,7 @@ export default function LeaderboardPage() {
               </GlassCard>
 
               {/* 1st Place */}
-              <GlassCard className={cn("order-1 md:order-2 relative overflow-hidden", !topThree[0]?.is_current_user && "teal-glow")}>
+              <GlassCard className={cn("order-1 md:order-2 relative overflow-hidden", !topThree[0]?.is_current_user && "primary-glow")}>
                 <div className={cn("absolute top-0 left-0 right-0 h-1 bg-gradient-to-r", podiumColors[1])} />
                 <div className="flex flex-col items-center text-center pt-4">
                   <div className="relative mb-4">
@@ -169,7 +169,7 @@ export default function LeaderboardPage() {
               </GlassCard>
 
               {/* 3rd Place */}
-              <GlassCard className={cn("order-3 relative overflow-hidden", topThree[2]?.is_current_user && "teal-glow")}>
+              <GlassCard className={cn("order-3 relative overflow-hidden", topThree[2]?.is_current_user && "primary-glow")}>
                 <div className={cn("absolute top-0 left-0 right-0 h-1 bg-gradient-to-r", podiumColors[3])} />
                 <div className="flex flex-col items-center text-center pt-4">
                   <div className="relative mb-4">

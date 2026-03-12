@@ -120,7 +120,7 @@ export default function ProfilePage() {
             <div className="flex flex-col items-center text-center">
               {/* Avatar */}
               <div className="relative mb-4">
-                <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center teal-glow">
+                <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center primary-glow">
                   <span className="text-3xl font-bold text-primary font-serif">{initials}</span>
                 </div>
                 <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center hover:brightness-110 transition-all">

@@ -77,7 +77,7 @@ function ActivateContent() {
       >
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-teal-dark flex items-center justify-center teal-glow mb-4">
+          <div className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center primary-glow-sm mb-4">
             <span className="text-2xl font-bold text-primary-foreground font-serif">F</span>
           </div>
           <h1 className="text-2xl font-bold font-serif gradient-text">Fynity</h1>

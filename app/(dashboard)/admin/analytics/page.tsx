@@ -35,7 +35,7 @@ interface Analytics {
   top_students: { id: number; name: string; points: number; streak: number; branch: string }[]
 }
 
-const COLORS = ["#00D4C8", "#3B82F6", "#F59E0B", "#8B5CF6", "#EC4899", "#10B981"]
+const COLORS = ["#8B5CF6", "#3B82F6", "#F59E0B", "#8B5CF6", "#EC4899", "#10B981"]
 
 export default function AdminAnalyticsPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
@@ -117,7 +117,7 @@ export default function AdminAnalyticsPage() {
           <h3 className="font-semibold font-serif mb-4 text-foreground">Branch-wise Avg Points</h3>
           {analytics && analytics.branch_stats.length > 0 ? (
             <ChartContainer
-              config={{ avgPoints: { label: "Avg Points", color: "#00D4C8" } }}
+              config={{ avgPoints: { label: "Avg Points", color: "#8B5CF6" } }}
               className="h-[260px]"
             >
               <ResponsiveContainer width="100%" height="100%">
