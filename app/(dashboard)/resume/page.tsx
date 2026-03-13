@@ -270,6 +270,7 @@ function ClassicTemplate({ data }: { data: ResumeData }) {
         <div style={{ height: 1, background: "#1a1a1a", marginTop: 8 }} />
       </div>
 
+      {objective && <ClassicSection title="Objective"><p style={{ fontSize: 12, lineHeight: 1.75, color: "#333" }}>{objective}</p></ClassicSection>}
       {summary && <ClassicSection title="Summary"><p style={{ fontSize: 12, lineHeight: 1.75, color: "#333" }}>{summary}</p></ClassicSection>}
 
       {experience.length > 0 && (
@@ -338,6 +339,43 @@ function ClassicTemplate({ data }: { data: ResumeData }) {
           </div>
         )}
       </div>
+
+      {achievements.length > 0 && (
+        <ClassicSection title="Achievements">
+          {achievements.map(a => a.title ? (
+            <div key={a.id} style={{ marginBottom: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <span style={{ fontWeight: 700, fontSize: 12 }}>{a.title}</span>
+                {a.year && <span style={{ fontSize: 10.5, color: "#777" }}>{a.year}</span>}
+              </div>
+              {a.description && <div style={{ fontSize: 11.5, color: "#444", lineHeight: 1.65 }}>{a.description}</div>}
+            </div>
+          ) : null)}
+        </ClassicSection>
+      )}
+
+      {(strengthList.length > 0 || languageList.length > 0 || hobbyList.length > 0) && (
+        <div style={{ display: "flex", gap: 36, marginTop: 4 }}>
+          {strengthList.length > 0 && (
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 5, borderBottom: "1px solid #1a1a1a", paddingBottom: 4 }}>Strengths</div>
+              <div style={{ fontSize: 11.5, lineHeight: 1.8, color: "#333" }}>{strengthList.join(" · ")}</div>
+            </div>
+          )}
+          {languageList.length > 0 && (
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 5, borderBottom: "1px solid #1a1a1a", paddingBottom: 4 }}>Languages</div>
+              <div style={{ fontSize: 11.5, lineHeight: 1.8, color: "#333" }}>{languageList.join(" · ")}</div>
+            </div>
+          )}
+          {hobbyList.length > 0 && (
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 5, borderBottom: "1px solid #1a1a1a", paddingBottom: 4 }}>Interests</div>
+              <div style={{ fontSize: 11.5, lineHeight: 1.8, color: "#333" }}>{hobbyList.join(" · ")}</div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -374,6 +412,11 @@ function MinimalTemplate({ data }: { data: ResumeData }) {
         </div>
       </div>
 
+      {objective && (
+        <MinSection title="Objective">
+          <p style={{ fontSize: 12, lineHeight: 1.85, color: "#444", maxWidth: "95%" }}>{objective}</p>
+        </MinSection>
+      )}
       {summary && (
         <MinSection title="About">
           <p style={{ fontSize: 12, lineHeight: 1.85, color: "#444", maxWidth: "95%" }}>{summary}</p>
@@ -453,6 +496,45 @@ function MinimalTemplate({ data }: { data: ResumeData }) {
           ) : null)}
         </MinSection>
       )}
+
+      {achievements.length > 0 && (
+        <MinSection title="Achievements">
+          {achievements.map(a => a.title ? (
+            <div key={a.id} style={{ display: "flex", gap: 20, marginBottom: 10 }}>
+              <div style={{ width: 110, flexShrink: 0, fontSize: 10, color: "#999", paddingTop: 2 }}>{a.year}</div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 12 }}>{a.title}</div>
+                {a.description && <div style={{ fontSize: 11, color: "#444", lineHeight: 1.6 }}>{a.description}</div>}
+              </div>
+            </div>
+          ) : null)}
+        </MinSection>
+      )}
+
+      {strengthList.length > 0 && (
+        <MinSection title="Strengths">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "5px 10px" }}>
+            {strengthList.map((s, i) => (
+              <span key={i} style={{ fontSize: 11, color: "#333", background: "#f5f5f7", padding: "2px 10px", borderRadius: 20, border: "1px solid #e5e5e5" }}>{s}</span>
+            ))}
+          </div>
+        </MinSection>
+      )}
+
+      {(languageList.length > 0 || hobbyList.length > 0) && (
+        <div style={{ display: "flex", gap: 40 }}>
+          {languageList.length > 0 && (
+            <MinSection title="Languages">
+              <div style={{ fontSize: 11.5, color: "#444", lineHeight: 1.8 }}>{languageList.join(" · ")}</div>
+            </MinSection>
+          )}
+          {hobbyList.length > 0 && (
+            <MinSection title="Interests">
+              <div style={{ fontSize: 11.5, color: "#444", lineHeight: 1.8 }}>{hobbyList.join(" · ")}</div>
+            </MinSection>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -529,10 +611,33 @@ function SharpTemplate({ data }: { data: ResumeData }) {
               ) : null)}
             </SharpSection>
           )}
+
+          {strengthList.length > 0 && (
+            <SharpSection title="Strengths" accent="#059669">
+              {strengthList.map((s, i) => <div key={i} style={{ fontSize: 10.5, color: "#333", marginBottom: 3 }}>· {s}</div>)}
+            </SharpSection>
+          )}
+
+          {languageList.length > 0 && (
+            <SharpSection title="Languages" accent="#059669">
+              {languageList.map((l, i) => <div key={i} style={{ fontSize: 10.5, color: "#333", marginBottom: 3 }}>· {l}</div>)}
+            </SharpSection>
+          )}
+
+          {hobbyList.length > 0 && (
+            <SharpSection title="Interests" accent="#059669">
+              <div style={{ fontSize: 10.5, color: "#555", lineHeight: 1.7 }}>{hobbyList.join(" · ")}</div>
+            </SharpSection>
+          )}
         </div>
 
         {/* Right column */}
         <div style={{ flex: 1, padding: "24px 28px" }}>
+          {objective && (
+            <SharpSection title="Objective" accent="#059669">
+              <p style={{ fontSize: 12, lineHeight: 1.75, color: "#333" }}>{objective}</p>
+            </SharpSection>
+          )}
           {summary && (
             <SharpSection title="Profile" accent="#059669">
               <p style={{ fontSize: 12, lineHeight: 1.75, color: "#333" }}>{summary}</p>
@@ -568,6 +673,20 @@ function SharpTemplate({ data }: { data: ResumeData }) {
                   {proj.description && <div style={{ fontSize: 11.5, color: "#444", lineHeight: 1.65 }}>{proj.description}</div>}
                 </div>
               ))}
+            </SharpSection>
+          )}
+
+          {achievements.length > 0 && (
+            <SharpSection title="Achievements" accent="#059669">
+              {achievements.map(a => a.title ? (
+                <div key={a.id} style={{ marginBottom: 10, paddingLeft: 10, borderLeft: "2px solid #d1fae5" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                    <div style={{ fontWeight: 700, fontSize: 12 }}>{a.title}</div>
+                    {a.year && <div style={{ fontSize: 10, color: "#64748b", flexShrink: 0, marginLeft: 8 }}>{a.year}</div>}
+                  </div>
+                  {a.description && <div style={{ fontSize: 11.5, color: "#444", lineHeight: 1.65 }}>{a.description}</div>}
+                </div>
+              ) : null)}
             </SharpSection>
           )}
         </div>
@@ -622,6 +741,11 @@ function ElegantTemplate({ data }: { data: ResumeData }) {
 
       {/* Body */}
       <div style={{ padding: "30px 44px" }}>
+        {objective && (
+          <ElegantSection title="Objective">
+            <p style={{ fontSize: 12.5, lineHeight: 1.85, color: "#444", fontStyle: "italic" }}>{objective}</p>
+          </ElegantSection>
+        )}
         {summary && (
           <ElegantSection title="About Me">
             <p style={{ fontSize: 12.5, lineHeight: 1.85, color: "#444", fontStyle: "italic" }}>{summary}</p>
@@ -699,6 +823,45 @@ function ElegantTemplate({ data }: { data: ResumeData }) {
                 ) : null)}
               </ElegantSection>
             )}
+
+            {achievements.length > 0 && (
+              <ElegantSection title="Achievements">
+                {achievements.map(a => a.title ? (
+                  <div key={a.id} style={{ marginBottom: 9 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                      <span style={{ fontWeight: 700, fontSize: 11.5 }}>{a.title}</span>
+                      {a.year && <span style={{ fontSize: 10, color: "#999", fontFamily: "Arial, sans-serif" }}>{a.year}</span>}
+                    </div>
+                    {a.description && <div style={{ fontSize: 11, color: "#555", lineHeight: 1.65, fontFamily: "Arial, sans-serif" }}>{a.description}</div>}
+                  </div>
+                ) : null)}
+              </ElegantSection>
+            )}
+
+            {strengthList.length > 0 && (
+              <ElegantSection title="Strengths">
+                <div style={{ fontFamily: "Arial, sans-serif" }}>
+                  {strengthList.map((s, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
+                      <div style={{ width: 5, height: 5, background: "#d97706", transform: "rotate(45deg)", flexShrink: 0 }} />
+                      <span style={{ fontSize: 11.5, color: "#333" }}>{s}</span>
+                    </div>
+                  ))}
+                </div>
+              </ElegantSection>
+            )}
+
+            {languageList.length > 0 && (
+              <ElegantSection title="Languages">
+                <div style={{ fontSize: 11.5, color: "#444", lineHeight: 1.8, fontFamily: "Arial, sans-serif" }}>{languageList.join(" · ")}</div>
+              </ElegantSection>
+            )}
+
+            {hobbyList.length > 0 && (
+              <ElegantSection title="Interests">
+                <div style={{ fontSize: 11.5, color: "#555", lineHeight: 1.8, fontStyle: "italic" }}>{hobbyList.join(", ")}</div>
+              </ElegantSection>
+            )}
           </div>
         </div>
       </div>
@@ -739,7 +902,7 @@ export default function ResumePage() {
       .then(res => {
         const remote = res.data.resume_data
         if (remote && Object.keys(remote).length > 0) {
-          setData(remote)
+          setData({ ...EMPTY, ...remote, achievements: remote.achievements ?? [] })
         } else if (user) {
           setData(prev => ({
             ...prev,
@@ -758,7 +921,7 @@ export default function ResumePage() {
         // API failed — fall back to localStorage
         const saved = localStorage.getItem("fynity-resume")
         if (saved) {
-          try { setData(JSON.parse(saved)) } catch {}
+          try { const parsed = JSON.parse(saved); setData({ ...EMPTY, ...parsed, achievements: parsed.achievements ?? [] }) } catch {}
         } else if (user) {
           setData(prev => ({
             ...prev,
@@ -798,7 +961,8 @@ export default function ResumePage() {
   const upExp  = (id: string, f: string, v: any) => setData(p => ({ ...p, experience:     p.experience.map(e => e.id === id ? { ...e, [f]: v } : e) }))
   const upEdu  = (id: string, f: string, v: any) => setData(p => ({ ...p, education:      p.education.map(e => e.id === id ? { ...e, [f]: v } : e) }))
   const upProj = (id: string, f: string, v: any) => setData(p => ({ ...p, projects:       p.projects.map(e => e.id === id ? { ...e, [f]: v } : e) }))
-  const upCert = (id: string, f: string, v: any) => setData(p => ({ ...p, certifications: p.certifications.map(e => e.id === id ? { ...e, [f]: v } : e) }))
+  const upCert    = (id: string, f: string, v: any) => setData(p => ({ ...p, certifications: p.certifications.map(e => e.id === id ? { ...e, [f]: v } : e) }))
+  const upAchieve = (id: string, f: string, v: any) => setData(p => ({ ...p, achievements:   p.achievements.map(e => e.id === id ? { ...e, [f]: v } : e) }))
 
   const ActiveTemplate = RENDERERS[template]
 
@@ -1024,6 +1188,81 @@ export default function ResumePage() {
                     onClick={() => setData(p => ({ ...p, certifications: [...p.certifications, { id: uid(), name: "", issuer: "", year: "" }] }))}>
                     <Plus className="h-3 w-3 mr-1" /> Add Certification
                   </Button>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Achievements */}
+              <AccordionItem value="achievements" className="glass-card border-0 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">Achievements</AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 space-y-3">
+                  {data.achievements.map((a, i) => (
+                    <div key={a.id} className="rounded-lg bg-secondary/30 border border-border/50 p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-medium text-muted-foreground">Achievement {i + 1}</span>
+                        <button onClick={() => setData(p => ({ ...p, achievements: p.achievements.filter(e => e.id !== a.id) }))} className="text-muted-foreground hover:text-destructive transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Field label="Title"  value={a.title} onChange={v => upAchieve(a.id, "title", v)} placeholder="Award / Honor" />
+                        <Field label="Year"   value={a.year}  onChange={v => upAchieve(a.id, "year", v)}  placeholder="2024" />
+                      </div>
+                      <div>
+                        <Label className="text-[11px] text-muted-foreground">Description (optional)</Label>
+                        <Textarea className="bg-secondary/50 border-border text-foreground text-sm resize-none mt-1" rows={2}
+                          value={a.description} onChange={e => upAchieve(a.id, "description", e.target.value)}
+                          placeholder="Brief description of the achievement…" />
+                      </div>
+                    </div>
+                  ))}
+                  <Button type="button" size="sm" variant="outline" className="w-full border-dashed border-border/60 text-muted-foreground hover:text-foreground text-xs"
+                    onClick={() => setData(p => ({ ...p, achievements: [...p.achievements, { id: uid(), title: "", description: "", year: "" }] }))}>
+                    <Plus className="h-3 w-3 mr-1" /> Add Achievement
+                  </Button>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Objective */}
+              <AccordionItem value="objective" className="glass-card border-0 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">Career Objective</AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <Textarea
+                    className="bg-secondary/50 border-border text-foreground text-sm resize-none"
+                    rows={3} value={data.objective}
+                    placeholder="A focused statement about your career goal and what you aim to achieve in your next role…"
+                    onChange={e => setData(p => ({ ...p, objective: e.target.value }))}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Strengths */}
+              <AccordionItem value="strengths" className="glass-card border-0 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">Strengths</AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 space-y-1">
+                  <Label className="text-[11px] text-muted-foreground">Comma-separated</Label>
+                  <Textarea className="bg-secondary/50 border-border text-foreground text-sm resize-none" rows={2}
+                    placeholder="Problem Solving, Leadership, Communication, Team Work"
+                    value={data.strengths} onChange={e => setData(p => ({ ...p, strengths: e.target.value }))} />
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Languages */}
+              <AccordionItem value="languages" className="glass-card border-0 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">Languages</AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 space-y-1">
+                  <Label className="text-[11px] text-muted-foreground">Comma-separated</Label>
+                  <Textarea className="bg-secondary/50 border-border text-foreground text-sm resize-none" rows={2}
+                    placeholder="English (Fluent), Tamil (Native), Hindi (Conversational)"
+                    value={data.languages} onChange={e => setData(p => ({ ...p, languages: e.target.value }))} />
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Hobbies */}
+              <AccordionItem value="hobbies" className="glass-card border-0 rounded-xl overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">Hobbies &amp; Interests</AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 space-y-1">
+                  <Label className="text-[11px] text-muted-foreground">Comma-separated</Label>
+                  <Textarea className="bg-secondary/50 border-border text-foreground text-sm resize-none" rows={2}
+                    placeholder="Photography, Open Source, Chess, Travelling"
+                    value={data.hobbies} onChange={e => setData(p => ({ ...p, hobbies: e.target.value }))} />
                 </AccordionContent>
               </AccordionItem>
 
