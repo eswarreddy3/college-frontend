@@ -24,6 +24,7 @@ import {
   LogOut,
   ChevronDown,
   Newspaper,
+  FlaskConical,
 } from "lucide-react"
 import { useState } from "react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -40,6 +41,7 @@ const studentNavItems = [
   { href: "/practice-mcq", label: "Practice MCQ", icon: FileQuestion },
   { href: "/assignments", label: "Assignments", icon: ClipboardList },
   { href: "/coding", label: "Coding", icon: Code2 },
+  { href: "/lab", label: "Code Lab", icon: FlaskConical },
   { href: "/company-prep", label: "Company Prep", icon: Building2 },
   { href: "/domain-programs", label: "Domain Programs", icon: Layers },
   { href: "/feed", label: "College Feed", icon: Newspaper },

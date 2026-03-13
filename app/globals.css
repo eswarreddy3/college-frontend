@@ -302,3 +302,41 @@
 
 /* ── Monaco editor ────────────────────────────────────────────────────────── */
 .monaco-editor { border-radius: 0.5rem; }
+
+/* ── Feed: reaction picker popup ─────────────────────────────────────────── */
+@keyframes reaction-pop {
+  0%   { transform: scale(0.55) translateY(10px); opacity: 0; }
+  70%  { transform: scale(1.04) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+.animate-reaction-pop {
+  animation: reaction-pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Feed: rich notification toast slide-up ──────────────────────────────── */
+@keyframes slide-up-toast {
+  from { transform: translateY(18px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.animate-slide-up-toast {
+  animation: slide-up-toast 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ── Feed: emoji reaction bounce on hover ────────────────────────────────── */
+@keyframes emoji-pop {
+  0%   { transform: scale(1);    }
+  40%  { transform: scale(1.35) translateY(-4px); }
+  100% { transform: scale(1.2) translateY(-3px); }
+}
+.reaction-emoji:hover {
+  animation: emoji-pop 0.2s ease forwards;
+}
+
+/* ── Feed: heart ripple click ─────────────────────────────────────────────── */
+@keyframes ripple-out {
+  0%   { transform: scale(0.8); opacity: 0.4; }
+  100% { transform: scale(2.2); opacity: 0;   }
+}
+.animate-ripple-out {
+  animation: ripple-out 0.55s ease-out forwards;
+}

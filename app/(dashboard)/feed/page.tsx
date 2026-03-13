@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef, type MouseEvent } from "react"
 import { useRouter } from "next/navigation"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
@@ -11,15 +11,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
-  Heart, MessageCircle, PenLine, BookOpen, Clock,
-  ChevronLeft, ChevronRight, Send, Loader2, Trash2,
-  ImagePlus, Tag, Newspaper,
+  PenLine, BookOpen, Clock, ChevronLeft, ChevronRight,
+  Send, Loader2, Trash2, ImagePlus, Tag, Newspaper,
+  Share2, X, Sparkles, Globe, MessageCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import api from "@/lib/api"
 import { useAuthStore } from "@/store/authStore"
 
+// ── Types ─────────────────────────────────────────────────────────────────────
 interface Author { id: number; name: string; branch: string | null; passout_year: number | null }
 interface Post {
   id: number; type: "post" | "blog"; title: string | null; content: string
@@ -28,26 +29,145 @@ interface Post {
   is_published: boolean; author: Author; created_at: string
 }
 
+// ── Reactions ─────────────────────────────────────────────────────────────────
+const REACTIONS = [
+  { id: "like",       emoji: "👍", label: "Like",       color: "#8B5CF6" },
+  { id: "love",       emoji: "❤️", label: "Love",       color: "#EF4444" },
+  { id: "celebrate",  emoji: "🎉", label: "Celebrate",  color: "#F59E0B" },
+  { id: "insightful", emoji: "💡", label: "Insightful", color: "#06B6D4" },
+  { id: "support",    emoji: "🤝", label: "Support",    color: "#10B981" },
+] as const
+type ReactionId = typeof REACTIONS[number]["id"]
+type Reaction   = typeof REACTIONS[number]
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function timeAgo(iso: string) {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
-  if (diff < 60) return `${diff}s ago`
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 60)    return `${diff}s ago`
+  if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
   return `${Math.floor(diff / 86400)}d ago`
 }
-
 function initials(name: string) {
   return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
 }
 
-// ── Create Post Panel ────────────────────────────────────────────────────────
+// ── Rich notification toast ───────────────────────────────────────────────────
+function richToast(emoji: string, title: string, sub: string) {
+  toast.custom(() => (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-border bg-popover shadow-2xl min-w-[290px] animate-slide-up-toast">
+      <div className="text-2xl leading-none flex-shrink-0">{emoji}</div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-foreground leading-snug">{title}</p>
+        {sub && <p className="text-xs text-muted-foreground truncate mt-0.5">{sub}</p>}
+      </div>
+    </div>
+  ), { duration: 3000 })
+}
+
+// ── Reaction Picker Button ────────────────────────────────────────────────────
+function ReactionPickerButton({
+  liked, likeCount, activeReaction, onReact,
+}: {
+  liked: boolean
+  likeCount: number
+  activeReaction: Reaction | null
+  onReact: (rid: ReactionId) => void
+}) {
+  const [showPicker, setShowPicker] = useState(false)
+  const [ripple,     setRipple]     = useState(false)
+  const openTimer  = useRef<ReturnType<typeof setTimeout>>()
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>()
+
+  const openPicker = () => {
+    clearTimeout(closeTimer.current)
+    openTimer.current = setTimeout(() => setShowPicker(true), 450)
+  }
+  const closePicker = () => {
+    clearTimeout(openTimer.current)
+    closeTimer.current = setTimeout(() => setShowPicker(false), 220)
+  }
+
+  const fireRipple = () => { setRipple(true); setTimeout(() => setRipple(false), 550) }
+
+  const handleClick = (e: MouseEvent) => {
+    e.stopPropagation()
+    if (showPicker) return
+    fireRipple()
+    onReact(activeReaction?.id ?? "like")
+  }
+
+  const handlePickerSelect = (e: MouseEvent, rid: ReactionId) => {
+    e.stopPropagation()
+    setShowPicker(false)
+    fireRipple()
+    onReact(rid)
+  }
+
+  const display = activeReaction ?? REACTIONS[0]
+
+  return (
+    <div className="relative" onMouseEnter={openPicker} onMouseLeave={closePicker}>
+      {/* Floating reaction picker */}
+      {showPicker && (
+        <div
+          className="absolute bottom-full left-0 mb-2 flex items-center gap-0.5 px-2 py-1.5 rounded-2xl bg-popover border border-border shadow-2xl z-50 animate-reaction-pop"
+          onMouseEnter={() => clearTimeout(closeTimer.current)}
+          onMouseLeave={closePicker}
+        >
+          {REACTIONS.map(r => (
+            <button
+              key={r.id}
+              className="reaction-emoji relative p-1.5 text-xl transition-transform duration-150 rounded-xl hover:bg-secondary/60 group"
+              onClick={e => handlePickerSelect(e, r.id as ReactionId)}
+            >
+              {r.emoji}
+              {/* Tooltip */}
+              <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-semibold bg-foreground text-background px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                {r.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Main button */}
+      <button
+        onClick={handleClick}
+        className={cn(
+          "relative flex items-center gap-1.5 text-sm font-semibold transition-all duration-200 px-3 py-1.5 rounded-xl select-none overflow-hidden",
+          liked
+            ? ""
+            : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+        )}
+        style={liked ? {
+          color: activeReaction?.color ?? "var(--primary)",
+          backgroundColor: `${activeReaction?.color ?? "var(--primary)"}18`,
+        } : {}}
+      >
+        {ripple && (
+          <span
+            className="absolute inset-0 rounded-xl animate-ripple-out opacity-20"
+            style={{ backgroundColor: activeReaction?.color ?? "var(--primary)" }}
+          />
+        )}
+        <span className={cn("text-base leading-none transition-transform duration-200", ripple && "scale-125")}>
+          {liked ? display.emoji : "👍"}
+        </span>
+        <span>{likeCount > 0 ? likeCount : "Like"}</span>
+      </button>
+    </div>
+  )
+}
+
+// ── Create Post Panel ─────────────────────────────────────────────────────────
 function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) => void }) {
-  const [tab, setTab] = useState<"post" | "blog">("post")
-  const [open, setOpen] = useState(false)
-  const [content, setContent] = useState("")
-  const [title, setTitle] = useState("")
-  const [tags, setTags] = useState("")
-  const [coverUrl, setCoverUrl] = useState("")
+  const [tab,        setTab]        = useState<"post" | "blog">("post")
+  const [open,       setOpen]       = useState(false)
+  const [content,    setContent]    = useState("")
+  const [title,      setTitle]      = useState("")
+  const [tags,       setTags]       = useState("")
+  const [coverUrl,   setCoverUrl]   = useState("")
   const [submitting, setSubmitting] = useState(false)
 
   const submit = async (publish: boolean) => {
@@ -65,7 +185,11 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
       })
       onCreated(res.data)
       setContent(""); setTitle(""); setTags(""); setCoverUrl(""); setOpen(false)
-      toast.success(publish ? "Published!" : "Saved as draft")
+      richToast(
+        publish ? "✨" : "📝",
+        publish ? "Your post is live!" : "Draft saved",
+        publish ? "Your college community can see it now" : "You can publish it anytime"
+      )
     } catch {
       toast.error("Failed to publish")
     } finally {
@@ -74,65 +198,79 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
   }
 
   return (
-    <GlassCard>
-      {/* Collapsed trigger */}
+    <GlassCard className="border-border/60">
       {!open ? (
         <button
           onClick={() => setOpen(true)}
-          className="w-full flex items-center gap-3 text-left"
+          className="w-full flex items-center gap-3 text-left group"
         >
-          <Avatar className="h-10 w-10 border border-border flex-shrink-0">
-            <AvatarFallback className="bg-primary/20 text-primary font-semibold text-sm">
+          <Avatar className="h-10 w-10 ring-2 ring-primary/20 ring-offset-2 ring-offset-background flex-shrink-0">
+            <AvatarFallback className="bg-primary/20 text-primary font-bold text-sm">
               {initials(user?.name ?? "U")}
             </AvatarFallback>
           </Avatar>
-          <span className="flex-1 px-4 py-2.5 rounded-xl bg-secondary/60 border border-border text-muted-foreground text-sm hover:border-primary/40 hover:bg-secondary/80 transition-all">
-            Share something with your college...
+          <span className="flex-1 px-4 py-3 rounded-full bg-secondary/40 border border-border text-muted-foreground text-sm hover:border-primary/40 hover:bg-secondary/60 transition-all">
+            What's on your mind, {user?.name?.split(" ")[0] ?? "there"}?
           </span>
-          <div className="flex items-center gap-2 ml-2">
-            <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary hidden sm:flex">
-              <PenLine className="h-3 w-3 mr-1" /> Post
-            </Badge>
-            <Badge variant="outline" className="bg-purple-500/10 border-purple-500/30 text-purple-400 hidden sm:flex">
-              <BookOpen className="h-3 w-3 mr-1" /> Blog
-            </Badge>
-          </div>
         </button>
       ) : (
         <div className="space-y-4">
           {/* Header */}
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border border-border flex-shrink-0">
-              <AvatarFallback className="bg-primary/20 text-primary font-semibold text-sm">
-                {initials(user?.name ?? "U")}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">{user?.branch ?? "Student"}</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                <AvatarFallback className="bg-primary/20 text-primary font-bold text-sm">
+                  {initials(user?.name ?? "U")}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-bold text-foreground">{user?.name}</p>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                  <Globe className="h-3 w-3" />
+                  <span>Anyone in your college</span>
+                </div>
+              </div>
             </div>
+            <button
+              onClick={() => setOpen(false)}
+              className="p-1.5 rounded-lg hover:bg-secondary/60 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Type toggle */}
-          <Tabs value={tab} onValueChange={v => setTab(v as "post" | "blog")}>
-            <TabsList className="bg-secondary/50 w-full sm:w-auto">
-              <TabsTrigger value="post" className="flex-1 sm:flex-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <PenLine className="h-3.5 w-3.5 mr-1.5" /> Post
-              </TabsTrigger>
-              <TabsTrigger value="blog" className="flex-1 sm:flex-none data-[state=active]:bg-purple-500 data-[state=active]:text-white">
-                <BookOpen className="h-3.5 w-3.5 mr-1.5" /> Blog
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex gap-2">
+            {[
+              { val: "post" as const, label: "Post",  icon: PenLine  },
+              { val: "blog" as const, label: "Blog",  icon: BookOpen },
+            ].map(t => (
+              <button
+                key={t.val}
+                onClick={() => setTab(t.val)}
+                className={cn(
+                  "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold border transition-all",
+                  tab === t.val && t.val === "post"
+                    ? "bg-primary/15 border-primary/40 text-primary"
+                    : tab === t.val && t.val === "blog"
+                    ? "bg-purple-500/15 border-purple-500/40 text-purple-400"
+                    : "border-border text-muted-foreground hover:bg-secondary/60"
+                )}
+              >
+                <t.icon className="h-3.5 w-3.5" />
+                {t.label}
+              </button>
+            ))}
+          </div>
 
-          {/* Blog-specific fields */}
+          {/* Blog-specific */}
           {tab === "blog" && (
-            <>
+            <div className="space-y-3">
               <Input
                 placeholder="Blog title..."
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                className="bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground font-semibold text-base"
+                className="bg-transparent border-0 border-b border-border rounded-none px-0 text-xl font-bold font-serif placeholder:text-muted-foreground/50 focus-visible:ring-0"
               />
               <div className="relative">
                 <ImagePlus className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -140,66 +278,56 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
                   placeholder="Cover image URL (optional)"
                   value={coverUrl}
                   onChange={e => setCoverUrl(e.target.value)}
-                  className="pl-10 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground"
+                  className="pl-10 bg-secondary/40 border-border rounded-xl"
                 />
               </div>
-            </>
+            </div>
           )}
 
           {/* Content */}
           <Textarea
-            placeholder={tab === "post" ? "What's on your mind?" : "Write your blog content here..."}
+            placeholder={tab === "post" ? "Share something with your college..." : "Write your blog content here..."}
             value={content}
             onChange={e => setContent(e.target.value)}
             rows={tab === "blog" ? 8 : 4}
-            className="bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground resize-none"
+            className="bg-transparent border-0 resize-none p-0 text-base placeholder:text-muted-foreground/50 focus-visible:ring-0"
           />
 
           {/* Tags */}
-          <div className="relative">
-            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 pt-1 border-t border-border/60">
+            <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <Input
               placeholder="Tags: placement, event, doubt (comma separated)"
               value={tags}
               onChange={e => setTags(e.target.value)}
-              className="pl-10 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground"
+              className="bg-transparent border-0 p-0 text-sm placeholder:text-muted-foreground/50 focus-visible:ring-0 h-auto"
             />
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between pt-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setOpen(false)}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Cancel
-            </Button>
-            <div className="flex gap-2">
-              {tab === "blog" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => submit(false)}
-                  disabled={submitting}
-                  className="border-border text-foreground hover:bg-secondary/80"
-                >
-                  Save Draft
-                </Button>
-              )}
+          <div className="flex items-center justify-end gap-2 pt-1">
+            {tab === "blog" && (
               <Button
+                variant="outline"
                 size="sm"
-                onClick={() => submit(true)}
+                onClick={() => submit(false)}
                 disabled={submitting}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="rounded-full border-border"
               >
-                {submitting
-                  ? <Loader2 className="h-4 w-4 animate-spin" />
-                  : <><Send className="h-4 w-4 mr-1.5" />Publish</>
-                }
+                Save Draft
               </Button>
-            </div>
+            )}
+            <Button
+              size="sm"
+              onClick={() => submit(true)}
+              disabled={submitting}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6"
+            >
+              {submitting
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <><Sparkles className="h-4 w-4 mr-1.5" />Publish</>
+              }
+            </Button>
           </div>
         </div>
       )}
@@ -207,156 +335,217 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
   )
 }
 
-// ── Post Card ────────────────────────────────────────────────────────────────
-function PostCard({ post, onLike, onDelete, currentUserId }: {
-  post: Post; onLike: (id: number) => void
-  onDelete: (id: number) => void; currentUserId: number
+// ── Post Card ─────────────────────────────────────────────────────────────────
+function PostCard({
+  post, onLike, onDelete, currentUserId, reactions, onShare,
+}: {
+  post: Post
+  onLike: (id: number, rid: ReactionId) => void
+  onDelete: (id: number) => void
+  currentUserId: number
+  reactions: Map<number, Reaction>
+  onShare: (post: Post) => void
 }) {
   const router = useRouter()
-  const isBlog = post.type === "blog"
+  const isBlog   = post.type === "blog"
+  const [expanded, setExpanded] = useState(false)
+  const limit = 220
+  const shouldTruncate = post.content.length > limit
+  const displayContent = !expanded && shouldTruncate
+    ? post.content.slice(0, limit) + "…"
+    : post.content
+
+  const activeReaction = reactions.get(post.id) ?? null
 
   return (
     <GlassCard
       hover
-      className="cursor-pointer group relative overflow-hidden"
+      className="group relative overflow-hidden border-border/60 hover:border-primary/25 transition-all duration-300 cursor-pointer"
       onClick={() => router.push(`/feed/post/${post.id}`)}
     >
       {/* Accent line */}
       <div className={cn(
         "absolute top-0 left-0 right-0 h-0.5",
-        isBlog ? "bg-gradient-to-r from-purple-500 to-pink-500" : "bg-gradient-to-r from-primary to-accent"
+        isBlog
+          ? "bg-gradient-to-r from-purple-500 via-pink-400 to-purple-500"
+          : "bg-gradient-to-r from-primary via-accent to-primary"
       )} />
 
-      {/* Blog cover */}
+      {/* Cover image — full bleed */}
       {isBlog && post.cover_image_url && (
-        <img
-          src={post.cover_image_url}
-          alt={post.title ?? ""}
-          className="w-full h-44 object-cover rounded-xl mb-4 mt-2"
-        />
+        <div className="relative -mx-5 -mt-1 mb-4 h-48 overflow-hidden" style={{ width: "calc(100% + 2.5rem)", marginLeft: "-1.25rem" }}>
+          <img src={post.cover_image_url} alt={post.title ?? ""} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+        </div>
       )}
 
       {/* Author row */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9 border border-border">
-            <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xs">
+          <Avatar className="h-10 w-10 ring-2 ring-border ring-offset-1 ring-offset-card transition-all group-hover:ring-primary/40">
+            <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">
               {initials(post.author.name)}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium text-foreground leading-none">{post.author.name}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {post.author.branch ?? "Student"} · {timeAgo(post.created_at)}
-            </p>
+            <p className="text-sm font-bold text-foreground leading-none">{post.author.name}</p>
+            <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
+              <span>{post.author.branch ?? "Student"}</span>
+              <span className="opacity-40">·</span>
+              <span>{timeAgo(post.created_at)}</span>
+              <span className="opacity-40">·</span>
+              <Globe className="h-2.5 w-2.5 opacity-60" />
+            </div>
           </div>
         </div>
 
-        <Badge
-          variant="outline"
-          className={cn(
-            "text-xs flex items-center gap-1",
-            isBlog
-              ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
-              : "bg-primary/10 border-primary/30 text-primary"
+        <div className="flex items-center gap-2">
+          <Badge
+            variant="outline"
+            className={cn(
+              "text-xs flex items-center gap-1 rounded-full",
+              isBlog
+                ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
+                : "bg-primary/10 border-primary/30 text-primary"
+            )}
+          >
+            {isBlog ? <BookOpen className="h-3 w-3" /> : <PenLine className="h-3 w-3" />}
+            {isBlog ? "Blog" : "Post"}
+          </Badge>
+          {post.author.id === currentUserId && (
+            <button
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
+              onClick={e => { e.stopPropagation(); onDelete(post.id) }}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
           )}
-        >
-          {isBlog ? <BookOpen className="h-3 w-3" /> : <PenLine className="h-3 w-3" />}
-          {isBlog ? "Blog" : "Post"}
-        </Badge>
+        </div>
       </div>
 
-      {/* Content */}
+      {/* Title */}
       {post.title && (
-        <h3 className="font-semibold font-serif text-foreground text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+        <h3 className="font-bold font-serif text-foreground text-lg mb-2 leading-snug group-hover:text-primary transition-colors">
           {post.title}
         </h3>
       )}
-      <p className="text-sm text-muted-foreground line-clamp-3 mb-3 leading-relaxed">
-        {post.content}
+
+      {/* Content */}
+      <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+        {displayContent}
+        {shouldTruncate && (
+          <button
+            className="text-primary font-semibold ml-1 hover:underline"
+            onClick={e => { e.stopPropagation(); setExpanded(!expanded) }}
+          >
+            {expanded ? " see less" : " see more"}
+          </button>
+        )}
       </p>
 
       {/* Tags */}
       {post.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4">
           {post.tags.map(tag => (
-            <span key={tag} className="text-xs text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full">
+            <span key={tag} className="text-xs text-primary/80 bg-primary/10 border border-primary/15 px-2.5 py-0.5 rounded-full font-medium">
               #{tag}
             </span>
           ))}
         </div>
       )}
 
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-border/60">
-        <div className="flex items-center gap-5">
-          <button
-            className={cn(
-              "flex items-center gap-1.5 text-sm font-medium transition-colors",
-              post.liked_by_me ? "text-red-400" : "text-muted-foreground hover:text-red-400"
+      {/* Reaction + comment stats row */}
+      {(post.like_count > 0 || post.comment_count > 0) && (
+        <div className="flex items-center justify-between text-xs text-muted-foreground pb-3 mb-3 border-b border-border/40">
+          <div className="flex items-center gap-1.5">
+            {post.like_count > 0 && (
+              <>
+                <span className="flex -space-x-0.5">
+                  {REACTIONS.slice(0, 3).map(r => (
+                    <span key={r.id} className="text-sm leading-none">{r.emoji}</span>
+                  ))}
+                </span>
+                <span>{post.like_count}</span>
+              </>
             )}
-            onClick={e => { e.stopPropagation(); onLike(post.id) }}
-          >
-            <Heart className={cn("h-4 w-4 transition-all", post.liked_by_me && "fill-red-400 scale-110")} />
-            <span>{post.like_count}</span>
-          </button>
-
-          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <MessageCircle className="h-4 w-4" />
-            <span>{post.comment_count}</span>
-          </span>
-
-          {isBlog && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="h-3.5 w-3.5" />
-              {post.reading_time} min read
-            </span>
+          </div>
+          {post.comment_count > 0 && (
+            <span>{post.comment_count} comment{post.comment_count !== 1 ? "s" : ""}</span>
           )}
         </div>
+      )}
 
-        {post.author.id === currentUserId && (
-          <button
-            className="text-muted-foreground hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-red-400/10"
-            onClick={e => { e.stopPropagation(); onDelete(post.id) }}
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+      {/* Action bar */}
+      <div
+        className="flex items-center gap-0.5"
+        onClick={e => e.stopPropagation()}
+      >
+        <ReactionPickerButton
+          liked={post.liked_by_me}
+          likeCount={post.like_count}
+          activeReaction={activeReaction}
+          onReact={rid => onLike(post.id, rid)}
+        />
+
+        <button
+          className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all px-3 py-1.5 rounded-xl"
+          onClick={() => router.push(`/feed/post/${post.id}`)}
+        >
+          <MessageCircle className="h-4 w-4" />
+          <span>{post.comment_count > 0 ? post.comment_count : "Comment"}</span>
+        </button>
+
+        <button
+          className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-accent hover:bg-accent/10 transition-all px-3 py-1.5 rounded-xl ml-auto"
+          onClick={() => onShare(post)}
+        >
+          <Share2 className="h-4 w-4" />
+          <span className="hidden sm:inline">Share</span>
+        </button>
+
+        {isBlog && (
+          <span className="flex items-center gap-1 text-xs text-muted-foreground px-2 ml-1">
+            <Clock className="h-3.5 w-3.5" />
+            {post.reading_time}m
+          </span>
         )}
       </div>
     </GlassCard>
   )
 }
 
-// ── Loading Skeleton ─────────────────────────────────────────────────────────
+// ── Loading Skeleton ──────────────────────────────────────────────────────────
 function PostSkeleton() {
   return (
     <GlassCard>
       <div className="flex items-center gap-3 mb-4">
-        <Skeleton className="h-9 w-9 rounded-full" />
-        <div className="space-y-1.5">
-          <Skeleton className="h-3.5 w-28" />
-          <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <div className="space-y-2 flex-1">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-3 w-24" />
         </div>
       </div>
-      <Skeleton className="h-5 w-3/4 mb-2" />
+      <Skeleton className="h-5 w-3/4 mb-3" />
       <Skeleton className="h-4 w-full mb-1.5" />
-      <Skeleton className="h-4 w-5/6 mb-4" />
-      <div className="flex gap-3 pt-3 border-t border-border/60">
-        <Skeleton className="h-4 w-12" />
-        <Skeleton className="h-4 w-12" />
+      <Skeleton className="h-4 w-5/6 mb-5" />
+      <div className="flex gap-2 pt-3 border-t border-border/40">
+        <Skeleton className="h-8 w-20 rounded-xl" />
+        <Skeleton className="h-8 w-24 rounded-xl" />
+        <Skeleton className="h-8 w-16 rounded-xl ml-auto" />
       </div>
     </GlassCard>
   )
 }
 
-// ── Main Page ────────────────────────────────────────────────────────────────
+// ── Main Feed Page ────────────────────────────────────────────────────────────
 export default function FeedPage() {
   const { user } = useAuthStore()
-  const [posts, setPosts] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState("all")
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const [posts,        setPosts]        = useState<Post[]>([])
+  const [loading,      setLoading]      = useState(true)
+  const [filter,       setFilter]       = useState("all")
+  const [page,         setPage]         = useState(1)
+  const [totalPages,   setTotalPages]   = useState(1)
+  const [postReactions, setPostReactions] = useState<Map<number, Reaction>>(new Map())
 
   const fetchPosts = useCallback((p: number, type: string) => {
     setLoading(true)
@@ -370,54 +559,76 @@ export default function FeedPage() {
 
   useEffect(() => { fetchPosts(page, filter) }, [page, filter, fetchPosts])
 
-  const handleLike = async (postId: number) => {
+  const handleLike = async (postId: number, reactionId: ReactionId) => {
     try {
-      const res = await api.post(`/feed/posts/${postId}/like`)
+      const res      = await api.post(`/feed/posts/${postId}/like`)
+      const liked    = res.data.liked as boolean
+      const reaction = REACTIONS.find(r => r.id === reactionId)!
+
       setPosts(prev => prev.map(p =>
-        p.id === postId ? { ...p, liked_by_me: res.data.liked, like_count: res.data.like_count } : p
+        p.id === postId ? { ...p, liked_by_me: liked, like_count: res.data.like_count } : p
       ))
-    } catch { toast.error("Failed to like") }
+      setPostReactions(prev => {
+        const next = new Map(prev)
+        if (liked) next.set(postId, reaction)
+        else next.delete(postId)
+        return next
+      })
+      if (liked) {
+        const post = posts.find(p => p.id === postId)
+        if (post && post.author.id !== user?.id) {
+          richToast(reaction.emoji, `You reacted ${reaction.label}`, `to ${post.author.name}'s post`)
+        }
+      }
+    } catch { toast.error("Failed to react") }
   }
 
   const handleDelete = async (postId: number) => {
     try {
       await api.delete(`/feed/posts/${postId}`)
       setPosts(prev => prev.filter(p => p.id !== postId))
-      toast.success("Post deleted")
+      richToast("🗑️", "Post deleted", "Your post has been removed")
     } catch { toast.error("Failed to delete") }
+  }
+
+  const handleShare = (post: Post) => {
+    const url = `${window.location.origin}/feed/post/${post.id}`
+    navigator.clipboard.writeText(url).then(() => {
+      richToast("🔗", "Link copied!", "Share it with your friends")
+    })
   }
 
   const handleFilterChange = (val: string) => { setFilter(val); setPage(1) }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-serif text-foreground">College Feed</h1>
-          <p className="text-muted-foreground mt-1">Posts and blogs from your college community</p>
+          <h1 className="text-2xl font-bold font-serif gradient-text">College Feed</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">What's happening in your college</p>
         </div>
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Newspaper className="h-5 w-5 text-primary" />
+        <div className="w-10 h-10 rounded-2xl gradient-bg flex items-center justify-center primary-glow-sm">
+          <Newspaper className="h-5 w-5 text-white" />
         </div>
       </div>
 
-      {/* Create panel */}
+      {/* Create post */}
       <CreatePostPanel user={user} onCreated={post => setPosts(prev => [post, ...prev])} />
 
       {/* Filter tabs */}
       <div className="flex items-center justify-between">
         <Tabs value={filter} onValueChange={handleFilterChange}>
-          <TabsList className="bg-secondary/50 p-1">
+          <TabsList className="bg-secondary/40 p-1 rounded-2xl">
             {[
-              { value: "all", label: "All" },
-              { value: "post", label: "Posts" },
-              { value: "blog", label: "Blogs" },
+              { value: "all",  label: "✦ All"  },
+              { value: "post", label: "Posts"  },
+              { value: "blog", label: "Blogs"  },
             ].map(t => (
               <TabsTrigger
                 key={t.value}
                 value={t.value}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm"
+                className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm font-medium"
               >
                 {t.label}
               </TabsTrigger>
@@ -425,24 +636,20 @@ export default function FeedPage() {
           </TabsList>
         </Tabs>
         {!loading && (
-          <p className="text-xs text-muted-foreground">
-            Page {page} of {totalPages}
-          </p>
+          <p className="text-xs text-muted-foreground">Page {page} of {totalPages}</p>
         )}
       </div>
 
-      {/* Posts */}
+      {/* Posts list */}
       {loading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => <PostSkeleton key={i} />)}
         </div>
       ) : posts.length === 0 ? (
-        <GlassCard className="py-16 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-secondary/50 flex items-center justify-center mx-auto mb-4">
-            <Newspaper className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-lg font-semibold font-serif text-foreground mb-2">Nothing here yet</h3>
-          <p className="text-sm text-muted-foreground">Be the first to post something in your college feed</p>
+        <GlassCard className="py-20 text-center">
+          <div className="text-5xl mb-4">📭</div>
+          <h3 className="text-lg font-bold font-serif text-foreground mb-2">Nothing here yet</h3>
+          <p className="text-sm text-muted-foreground">Be the first to post something in your college feed!</p>
         </GlassCard>
       ) : (
         <div className="space-y-4">
@@ -453,6 +660,8 @@ export default function FeedPage() {
               onLike={handleLike}
               onDelete={handleDelete}
               currentUserId={user?.id as number ?? 0}
+              reactions={postReactions}
+              onShare={handleShare}
             />
           ))}
         </div>
@@ -460,25 +669,38 @@ export default function FeedPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-3 pb-4">
           <Button
             variant="outline"
             size="sm"
             disabled={page === 1}
             onClick={() => setPage(p => p - 1)}
-            className="border-border text-foreground hover:bg-secondary/80"
+            className="rounded-xl border-border"
           >
             <ChevronLeft className="h-4 w-4 mr-1" /> Prev
           </Button>
-          <span className="text-sm text-muted-foreground px-2">
-            {page} / {totalPages}
-          </span>
+          <div className="flex gap-1">
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={cn(
+                  "w-8 h-8 rounded-lg text-sm font-semibold transition-all",
+                  n === page
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary/60"
+                )}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
           <Button
             variant="outline"
             size="sm"
             disabled={page === totalPages}
             onClick={() => setPage(p => p + 1)}
-            className="border-border text-foreground hover:bg-secondary/80"
+            className="rounded-xl border-border"
           >
             Next <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
