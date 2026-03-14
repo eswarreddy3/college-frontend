@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
@@ -73,7 +73,6 @@ const roleBadgeConfig = {
 
 export function Sidebar() {
   const pathname = usePathname()
-  const router = useRouter()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const { user, clearAuth } = useAuthStore()
   const { sidebarCollapsed: isCollapsed, setSidebarCollapsed } = useUIStore()
@@ -100,8 +99,7 @@ export function Sidebar() {
 
   const handleLogout = () => {
     clearAuth()
-    toast.success("Logged out successfully")
-    router.replace("/login")
+    window.location.href = "/login"
   }
 
   return (

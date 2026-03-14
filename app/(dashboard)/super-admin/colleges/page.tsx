@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, type FormEvent } from "react"
-import { Plus, Search, RefreshCw, Ban, CheckCircle2, Trash2, Loader2, Lock, LayoutGrid } from "lucide-react"
+import { Plus, Search, RefreshCw, Ban, CheckCircle2, Trash2, Loader2, Lock, LayoutGrid, Link2 } from "lucide-react"
 import { toast } from "sonner"
 import { GlassCard } from "@/components/glass-card"
 import { ModalForm } from "@/components/modal-form"
@@ -43,6 +43,10 @@ interface College {
   is_active: boolean
   activated_at: string | null
   created_at: string
+  linkedin_url: string | null
+  linkedin_post_embeds: string[]
+  instagram_url: string | null
+  instagram_post_embeds: string[]
 }
 
 interface Package {
@@ -148,6 +152,14 @@ export default function CollegesPage() {
   const [editCourseIds, setEditCourseIds] = useState<string[]>([])
   const [isSavingDomains, setIsSavingDomains] = useState(false)
 
+  // Social links modal
+  const [socialCollege, setSocialCollege] = useState<College | null>(null)
+  const [socialLinkedin, setSocialLinkedin] = useState("")
+  const [socialLinkedinEmbeds, setSocialLinkedinEmbeds] = useState<string[]>(["", "", ""])
+  const [socialInstagram, setSocialInstagram] = useState("")
+  const [socialInstagramEmbeds, setSocialInstagramEmbeds] = useState<string[]>(["", "", ""])
+  const [isSavingSocial, setIsSavingSocial] = useState(false)
+
   // Confirm dialog
   const [actionLoading, setActionLoading] = useState<number | null>(null)
   const [confirm, setConfirm] = useState<CollegeAction | null>(null)
@@ -240,6 +252,43 @@ export default function CollegesPage() {
       toast.error("Failed to update access settings")
     } finally {
       setIsSavingDomains(false)
+    }
+  }
+
+  // ── Social links ─────────────────────────────────────────────────────────────
+
+  const openSocial = (college: College) => {
+    setSocialCollege(college)
+    setSocialLinkedin(college.linkedin_url ?? "")
+    const embeds = college.linkedin_post_embeds ?? []
+    setSocialLinkedinEmbeds([embeds[0] ?? "", embeds[1] ?? "", embeds[2] ?? ""])
+    setSocialInstagram(college.instagram_url ?? "")
+    const igEmbeds = college.instagram_post_embeds ?? []
+    setSocialInstagramEmbeds([igEmbeds[0] ?? "", igEmbeds[1] ?? "", igEmbeds[2] ?? ""])
+  }
+
+  const handleSaveSocial = async () => {
+    if (!socialCollege) return
+    setIsSavingSocial(true)
+    try {
+      const embedsList = socialLinkedinEmbeds.map(u => u.trim()).filter(Boolean)
+      const igEmbedsList = socialInstagramEmbeds.map(u => u.trim()).filter(Boolean)
+      await api.patch(`/super-admin/colleges/${socialCollege.id}`, {
+        linkedin_url: socialLinkedin.trim() || null,
+        linkedin_post_embeds: embedsList,
+        instagram_url: socialInstagram.trim() || null,
+        instagram_post_embeds: igEmbedsList,
+      })
+      toast.success("Social links updated")
+      setColleges(prev => prev.map(c => c.id === socialCollege.id
+        ? { ...c, linkedin_url: socialLinkedin.trim() || null, linkedin_post_embeds: embedsList, instagram_url: socialInstagram.trim() || null, instagram_post_embeds: igEmbedsList }
+        : c
+      ))
+      setSocialCollege(null)
+    } catch {
+      toast.error("Failed to update social links")
+    } finally {
+      setIsSavingSocial(false)
     }
   }
 
@@ -417,6 +466,18 @@ export default function CollegesPage() {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-1">
+                          {/* Edit social links */}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={isActioning}
+                            className="h-7 px-2 text-muted-foreground hover:text-sky-400"
+                            onClick={() => openSocial(college)}
+                            title="Edit social links"
+                          >
+                            <Link2 className="h-3.5 w-3.5" />
+                          </Button>
+
                           {/* Edit domains — only for paid plans */}
                           {canEditDomains && (
                             <Button
@@ -559,6 +620,99 @@ export default function CollegesPage() {
               ? <p className="text-xs text-primary">{editCourseIds.length} of {courses.length} courses selected</p>
               : <p className="text-xs text-amber-400">No courses selected — all courses will be locked.</p>
             }
+          </div>
+        </div>
+      </ModalForm>
+
+      {/* Social Links Modal */}
+      <ModalForm
+        title={`Social Links — ${socialCollege?.name}`}
+        description="Configure LinkedIn and Instagram to display in the student College Feed."
+        isOpen={!!socialCollege}
+        onClose={() => setSocialCollege(null)}
+        onSubmit={(e) => { e.preventDefault(); handleSaveSocial() }}
+        isLoading={isSavingSocial}
+        submitLabel="Save Social Links"
+      >
+        <div className="space-y-5">
+
+          {/* LinkedIn profile URL */}
+          <div className="space-y-1.5">
+            <Label className="text-foreground flex items-center gap-2">
+              <span className="w-4 h-4 rounded bg-[#0A66C2] inline-flex items-center justify-center text-white text-[9px] font-bold">in</span>
+              LinkedIn Profile URL
+            </Label>
+            <Input
+              value={socialLinkedin}
+              onChange={e => setSocialLinkedin(e.target.value)}
+              placeholder="https://www.linkedin.com/in/your-profile or /company/college"
+              className="bg-secondary/50 border-border text-foreground"
+            />
+            <p className="text-xs text-muted-foreground">Shown as a profile link card in the feed.</p>
+          </div>
+
+          {/* LinkedIn post embed URLs */}
+          <div className="space-y-2 rounded-xl border border-[#0A66C2]/20 bg-[#0A66C2]/5 p-3">
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded bg-[#0A66C2] inline-flex items-center justify-center text-white text-[9px] font-bold flex-shrink-0">in</span>
+              <p className="text-xs font-semibold text-foreground">LinkedIn Post Embeds (up to 3)</p>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              On any LinkedIn post → click <strong>···</strong> → <strong>Embed this post</strong> → copy the <code className="bg-secondary px-1 rounded">src=</code> URL from the iframe code.
+              It looks like: <code className="bg-secondary px-1 rounded text-[10px]">https://www.linkedin.com/embed/feed/update/urn:li:activity:…</code>
+            </p>
+            {[0, 1, 2].map(i => (
+              <Input
+                key={i}
+                value={socialLinkedinEmbeds[i]}
+                onChange={e => {
+                  let val = e.target.value
+                  // Extract src URL if user pastes full <iframe ...> HTML
+                  const srcMatch = val.match(/src=["']([^"']+)["']/)
+                  if (srcMatch) val = srcMatch[1]
+                  setSocialLinkedinEmbeds(prev => { const n = [...prev]; n[i] = val; return n })
+                }}
+                placeholder="Paste iframe src URL or full <iframe> embed code"
+                className="bg-secondary/50 border-border text-foreground text-xs font-mono"
+              />
+            ))}
+          </div>
+
+          {/* Instagram URL */}
+          <div className="space-y-1.5">
+            <Label className="text-foreground flex items-center gap-2">
+              <span className="w-4 h-4 rounded-md inline-flex items-center justify-center text-white text-[9px]"
+                style={{ background: "linear-gradient(135deg,#f09433,#dc2743,#bc1888)" }}>◉</span>
+              Instagram Profile URL
+            </Label>
+            <Input
+              value={socialInstagram}
+              onChange={e => setSocialInstagram(e.target.value)}
+              placeholder="https://www.instagram.com/college_handle/"
+              className="bg-secondary/50 border-border text-foreground"
+            />
+          </div>
+
+          {/* Instagram post embed URLs */}
+          <div className="space-y-2 rounded-xl border border-[#E1306C]/20 bg-[#E1306C]/5 p-3">
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded-md inline-flex items-center justify-center text-white text-[9px] flex-shrink-0"
+                style={{ background: "linear-gradient(135deg,#f09433,#dc2743,#bc1888)" }}>◉</span>
+              <p className="text-xs font-semibold text-foreground">Instagram Post URLs (up to 3)</p>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Open any post → copy its URL from the browser address bar.
+              Example: <code className="bg-secondary px-1 rounded text-[10px]">https://www.instagram.com/p/ABC123/</code>
+            </p>
+            {[0, 1, 2].map(i => (
+              <Input
+                key={i}
+                value={socialInstagramEmbeds[i]}
+                onChange={e => setSocialInstagramEmbeds(prev => { const n = [...prev]; n[i] = e.target.value; return n })}
+                placeholder="https://www.instagram.com/p/..."
+                className="bg-secondary/50 border-border text-foreground text-xs font-mono"
+              />
+            ))}
           </div>
         </div>
       </ModalForm>

@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   PenLine, BookOpen, Clock, ChevronLeft, ChevronRight,
   Send, Loader2, Trash2, ImagePlus, Tag, Newspaper,
-  Share2, X, Sparkles, Globe, MessageCircle,
+  Share2, X, Sparkles, Globe, MessageCircle, ExternalLink,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -538,14 +538,226 @@ function PostSkeleton() {
 }
 
 // ── Main Feed Page ────────────────────────────────────────────────────────────
+interface CollegeInfo {
+  id: number; name: string; location: string | null
+  linkedin_url: string | null; linkedin_post_embeds: string[]
+  instagram_url: string | null; instagram_post_embeds: string[]
+}
+interface IgPost {
+  shortcode: string; url: string; thumbnail: string
+  caption: string; likes: number; is_video: boolean; timestamp: number
+}
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api"
+
+function igProxy(src: string) {
+  return `${API_URL}/student/ig-image?url=${encodeURIComponent(src)}`
+}
+
+function fmtNum(n: number) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`
+  return String(n)
+}
+
+// ── Instagram tile ────────────────────────────────────────────────────────────
+function IgTile({ post }: { post: IgPost }) {
+  const [broken, setBroken] = useState(false)
+  return (
+    <a href={post.url} target="_blank" rel="noopener noreferrer"
+      className="relative aspect-square overflow-hidden group block bg-secondary/20 rounded-sm">
+      {!broken ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={igProxy(post.thumbnail)} alt={post.caption || "Post"}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            onError={() => setBroken(true)} />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors duration-200 flex flex-col items-center justify-center gap-1 p-2">
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity text-center">
+              {post.is_video && <div className="text-white text-lg mb-1">▶</div>}
+              {post.likes > 0 && <span className="text-white text-xs font-bold drop-shadow">❤ {fmtNum(post.likes)}</span>}
+              {post.caption && <p className="text-white text-[10px] leading-tight mt-1 line-clamp-2 drop-shadow">{post.caption}</p>}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="w-full h-full flex flex-col items-center justify-center p-2"
+          style={{ background: "linear-gradient(135deg,rgba(240,148,51,0.18),rgba(188,24,136,0.18))" }}>
+          <span className="text-xl mb-1">{post.is_video ? "▶" : "🖼"}</span>
+          {post.likes > 0 && <span className="text-[10px] font-bold text-foreground/60">❤ {fmtNum(post.likes)}</span>}
+        </div>
+      )}
+    </a>
+  )
+}
+
+// ── Instagram embed helper ────────────────────────────────────────────────────
+function toIgEmbedUrl(url: string): string {
+  // Normalise: ensure URL ends with /embed/
+  const match = url.match(/instagram\.com\/p\/([A-Za-z0-9_-]+)/)
+  if (match) return `https://www.instagram.com/p/${match[1]}/embed/`
+  if (url.includes('/embed/')) return url
+  return url.endsWith('/') ? url + 'embed/' : url + '/embed/'
+}
+
+// ── Instagram panel ───────────────────────────────────────────────────────────
+function InstagramPanel({
+  collegeInfo, igPosts, loading, height = 600,
+}: { collegeInfo: CollegeInfo; igPosts: IgPost[]; loading: boolean; height?: number }) {
+  const profileUrl = collegeInfo.instagram_url!
+  const embeds = collegeInfo.instagram_post_embeds ?? []
+  return (
+    <div className="flex flex-col rounded-2xl overflow-hidden border border-[#E1306C]/25 shadow-xl"
+      style={{ height, background: "linear-gradient(160deg,rgba(240,148,51,0.06),rgba(188,24,136,0.06),rgba(10,15,30,0.8))" }}>
+
+      {/* ── Header bar ── */}
+      <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-[#E1306C]/15"
+        style={{ background: "linear-gradient(90deg,rgba(240,148,51,0.12),rgba(188,24,136,0.12))" }}>
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-xl flex items-center justify-center shadow"
+            style={{ background: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" }}>
+            <span className="text-white text-xs font-bold leading-none">◉</span>
+          </div>
+          <span className="text-sm font-bold" style={{ color: "#E1306C" }}>Instagram</span>
+          {collegeInfo.name && (
+            <span className="text-[11px] text-muted-foreground">· {collegeInfo.name}</span>
+          )}
+        </div>
+        <a href={profileUrl} target="_blank" rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full text-white hover:opacity-80 transition-opacity"
+          style={{ background: "linear-gradient(135deg,#f09433,#dc2743,#bc1888)" }}>
+          Follow <ExternalLink className="h-3 w-3" />
+        </a>
+      </div>
+
+      {/* ── Content: scraped grid → embed iframes → fallback ── */}
+      <div className="flex-1 overflow-y-auto">
+        {loading ? (
+          <div className="grid grid-cols-3 gap-0.5 p-0.5">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className="aspect-square bg-secondary/40 animate-pulse rounded-sm" />
+            ))}
+          </div>
+        ) : igPosts.length > 0 ? (
+          <>
+            <div className="grid grid-cols-3 gap-0.5 p-0.5">
+              {igPosts.map(p => <IgTile key={p.shortcode} post={p} />)}
+            </div>
+            <a href={profileUrl} target="_blank" rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 py-3 text-xs font-semibold border-t border-[#E1306C]/15 hover:bg-[#E1306C]/8 transition-colors"
+              style={{ color: "#E1306C" }}>
+              View all on Instagram <ExternalLink className="h-3 w-3" />
+            </a>
+          </>
+        ) : embeds.length > 0 ? (
+          <>
+            <div className="flex flex-col gap-2 p-2">
+              {embeds.map((url, i) => (
+                <iframe
+                  key={i}
+                  src={toIgEmbedUrl(url)}
+                  className="w-full rounded-xl border-0"
+                  style={{ minHeight: 480 }}
+                  scrolling="no"
+                  allowFullScreen
+                />
+              ))}
+            </div>
+            <a href={profileUrl} target="_blank" rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 py-3 text-xs font-semibold border-t border-[#E1306C]/15 hover:bg-[#E1306C]/8 transition-colors"
+              style={{ color: "#E1306C" }}>
+              View all on Instagram <ExternalLink className="h-3 w-3" />
+            </a>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full gap-3 p-6">
+            <div className="text-4xl">📷</div>
+            <p className="text-xs text-muted-foreground text-center">Posts temporarily unavailable — try again shortly.</p>
+            <a href={profileUrl} target="_blank" rel="noopener noreferrer"
+              className="text-xs font-semibold px-4 py-2 rounded-full text-white"
+              style={{ background: "linear-gradient(135deg,#f09433,#dc2743,#bc1888)" }}>
+              Open on Instagram
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── LinkedIn panel ────────────────────────────────────────────────────────────
+function LinkedInPanel({ collegeInfo, height = 600 }: { collegeInfo: CollegeInfo; height?: number }) {
+  const embeds = collegeInfo.linkedin_post_embeds ?? []
+  return (
+    <div className="flex flex-col rounded-2xl overflow-hidden border border-[#0A66C2]/25 shadow-xl"
+      style={{ height }}
+      style={{ background: "linear-gradient(160deg,rgba(10,102,194,0.06),rgba(10,15,30,0.85))" }}>
+
+      {/* ── Header bar ── */}
+      <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-[#0A66C2]/15 bg-[#0A66C2]/10">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-[#0A66C2] flex items-center justify-center shadow">
+            <span className="text-white text-xs font-extrabold leading-none">in</span>
+          </div>
+          <span className="text-sm font-bold text-[#0A66C2]">LinkedIn</span>
+        </div>
+        {collegeInfo.linkedin_url && (
+          <a href={collegeInfo.linkedin_url} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-xs font-semibold text-[#0A66C2] border border-[#0A66C2]/40 px-3 py-1.5 rounded-full hover:bg-[#0A66C2]/15 transition-colors">
+            View Profile <ExternalLink className="h-3 w-3" />
+          </a>
+        )}
+      </div>
+
+      {/* ── Scrollable embeds ── */}
+      <div className="flex-1 overflow-y-auto">
+        {embeds.length > 0 ? (
+          <div className="flex flex-col gap-0 divide-y divide-[#0A66C2]/10">
+            {embeds.map((src, i) => (
+              <div key={i} className="flex-shrink-0">
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#0A66C2]/6">
+                  <span className="text-[10px] font-semibold text-[#0A66C2]/70">Post #{i + 1}</span>
+                </div>
+                <iframe src={src} className="w-full border-0 block" style={{ height: 460 }}
+                  allowFullScreen title={`LinkedIn post ${i + 1}`} />
+              </div>
+            ))}
+          </div>
+        ) : collegeInfo.linkedin_url ? (
+          /* No embeds but has profile — show a nice CTA */
+          <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-[#0A66C2] flex items-center justify-center shadow-lg">
+              <span className="text-white text-2xl font-extrabold">in</span>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground mb-1">LinkedIn Profile</p>
+              <p className="text-xs text-muted-foreground">No posts embedded yet. Visit the profile to see latest updates.</p>
+            </div>
+            <a href={collegeInfo.linkedin_url} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm font-semibold text-white bg-[#0A66C2] px-5 py-2.5 rounded-full hover:bg-[#0A66C2]/90 transition-colors">
+              Open LinkedIn <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-xs text-muted-foreground">No LinkedIn content configured.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function FeedPage() {
   const { user } = useAuthStore()
-  const [posts,        setPosts]        = useState<Post[]>([])
-  const [loading,      setLoading]      = useState(true)
-  const [filter,       setFilter]       = useState("all")
-  const [page,         setPage]         = useState(1)
-  const [totalPages,   setTotalPages]   = useState(1)
-  const [postReactions, setPostReactions] = useState<Map<number, Reaction>>(new Map())
+  const [posts,          setPosts]          = useState<Post[]>([])
+  const [loading,        setLoading]        = useState(true)
+  const [filter,         setFilter]         = useState("all")
+  const [page,           setPage]           = useState(1)
+  const [totalPages,     setTotalPages]     = useState(1)
+  const [postReactions,  setPostReactions]  = useState<Map<number, Reaction>>(new Map())
+  const [collegeInfo,    setCollegeInfo]    = useState<CollegeInfo | null>(null)
+  const [igPosts,        setIgPosts]        = useState<IgPost[]>([])
+  const [socialsLoading, setSocialsLoading] = useState(false)
 
   const fetchPosts = useCallback((p: number, type: string) => {
     setLoading(true)
@@ -559,26 +771,32 @@ export default function FeedPage() {
 
   useEffect(() => { fetchPosts(page, filter) }, [page, filter, fetchPosts])
 
+  useEffect(() => {
+    api.get("/student/college-info").then(res => setCollegeInfo(res.data)).catch(() => {})
+    setSocialsLoading(true)
+    api.get("/student/college-social-posts")
+      .then(res => { setIgPosts(res.data.instagram ?? []) })
+      .catch(() => {})
+      .finally(() => setSocialsLoading(false))
+  }, [])
+
   const handleLike = async (postId: number, reactionId: ReactionId) => {
     try {
       const res      = await api.post(`/feed/posts/${postId}/like`)
       const liked    = res.data.liked as boolean
       const reaction = REACTIONS.find(r => r.id === reactionId)!
-
       setPosts(prev => prev.map(p =>
         p.id === postId ? { ...p, liked_by_me: liked, like_count: res.data.like_count } : p
       ))
       setPostReactions(prev => {
         const next = new Map(prev)
-        if (liked) next.set(postId, reaction)
-        else next.delete(postId)
+        if (liked) next.set(postId, reaction); else next.delete(postId)
         return next
       })
       if (liked) {
         const post = posts.find(p => p.id === postId)
-        if (post && post.author.id !== user?.id) {
+        if (post && post.author.id !== user?.id)
           richToast(reaction.emoji, `You reacted ${reaction.label}`, `to ${post.author.name}'s post`)
-        }
       }
     } catch { toast.error("Failed to react") }
   }
@@ -592,120 +810,157 @@ export default function FeedPage() {
   }
 
   const handleShare = (post: Post) => {
-    const url = `${window.location.origin}/feed/post/${post.id}`
-    navigator.clipboard.writeText(url).then(() => {
-      richToast("🔗", "Link copied!", "Share it with your friends")
-    })
+    navigator.clipboard.writeText(`${window.location.origin}/feed/post/${post.id}`)
+      .then(() => richToast("🔗", "Link copied!", "Share it with your friends"))
   }
 
   const handleFilterChange = (val: string) => { setFilter(val); setPage(1) }
 
+  const hasLinkedIn  = (collegeInfo?.linkedin_post_embeds?.length ?? 0) > 0 || !!collegeInfo?.linkedin_url
+  const hasInstagram = !!collegeInfo?.instagram_url
+  const hasSocials   = hasLinkedIn || hasInstagram
+
+  const bothSocials  = hasLinkedIn && hasInstagram
+  const igHeight     = bothSocials ? 420 : 600
+  const linkedHeight = bothSocials ? 380 : 600
+
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="w-full max-w-7xl mx-auto">
+
+      {/* ── Page header ── */}
+      <div className="flex items-center justify-between mb-5">
         <div>
           <h1 className="text-2xl font-bold font-serif gradient-text">College Feed</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">What's happening in your college</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {collegeInfo?.name ?? "Your college"} — community &amp; updates
+          </p>
         </div>
-        <div className="w-10 h-10 rounded-2xl gradient-bg flex items-center justify-center primary-glow-sm">
+        <div className="w-10 h-10 rounded-2xl gradient-bg flex items-center justify-center primary-glow-sm flex-shrink-0">
           <Newspaper className="h-5 w-5 text-white" />
         </div>
       </div>
 
-      {/* Create post */}
-      <CreatePostPanel user={user} onCreated={post => setPosts(prev => [post, ...prev])} />
+      {/* ── Two-column layout ── */}
+      <div className="flex flex-col lg:flex-row gap-5 items-start">
 
-      {/* Filter tabs */}
-      <div className="flex items-center justify-between">
-        <Tabs value={filter} onValueChange={handleFilterChange}>
-          <TabsList className="bg-secondary/40 p-1 rounded-2xl">
-            {[
-              { value: "all",  label: "✦ All"  },
-              { value: "post", label: "Posts"  },
-              { value: "blog", label: "Blogs"  },
-            ].map(t => (
-              <TabsTrigger
-                key={t.value}
-                value={t.value}
-                className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm font-medium"
-              >
-                {t.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-        {!loading && (
-          <p className="text-xs text-muted-foreground">Page {page} of {totalPages}</p>
+        {/* ── LEFT: College Feed ── */}
+        <div className="flex-1 min-w-0 space-y-4 order-2 lg:order-1">
+
+          {/* section label */}
+          <div className="flex items-center gap-3">
+            <Newspaper className="h-4 w-4 text-primary flex-shrink-0" />
+            <span className="text-sm font-bold text-foreground">College Feed</span>
+            <div className="flex-1 h-px bg-border/50" />
+          </div>
+
+          <CreatePostPanel user={user} onCreated={post => setPosts(prev => [post, ...prev])} />
+
+          {/* Filter tabs */}
+          <div className="flex items-center justify-between">
+            <Tabs value={filter} onValueChange={handleFilterChange}>
+              <TabsList className="bg-secondary/40 p-1 rounded-2xl">
+                {[
+                  { value: "all",  label: "✦ All"  },
+                  { value: "post", label: "Posts"  },
+                  { value: "blog", label: "Blogs"  },
+                ].map(t => (
+                  <TabsTrigger key={t.value} value={t.value}
+                    className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-sm font-medium">
+                    {t.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+            {!loading && totalPages > 1 && (
+              <p className="text-xs text-muted-foreground">Page {page} of {totalPages}</p>
+            )}
+          </div>
+
+          {/* Posts */}
+          {loading ? (
+            <div className="space-y-4">{[...Array(3)].map((_, i) => <PostSkeleton key={i} />)}</div>
+          ) : posts.length === 0 ? (
+            <GlassCard className="py-20 text-center">
+              <div className="text-5xl mb-4">📭</div>
+              <h3 className="text-lg font-bold font-serif text-foreground mb-2">Nothing here yet</h3>
+              <p className="text-sm text-muted-foreground">Be the first to post something!</p>
+            </GlassCard>
+          ) : (
+            <div className="space-y-4">
+              {posts.map(post => (
+                <PostCard key={post.id} post={post} onLike={handleLike} onDelete={handleDelete}
+                  currentUserId={user?.id as number ?? 0} reactions={postReactions} onShare={handleShare} />
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pb-4 flex-wrap">
+              <Button variant="outline" size="sm" disabled={page === 1}
+                onClick={() => setPage(p => p - 1)} className="rounded-xl border-border">
+                <ChevronLeft className="h-4 w-4 mr-1" /> Prev
+              </Button>
+              <div className="flex gap-1">
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(n => (
+                  <button key={n} onClick={() => setPage(n)}
+                    className={cn(
+                      "w-8 h-8 rounded-lg text-sm font-semibold transition-all",
+                      n === page ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary/60"
+                    )}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <Button variant="outline" size="sm" disabled={page === totalPages}
+                onClick={() => setPage(p => p + 1)} className="rounded-xl border-border">
+                Next <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* ── RIGHT: Socials sidebar (sticky on desktop, top on mobile) ── */}
+        {hasSocials && (
+          <div className="w-full lg:w-[360px] xl:w-[400px] flex-shrink-0 order-1 lg:order-2 lg:sticky lg:top-6 lg:self-start space-y-4">
+
+            {/* section label */}
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-primary flex-shrink-0" />
+              <span className="text-sm font-bold text-foreground">
+                {collegeInfo?.name ? `${collegeInfo.name}` : "College"} Socials
+              </span>
+              <div className="flex-1 h-px bg-border/50" />
+              <div className="flex items-center gap-1">
+                {hasInstagram && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border"
+                    style={{ color: "#E1306C", background: "rgba(225,48,108,0.08)", borderColor: "rgba(225,48,108,0.2)" }}>
+                    ◉ IG
+                  </span>
+                )}
+                {hasLinkedIn && (
+                  <span className="text-[10px] font-bold text-[#0A66C2] bg-[#0A66C2]/10 border border-[#0A66C2]/20 px-1.5 py-0.5 rounded-full">
+                    in LI
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* On mobile: side by side if both; on desktop: always stacked */}
+            <div className={cn(
+              "grid gap-4",
+              bothSocials ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-1" : "grid-cols-1"
+            )}>
+              {hasInstagram && (
+                <InstagramPanel collegeInfo={collegeInfo!} igPosts={igPosts} loading={socialsLoading} height={igHeight} />
+              )}
+              {hasLinkedIn && (
+                <LinkedInPanel collegeInfo={collegeInfo!} height={linkedHeight} />
+              )}
+            </div>
+          </div>
         )}
       </div>
-
-      {/* Posts list */}
-      {loading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => <PostSkeleton key={i} />)}
-        </div>
-      ) : posts.length === 0 ? (
-        <GlassCard className="py-20 text-center">
-          <div className="text-5xl mb-4">📭</div>
-          <h3 className="text-lg font-bold font-serif text-foreground mb-2">Nothing here yet</h3>
-          <p className="text-sm text-muted-foreground">Be the first to post something in your college feed!</p>
-        </GlassCard>
-      ) : (
-        <div className="space-y-4">
-          {posts.map(post => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onLike={handleLike}
-              onDelete={handleDelete}
-              currentUserId={user?.id as number ?? 0}
-              reactions={postReactions}
-              onShare={handleShare}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pb-4">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === 1}
-            onClick={() => setPage(p => p - 1)}
-            className="rounded-xl border-border"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" /> Prev
-          </Button>
-          <div className="flex gap-1">
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(n => (
-              <button
-                key={n}
-                onClick={() => setPage(n)}
-                className={cn(
-                  "w-8 h-8 rounded-lg text-sm font-semibold transition-all",
-                  n === page
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-secondary/60"
-                )}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === totalPages}
-            onClick={() => setPage(p => p + 1)}
-            className="rounded-xl border-border"
-          >
-            Next <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-      )}
     </div>
   )
 }

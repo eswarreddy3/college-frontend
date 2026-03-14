@@ -5,7 +5,9 @@ import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Users, TrendingUp, Flame, Star, Mail, AlertTriangle, Loader2, Crown, ArrowRight } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Users, TrendingUp, Flame, Star, Mail, AlertTriangle, Loader2, Crown, ArrowRight, Share2 } from "lucide-react"
 import { toast } from "sonner"
 import api from "@/lib/api"
 import { useAuthStore } from "@/store/authStore"
@@ -46,12 +48,44 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [remindingId, setRemindingId] = useState<number | null>(null)
 
+  // Social links state
+  const [linkedin, setLinkedin] = useState("")
+  const [linkedinEmbeds, setLinkedinEmbeds] = useState(["", "", ""])
+  const [instagram, setInstagram] = useState("")
+  const [instagramEmbeds, setInstagramEmbeds] = useState(["", "", ""])
+  const [savingSocial, setSavingSocial] = useState(false)
+
   useEffect(() => {
     api.get("/admin/analytics")
       .then((res) => setAnalytics(res.data))
       .catch(() => toast.error("Failed to load analytics"))
       .finally(() => setLoading(false))
+    api.get("/admin/college-social").then(res => {
+      setLinkedin(res.data.linkedin_url ?? "")
+      const li = res.data.linkedin_post_embeds ?? []
+      setLinkedinEmbeds([li[0] ?? "", li[1] ?? "", li[2] ?? ""])
+      setInstagram(res.data.instagram_url ?? "")
+      const ig = res.data.instagram_post_embeds ?? []
+      setInstagramEmbeds([ig[0] ?? "", ig[1] ?? "", ig[2] ?? ""])
+    }).catch(() => {})
   }, [])
+
+  async function handleSaveSocial() {
+    setSavingSocial(true)
+    try {
+      await api.patch("/admin/college-social", {
+        linkedin_url: linkedin.trim() || null,
+        linkedin_post_embeds: linkedinEmbeds.map(u => u.trim()).filter(Boolean),
+        instagram_url: instagram.trim() || null,
+        instagram_post_embeds: instagramEmbeds.map(u => u.trim()).filter(Boolean),
+      })
+      toast.success("Social links saved")
+    } catch {
+      toast.error("Failed to save social links")
+    } finally {
+      setSavingSocial(false)
+    }
+  }
 
   async function handleSendReminder(student: InactiveStudent) {
     setRemindingId(student.id)
@@ -225,6 +259,74 @@ export default function AdminDashboardPage() {
           )}
         </GlassCard>
       </div>
+
+      {/* Social Links */}
+      <GlassCard>
+        <div className="flex items-center gap-3 mb-5">
+          <Share2 className="h-5 w-5 text-primary" />
+          <h3 className="font-semibold font-serif text-foreground">College Social Links</h3>
+          <span className="text-xs text-muted-foreground">Shown in the College Feed for all students</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* LinkedIn */}
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-2 text-foreground">
+                <span className="w-4 h-4 rounded bg-[#0A66C2] inline-flex items-center justify-center text-white text-[9px] font-bold">in</span>
+                LinkedIn Profile URL
+              </Label>
+              <Input value={linkedin} onChange={e => setLinkedin(e.target.value)}
+                placeholder="https://www.linkedin.com/company/college" className="bg-secondary/50" />
+            </div>
+            <div className="space-y-2 rounded-xl border border-[#0A66C2]/20 bg-[#0A66C2]/5 p-3">
+              <p className="text-xs font-semibold text-foreground">LinkedIn Post Embeds (up to 3)</p>
+              <p className="text-xs text-muted-foreground">On any post → ··· → Embed this post → copy the <code className="bg-secondary px-1 rounded">src=</code> URL.</p>
+              {[0, 1, 2].map(i => (
+                <Input key={i} value={linkedinEmbeds[i]}
+                  onChange={e => {
+                    let val = e.target.value
+                    const m = val.match(/src=["']([^"']+)["']/)
+                    if (m) val = m[1]
+                    setLinkedinEmbeds(prev => { const n = [...prev]; n[i] = val; return n })
+                  }}
+                  placeholder="Paste iframe src URL or full <iframe> code"
+                  className="bg-secondary/50 text-xs font-mono" />
+              ))}
+            </div>
+          </div>
+
+          {/* Instagram */}
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-2 text-foreground">
+                <span className="w-4 h-4 rounded-md inline-flex items-center justify-center text-white text-[9px]"
+                  style={{ background: "linear-gradient(135deg,#f09433,#dc2743,#bc1888)" }}>◉</span>
+                Instagram Profile URL
+              </Label>
+              <Input value={instagram} onChange={e => setInstagram(e.target.value)}
+                placeholder="https://www.instagram.com/college_handle/" className="bg-secondary/50" />
+            </div>
+            <div className="space-y-2 rounded-xl border border-[#E1306C]/20 bg-[#E1306C]/5 p-3">
+              <p className="text-xs font-semibold text-foreground">Instagram Post URLs (up to 3)</p>
+              <p className="text-xs text-muted-foreground">Open a post → copy its URL from the address bar. e.g. <code className="bg-secondary px-1 rounded">https://www.instagram.com/p/ABC123/</code></p>
+              {[0, 1, 2].map(i => (
+                <Input key={i} value={instagramEmbeds[i]}
+                  onChange={e => setInstagramEmbeds(prev => { const n = [...prev]; n[i] = e.target.value; return n })}
+                  placeholder="https://www.instagram.com/p/..."
+                  className="bg-secondary/50 text-xs font-mono" />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <Button onClick={handleSaveSocial} disabled={savingSocial} className="bg-primary text-primary-foreground">
+            {savingSocial ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Save Social Links
+          </Button>
+        </div>
+      </GlassCard>
     </div>
   )
 }
