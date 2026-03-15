@@ -535,7 +535,7 @@ export default function CollegesPage() {
                           )}
 
                           {/* Delete */}
-                          <Button
+                          {/* <Button
                             size="sm"
                             variant="ghost"
                             disabled={isActioning}
@@ -544,7 +544,7 @@ export default function CollegesPage() {
                             title="Delete college"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                          </Button> */}
                         </div>
                       </td>
                     </tr>

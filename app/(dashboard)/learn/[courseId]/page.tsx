@@ -32,7 +32,7 @@ import { toast } from "sonner"
 import api from "@/lib/api"
 import { useAuthStore } from "@/store/authStore"
 import { getLessonContent } from "@/content"
-import { PYTHON_TOPIC_META } from "@/lib/python-topics"
+import { PYTHON_TOPIC_META, COURSE_TOPIC_META } from "@/lib/python-topics"
 
 interface ApiMcqQuestion {
   id: number
@@ -67,6 +67,7 @@ interface ModuleAssignment {
 interface Lesson {
   id: number
   title: string
+  content?: string | null
   duration_mins: number
   order: number
   points: number
@@ -447,13 +448,16 @@ export default function CourseDetailPage() {
   }, [courseId])
 
   useEffect(() => {
-    if (courseId !== "python") return
+    if (courseId !== "python" && courseId !== "sql") return
+    const moduleIds = courseId === "sql"
+      ? ["sql-basics", "sql-intermediate", "sql-advanced"]
+      : ["python-basics", "python-intermediate", "python-advanced"]
     api.get("/assignments/list")
       .then((res) => {
-        const pythonModules = (res.data as ModuleAssignment[]).filter((a) =>
-          ["python-basics", "python-intermediate", "python-advanced"].includes(a.module_id)
+        const filtered = (res.data as ModuleAssignment[]).filter((a) =>
+          moduleIds.includes(a.module_id)
         )
-        setModuleAssignments(pythonModules)
+        setModuleAssignments(filtered)
       })
       .catch(() => {/* silently fail — assignment tab will be empty */})
   }, [courseId])
@@ -512,17 +516,24 @@ export default function CourseDetailPage() {
 
   const activeIdx = course.lessons.findIndex(l => l.id === activeLesson?.id)
 
-  // ── Python: group lessons into 3 modules ──────────────────────────────────
+  // ── Module definitions for tiered courses ─────────────────────────────────
   const PYTHON_MODULES = [
     { id: 1, title: "Python Basics",        emoji: "🌱", lessonOrders: [1, 2, 3, 4],   bar: "bg-emerald-500" },
     { id: 2, title: "Python Intermediate",  emoji: "⚙️",  lessonOrders: [5, 6, 7, 8],   bar: "bg-amber-500"   },
     { id: 3, title: "Python Advanced",      emoji: "🚀", lessonOrders: [9, 10, 11, 12], bar: "bg-violet-500"  },
+  ]
+  const SQL_MODULES = [
+    { id: 1, title: "SQL Basics",        emoji: "🌱", lessonOrders: [1, 2, 3, 4],   bar: "bg-emerald-500" },
+    { id: 2, title: "SQL Intermediate",  emoji: "⚙️",  lessonOrders: [5, 6, 7, 8],   bar: "bg-amber-500"   },
+    { id: 3, title: "SQL Advanced",      emoji: "🚀", lessonOrders: [9, 10, 11, 12], bar: "bg-violet-500"  },
   ]
   function toggleModule(mid: number) {
     setExpandedModules(prev => prev.includes(mid) ? prev.filter(x => x !== mid) : [...prev, mid])
   }
 
   const isPython = courseId === "python"
+  const isModular = isPython || courseId === "sql"
+  const ACTIVE_MODULES = courseId === "sql" ? SQL_MODULES : PYTHON_MODULES
 
   return (
     <div className="space-y-6">
@@ -552,8 +563,8 @@ export default function CourseDetailPage() {
         <Progress value={progress} className="h-2" />
       </div>
 
-      {/* ── Python: 3-tab nav bar ────────────────────────────────────────────── */}
-      {isPython && (
+      {/* ── Tiered courses: 3-tab nav bar ──────────────────────────────────── */}
+      {isModular && (
         <div className="flex gap-1 p-1 rounded-xl bg-secondary/40 border border-border w-fit">
           {(["lessons", "practice", "assignment"] as const).map((tab) => {
             const labels = { lessons: "📖 Lessons", practice: "🧠 MCQ Practice", assignment: "📋 Assignment" }
@@ -575,20 +586,20 @@ export default function CourseDetailPage() {
         </div>
       )}
 
-      {/* ── TAB: Lessons (+ non-Python courses) ────────────────────────────── */}
-      {(!isPython || activeTab === "lessons") && (
+      {/* ── TAB: Lessons (+ non-tiered courses) ────────────────────────────── */}
+      {(!isModular || activeTab === "lessons") && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Module / lesson nav — sticky on desktop */}
           <div className="lg:col-span-1 lg:sticky lg:top-4">
             <GlassCard className="p-0 overflow-hidden">
               <div className="p-4 border-b border-border">
                 <h2 className="font-semibold font-serif text-foreground">
-                  {isPython ? "Modules" : "Lessons"}
+                  {isModular ? "Modules" : "Lessons"}
                 </h2>
               </div>
               <div className="overflow-y-auto max-h-[60vh]">
-                {isPython ? (
-                  PYTHON_MODULES.map((mod) => {
+                {isModular ? (
+                  ACTIVE_MODULES.map((mod) => {
                     const modLessons = course.lessons.filter(l => mod.lessonOrders.includes(l.order))
                     const completed = modLessons.filter(l => l.is_completed).length
                     const total = modLessons.length
@@ -712,7 +723,7 @@ export default function CourseDetailPage() {
 
                 <div className="prose-sm max-w-none mb-8">
                   {(() => {
-                    const content = getLessonContent(courseId, activeLesson.order)
+                    const content = activeLesson.content || getLessonContent(courseId, activeLesson.order)
                     return content
                       ? renderContent(content)
                       : <p className="text-muted-foreground text-sm italic">Content coming soon for this lesson.</p>
@@ -750,7 +761,7 @@ export default function CourseDetailPage() {
       )}
 
       {/* ── TAB: MCQ Practice ───────────────────────────────────────────────── */}
-      {isPython && activeTab === "practice" && (
+      {isModular && activeTab === "practice" && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Topic list by module — sticky on desktop */}
           <div className="lg:col-span-1 lg:sticky lg:top-4">
@@ -759,42 +770,85 @@ export default function CourseDetailPage() {
                 <h2 className="font-semibold font-serif text-foreground">Topics</h2>
               </div>
               <div className="overflow-y-auto max-h-[60vh]">
-                {PYTHON_MODULES.map((mod) => (
-                  <div key={mod.id} className="border-b border-border last:border-0">
-                    <div className="flex items-center gap-2 px-4 py-2.5 bg-secondary/20">
-                      <span className="text-base">{mod.emoji}</span>
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{mod.title}</span>
+                {ACTIVE_MODULES.map((mod) => {
+                  const activeMeta = COURSE_TOPIC_META[courseId] ?? PYTHON_TOPIC_META
+                  const attempted = mod.lessonOrders.filter(o => mcqScores[`${activeMeta[o]?.topic}|${activeMeta[o]?.subtopic}`]).length
+                  const total = mod.lessonOrders.length
+                  const modPct = total > 0 ? Math.round((attempted / total) * 100) : 0
+                  const isExpanded = expandedModules.includes(mod.id)
+                  const hasSelected = mod.lessonOrders.some(o => mcqTopic?.lessonOrder === o)
+                  return (
+                    <div key={mod.id} className="border-b border-border last:border-0">
+                      <button
+                        onClick={() => toggleModule(mod.id)}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary/30",
+                          hasSelected && "bg-primary/5"
+                        )}
+                      >
+                        <span className="text-xl flex-shrink-0">{mod.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn("text-sm font-semibold", hasSelected ? "text-foreground" : "text-foreground/80")}>
+                            {mod.title}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <div className="flex-1 h-1 bg-secondary/30 rounded-full overflow-hidden">
+                              <div className={cn("h-full rounded-full transition-all", mod.bar)} style={{ width: `${modPct}%` }} />
+                            </div>
+                            <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">{attempted}/{total}</span>
+                          </div>
+                        </div>
+                        {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
+                      </button>
+
+                      {isExpanded && (
+                        <div className="bg-secondary/10">
+                          {mod.lessonOrders.map((order) => {
+                            const meta = activeMeta[order]
+                            if (!meta) return null
+                            const scoreKey = `${meta.topic}|${meta.subtopic}`
+                            const score = mcqScores[scoreKey]
+                            const isSelected = mcqTopic?.lessonOrder === order
+                            const isDone = score && score.correct === score.total
+                            return (
+                              <button
+                                key={order}
+                                onClick={() => openMcqTopic(meta.topic, meta.subtopic, order)}
+                                className={cn(
+                                  "w-full flex items-start gap-3 pl-6 pr-4 py-3 text-left border-t border-border transition-colors hover:bg-secondary/30",
+                                  isSelected && "bg-primary/10 border-l-2 border-l-primary pl-[22px]"
+                                )}
+                              >
+                                <div className="mt-0.5 flex-shrink-0">
+                                  {isDone
+                                    ? <CheckCircle className="h-4 w-4 text-emerald-400" />
+                                    : <div className={cn("w-4 h-4 rounded-full border-2 flex items-center justify-center", isSelected ? "border-primary bg-primary/20" : "border-white/20")}>
+                                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                                      </div>
+                                  }
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className={cn("text-xs font-medium leading-snug", isSelected ? "text-foreground" : isDone ? "text-muted-foreground" : "text-foreground/80")}>
+                                    {meta.subtopic}
+                                  </p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    {score ? (
+                                      <span className={cn("text-[10px] font-medium", isDone ? "text-emerald-400" : "text-amber-400")}>
+                                        {score.correct}/{score.total} correct
+                                      </span>
+                                    ) : (
+                                      <span className="text-[10px] text-muted-foreground">5 questions</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
-                    {mod.lessonOrders.map((order) => {
-                      const meta = PYTHON_TOPIC_META[order]
-                      if (!meta) return null
-                      const scoreKey = `${meta.topic}|${meta.subtopic}`
-                      const score = mcqScores[scoreKey]
-                      const isSelected = mcqTopic?.lessonOrder === order
-                      return (
-                        <button
-                          key={order}
-                          onClick={() => openMcqTopic(meta.topic, meta.subtopic, order)}
-                          className={cn(
-                            "w-full flex items-center justify-between pl-6 pr-4 py-3 text-left border-t border-border transition-colors hover:bg-secondary/30",
-                            isSelected && "bg-primary/10 border-l-2 border-l-primary pl-[22px]"
-                          )}
-                        >
-                          <span className={cn("text-xs font-medium", isSelected ? "text-foreground" : "text-foreground/80")}>
-                            {meta.subtopic}
-                          </span>
-                          {score ? (
-                            <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded", score.correct === score.total ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400")}>
-                              {score.correct}/{score.total}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-muted-foreground">5 Qs</span>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </GlassCard>
           </div>
@@ -946,14 +1000,15 @@ export default function CourseDetailPage() {
       )}
 
       {/* ── TAB: Assignment ─────────────────────────────────────────────────── */}
-      {isPython && activeTab === "assignment" && (
+      {isModular && activeTab === "assignment" && (
         <div className="space-y-6">
           <p className="text-sm text-muted-foreground">
             Complete the timed assessment for each module to earn points and test your understanding.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {moduleAssignments.map((a, i) => {
-              const mod = PYTHON_MODULES[i]
+              const mod = ACTIVE_MODULES[i]
+              const activeMeta = COURSE_TOPIC_META[courseId] ?? PYTHON_TOPIC_META
               const pct = a.total_questions > 0 ? Math.round((a.completed_questions / a.total_questions) * 100) : 0
               return (
                 <GlassCard key={a.id} hover className="flex flex-col gap-4">
@@ -970,9 +1025,9 @@ export default function CourseDetailPage() {
                   <div className="space-y-1.5">
                     <p className="text-xs text-muted-foreground font-medium">Covers:</p>
                     <div className="flex flex-wrap gap-1.5">
-                      {PYTHON_MODULES[i]?.lessonOrders.map((order) => (
+                      {ACTIVE_MODULES[i]?.lessonOrders.map((order) => (
                         <span key={order} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary/60 text-muted-foreground border border-border">
-                          {PYTHON_TOPIC_META[order]?.subtopic}
+                          {activeMeta[order]?.subtopic}
                         </span>
                       ))}
                     </div>
