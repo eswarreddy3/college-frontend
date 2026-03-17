@@ -91,7 +91,7 @@ function ModuleSection({
   onToggle: () => void
   assignments: ApiAssignment[]
   loading: boolean
-  onStart: (id: string) => void
+  onStart: (id: string, status: string) => void
 }) {
   return (
     <div className="space-y-3">
@@ -147,7 +147,7 @@ function ModuleSection({
                       <Button
                         size="sm"
                         className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1"
-                        onClick={() => onStart(a.id)}
+                        onClick={() => onStart(a.id, a.status)}
                       >
                         {a.status === "completed" ? "Review" : "Start"} <ArrowRight className="h-3.5 w-3.5" />
                       </Button>
@@ -261,7 +261,7 @@ export default function AssignmentsPage() {
         onToggle={() => setPythonExpanded((p) => !p)}
         assignments={pythonModuleAssignments}
         loading={loading}
-        onStart={(id) => router.push(`/assignments/${id}`)}
+        onStart={(id, status) => router.push(status === "completed" ? `/assignments/${id}/results` : `/assignments/${id}`)}
       />
 
       {/* SQL Module Assignments */}
@@ -272,7 +272,7 @@ export default function AssignmentsPage() {
         onToggle={() => setSqlExpanded((p) => !p)}
         assignments={sqlModuleAssignments}
         loading={loading}
-        onStart={(id) => router.push(`/assignments/${id}`)}
+        onStart={(id, status) => router.push(status === "completed" ? `/assignments/${id}/results` : `/assignments/${id}`)}
       />
 
       {/* HTML Module Assignments */}
@@ -283,7 +283,7 @@ export default function AssignmentsPage() {
         onToggle={() => setHtmlExpanded((p) => !p)}
         assignments={htmlModuleAssignments}
         loading={loading}
-        onStart={(id) => router.push(`/assignments/${id}`)}
+        onStart={(id, status) => router.push(status === "completed" ? `/assignments/${id}/results` : `/assignments/${id}`)}
       />
 
       {/* CSS Module Assignments */}
@@ -294,7 +294,7 @@ export default function AssignmentsPage() {
         onToggle={() => setCssExpanded((p) => !p)}
         assignments={cssModuleAssignments}
         loading={loading}
-        onStart={(id) => router.push(`/assignments/${id}`)}
+        onStart={(id, status) => router.push(status === "completed" ? `/assignments/${id}/results` : `/assignments/${id}`)}
       />
 
       <div className="border-t border-white/5" />
@@ -427,7 +427,7 @@ export default function AssignmentsPage() {
                             ? "bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30"
                             : "bg-primary hover:bg-primary/90 text-primary-foreground"
                         )}
-                        onClick={() => router.push(`/assignments/${assignment.id}`)}
+                        onClick={() => router.push(`/assignments/${assignment.id}${assignment.status === "completed" ? "/results" : ""}`)}
                       >
                         {assignment.status === "completed"
                           ? "Review"

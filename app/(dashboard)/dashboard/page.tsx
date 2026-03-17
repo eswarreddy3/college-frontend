@@ -70,9 +70,15 @@ export default function DashboardPage() {
       {/* Hero Section */}
       <div>
         <h1 className="text-3xl font-bold font-serif text-foreground">
-          Welcome back, <span className="gradient-text">{user?.name?.split(" ")[0] ?? "Student"}</span>
+          Welcome back, <span className="gradient-text">{(() => { const n = user?.name?.split(" ")[0] ?? "Student"; return n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() })()} </span>
         </h1>
-        <p className="text-muted-foreground mt-2">Continue your placement preparation journey</p>
+        <p className="text-muted-foreground mt-2">
+          {user?.college_name ? (
+            <>{user.college_name} · Continue your placement preparation journey</>
+          ) : (
+            <>Continue your placement preparation journey</>
+          )}
+        </p>
       </div>
 
       {/* Stats Row */}

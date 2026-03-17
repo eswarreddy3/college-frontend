@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold font-serif text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Welcome back, {user?.name}</p>
+          <p className="text-muted-foreground mt-1">Welcome back, {user?.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase() : ""}</p>
         </div>
         <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 self-start">
           <Crown className="h-4 w-4 mr-2" />

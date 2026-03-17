@@ -81,19 +81,29 @@ export default function AssignmentResultsPage() {
   const params = useParams()
   const router = useRouter()
   const [result, setResult] = useState<AssignmentResult | null>(null)
+  const [loading, setLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [filter, setFilter] = useState<"all" | "correct" | "wrong" | "unanswered">("all")
 
   useEffect(() => {
     const raw = sessionStorage.getItem(`assignment-result-${params.id}`)
     if (raw) {
-      try { setResult(JSON.parse(raw)); return } catch { /* fall through */ }
+      try { setResult(JSON.parse(raw)); setLoading(false); return } catch { /* fall through */ }
     }
-    // sessionStorage miss (e.g. user navigated back) — load from API
+    // sessionStorage miss — load from API
     api.get(`/assignments/${params.id}/result`)
       .then((res) => setResult(res.data))
-      .catch(() => { /* result stays null, shows empty state */ })
+      .catch(() => setResult(null))
+      .finally(() => setLoading(false))
   }, [params.id])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Trophy className="h-8 w-8 text-primary animate-pulse" />
+      </div>
+    )
+  }
 
   if (!result) {
     return (
