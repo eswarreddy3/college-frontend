@@ -17,6 +17,8 @@ import {
   ChevronUp,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
+import { fireConfetti, fireStars, fireSchoolPride } from "@/lib/effects"
 
 interface QuestionResult {
   id: number
@@ -97,6 +99,14 @@ export default function AssignmentResultsPage() {
       .finally(() => setLoading(false))
   }, [params.id])
 
+  useEffect(() => {
+    if (!result) return
+    const pct = result.maxScore > 0 ? (result.score / result.maxScore) * 100 : 0
+    if (pct >= 80) fireSchoolPride()
+    else if (pct >= 50) fireConfetti()
+    else if (pct > 0) fireStars()
+  }, [result])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -147,6 +157,7 @@ export default function AssignmentResultsPage() {
       </div>
 
       {/* Score hero */}
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <GlassCard className="text-center space-y-4">
         <div className="space-y-1">
           <h1 className={cn("text-3xl font-bold font-serif", rank.color)}>{rank.label}</h1>
@@ -208,6 +219,7 @@ export default function AssignmentResultsPage() {
           </p>
         )}
       </GlassCard>
+      </motion.div>
 
       {/* Review section */}
       <div className="space-y-4">
@@ -244,12 +256,18 @@ export default function AssignmentResultsPage() {
         </div>
 
         <div className="space-y-3">
-          {filteredResults.map((qr) => {
+          {filteredResults.map((qr, index) => {
             const isExpanded = expandedId === qr.id
             const globalIdx = result.results.findIndex((r) => r.id === qr.id)
 
             return (
-              <GlassCard key={qr.id} className="overflow-hidden">
+              <motion.div
+                key={qr.id}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.04, duration: 0.3 }}
+              >
+              <GlassCard className="overflow-hidden">
                 <button
                   className="w-full text-left flex items-start gap-3"
                   onClick={() => setExpandedId(isExpanded ? null : qr.id)}
@@ -362,6 +380,7 @@ export default function AssignmentResultsPage() {
                   </div>
                 )}
               </GlassCard>
+              </motion.div>
             )
           })}
         </div>

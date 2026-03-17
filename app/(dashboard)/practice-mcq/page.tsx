@@ -23,6 +23,8 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import api from "@/lib/api"
 import { useAuthStore } from "@/store/authStore"
+import { motion, AnimatePresence } from "framer-motion"
+import { fireStars } from "@/lib/effects"
 
 // ── Programming MCQ types ─────────────────────────────────────────────────────
 
@@ -112,6 +114,7 @@ function PracticeMCQContent() {
     correct: boolean; correct_answer: number; explanation: string | null; points_earned: number; total_points: number
   } | null>(null)
   const tryingAgainRef = useRef(false)
+  const [answerFeedback, setAnswerFeedback] = useState<"correct" | "wrong" | null>(null)
 
   // ── Aptitude state ─────────────────────────────────────────────────────────
   const [aptTopics, setAptTopics] = useState<AptTopic[]>([])
@@ -211,6 +214,13 @@ function PracticeMCQContent() {
       }
       setQuestions(updatedQuestions)
       updateUser({ points: result.total_points })
+      if (result.correct) {
+        setAnswerFeedback("correct")
+        fireStars()
+      } else {
+        setAnswerFeedback("wrong")
+      }
+      setTimeout(() => setAnswerFeedback(null), 900)
       if (result.correct) toast.success(`Correct!${result.points_earned > 0 ? ` +${result.points_earned} pts` : ""}`)
       else toast.error("Incorrect — check the explanation below")
       api.get("/mcq/topics").then((res) => setTopics(res.data)).catch(() => {})
@@ -370,6 +380,11 @@ function PracticeMCQContent() {
   // ── Render: Programming MCQ ────────────────────────────────────────────────
   if (view === "programming") {
     const currentQuestion = questions[currentIndex]
+    const isWrongAnswer = (index: number) =>
+      isSubmitted &&
+      displayResult !== null &&
+      index === selectedAnswer &&
+      index !== displayResult.correct_answer
     const displayResult = isSubmitted
       ? (serverResult ?? (currentQuestion?.attempted ? {
           correct: currentQuestion.is_correct ?? false,
@@ -382,6 +397,18 @@ function PracticeMCQContent() {
 
     return (
       <div className="flex flex-col gap-4">
+        <AnimatePresence>
+          {answerFeedback && (
+            <motion.div
+              className={`fixed inset-0 pointer-events-none z-40 ${answerFeedback === "correct" ? "bg-emerald-500/10" : "bg-red-500/10"}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            />
+          )}
+        </AnimatePresence>
+
         {/* Back */}
         <button
           onClick={() => setView("home")}
@@ -493,11 +520,14 @@ function PracticeMCQContent() {
                         const isSelected = index === selectedAnswer
                         const isCorrect = displayResult ? index === displayResult.correct_answer : false
                         const wasSelected = displayResult ? index === selectedAnswer : false
+                        const isWrong = isWrongAnswer(index)
                         return (
-                          <button
+                          <motion.button
                             key={index}
                             onClick={() => !isSubmitted && setSelectedAnswer(index)}
                             disabled={isSubmitted}
+                            animate={isWrong ? { x: [0, -8, 8, -6, 6, 0] } : {}}
+                            transition={{ duration: 0.4 }}
                             className={cn(
                               "w-full p-4 rounded-xl text-left transition-all duration-200 border",
                               !isSubmitted && isSelected && "border-primary bg-primary/10 text-foreground",
@@ -522,7 +552,7 @@ function PracticeMCQContent() {
                               {isSubmitted && isCorrect && <CheckCircle className="h-5 w-5 ml-auto text-emerald-400" />}
                               {isSubmitted && wasSelected && !isCorrect && <XCircle className="h-5 w-5 ml-auto text-red-400" />}
                             </div>
-                          </button>
+                          </motion.button>
                         )
                       })}
                     </div>

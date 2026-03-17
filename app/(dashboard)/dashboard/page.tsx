@@ -10,6 +10,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 import api from "@/lib/api"
 import { useAuthStore } from "@/store/authStore"
+import { motion } from "framer-motion"
 
 interface DashboardData {
   points: number
@@ -68,6 +69,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Hero Section */}
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
       <div>
         <h1 className="text-3xl font-bold font-serif text-foreground">
           Welcome back, <span className="gradient-text">{(() => { const n = user?.name?.split(" ")[0] ?? "Student"; return n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() })()} </span>
@@ -80,35 +82,52 @@ export default function DashboardPage() {
           )}
         </p>
       </div>
+      </motion.div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
-          title="Total Points"
-          value={data?.points.toLocaleString() ?? "0"}
-          icon={Star}
-          iconColor="text-amber-500"
-        />
-        <StatsCard
-          title="Problems Solved"
-          value={data?.solved_count ?? 0}
-          icon={Code}
-          iconColor="text-blue-400"
-        />
-        <StatsCard
-          title="Current Streak"
-          value={data?.streak ?? 0}
-          suffix="days"
-          icon={Flame}
-          iconColor="text-orange-500"
-        />
-        <StatsCard
-          title="College Rank"
-          value={data ? `#${data.rank}` : "—"}
-          icon={Trophy}
-          iconColor="text-primary"
-        />
-      </div>
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: {},
+          show: { transition: { staggerChildren: 0.1 } },
+        }}
+      >
+        <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+          <StatsCard
+            title="Total Points"
+            value={data?.points.toLocaleString() ?? "0"}
+            icon={Star}
+            iconColor="text-amber-500"
+          />
+        </motion.div>
+        <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+          <StatsCard
+            title="Problems Solved"
+            value={data?.solved_count ?? 0}
+            icon={Code}
+            iconColor="text-blue-400"
+          />
+        </motion.div>
+        <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+          <StatsCard
+            title="Current Streak"
+            value={data?.streak ?? 0}
+            suffix="days"
+            icon={Flame}
+            iconColor="text-orange-500"
+          />
+        </motion.div>
+        <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+          <StatsCard
+            title="College Rank"
+            value={data ? `#${data.rank}` : "—"}
+            icon={Trophy}
+            iconColor="text-primary"
+          />
+        </motion.div>
+      </motion.div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -208,11 +227,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Streak Calendar */}
-      <StreakCalendar
-        activeDays={data?.active_days ?? []}
-        currentStreak={data?.streak ?? 0}
-        longestStreak={data?.longest_streak ?? 0}
-      />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
+        <StreakCalendar
+          activeDays={data?.active_days ?? []}
+          currentStreak={data?.streak ?? 0}
+          longestStreak={data?.longest_streak ?? 0}
+        />
+      </motion.div>
     </div>
   )
 }

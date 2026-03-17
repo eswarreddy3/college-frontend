@@ -22,6 +22,9 @@ import {
   FileText,
   RotateCcw,
 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { fireStars } from "@/lib/effects"
+import { PointsBurst } from "@/components/points-burst"
 import { GlassCard } from "@/components/glass-card"
 import { ProgressRing } from "@/components/progress-ring"
 import { Button } from "@/components/ui/button"
@@ -367,6 +370,9 @@ export default function CourseDetailPage() {
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null)
   const [completing, setCompleting] = useState(false)
   const [expandedModules, setExpandedModules] = useState<number[]>([1, 2, 3])
+  const [lessonCompleteAnim, setLessonCompleteAnim] = useState(false)
+  const [earnedPoints, setEarnedPoints] = useState(0)
+  const [showPointsBurst, setShowPointsBurst] = useState(false)
 
   // Top-level tab (only used for Python)
   const [activeTab, setActiveTab] = useState<"lessons" | "practice" | "assignment">("lessons")
@@ -484,6 +490,12 @@ export default function CourseDetailPage() {
 
       updateUser({ points: total_points })
 
+      fireStars()
+      setLessonCompleteAnim(true)
+      setEarnedPoints(points_earned > 0 ? points_earned : 10)
+      setShowPointsBurst(true)
+      setTimeout(() => setLessonCompleteAnim(false), 2000)
+
       if (points_earned > 0) {
         toast.success(`Lesson complete! +${points_earned} pts`)
       } else {
@@ -548,6 +560,23 @@ export default function CourseDetailPage() {
 
   return (
     <div className="space-y-6">
+      <PointsBurst points={earnedPoints} show={showPointsBurst} onDone={() => setShowPointsBurst(false)} />
+
+      <AnimatePresence>
+        {lessonCompleteAnim && (
+          <motion.div
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl px-6 py-3 backdrop-blur-sm"
+            initial={{ opacity: 0, y: 40, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          >
+            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+            <span className="text-sm font-semibold text-emerald-300">Lesson Complete! Keep going 🔥</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => router.push("/learn")}>

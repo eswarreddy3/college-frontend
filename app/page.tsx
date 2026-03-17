@@ -77,9 +77,9 @@ const features = [
 const plans = [
   { name: "Free",       price: "₹0",     period: "",               color: "text-muted-foreground", border: "border-border",         glow: false, badge: null,
     features: ["Python Module (Lessons, MCQ & Assignments)", "Aptitude MCQ Bank", "Remaining courses visible (locked)"] },
-  { name: "Base Plan",  price: "₹500",   period: "/student/year",  color: "text-blue-400",         border: "border-blue-500/30",    glow: false, badge: null,
+  { name: "Base Plan",  price: "₹1,000",   period: "/student/year",  color: "text-blue-400",         border: "border-blue-500/30",    glow: false, badge: null,
     features: ["Python, SQL, HTML, CSS Modules", "Aptitude MCQ Bank", "Company Preparation", "College Social Feed", "Admin Dashboard", "Remaining courses locked"] },
-  { name: "Pro Plan",   price: "₹1,000", period: "/student/year",  color: "text-primary",          border: "border-primary/40",     glow: true,  badge: "Most Popular",
+  { name: "Pro Plan",   price: "₹1,500", period: "/student/year",  color: "text-primary",          border: "border-primary/40",     glow: true,  badge: "Most Popular",
     features: ["Everything in Base Plan", "1 Domain: Data Analysis or Web Dev", "Admin 1-click inactive-student emails", "Remaining courses locked"] },
   { name: "Enterprise", price: "Custom", period: "",               color: "text-purple-400",       border: "border-purple-500/30",  glow: false, badge: null,
     features: ["Custom domains & courses", "Custom analytics", "Custom integrations", "Dedicated support"] },

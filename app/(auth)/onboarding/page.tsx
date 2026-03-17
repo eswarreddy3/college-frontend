@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Loader2, Eye, EyeOff, Check, Github, Linkedin } from "lucide-react"
 import { toast } from "sonner"
+import { motion, AnimatePresence } from "framer-motion"
+import { fireSchoolPride } from "@/lib/effects"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -122,6 +124,7 @@ export default function OnboardingPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [pwdValue, setPwdValue] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [done, setDone] = useState(false)
 
   // Redirect if not first_login
   useEffect(() => {
@@ -173,7 +176,9 @@ export default function OnboardingPage() {
       await api.patch("/auth/complete-onboarding", payload)
       updateUser({ first_login: false, name: formData.full_name || user!.name })
       toast.success("Setup complete! Welcome to Fynity 🎉")
-      router.replace("/dashboard")
+      setDone(true)
+      fireSchoolPride()
+      setTimeout(() => router.replace("/dashboard"), 2500)
     } catch (err: any) {
       toast.error("Setup failed", {
         description: err?.response?.data?.message || "Please try again",
@@ -187,6 +192,41 @@ export default function OnboardingPage() {
 
   return (
     <div className="w-full max-w-lg">
+      <AnimatePresence>
+        {done && (
+          <motion.div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <motion.div
+              initial={{ scale: 0, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+              className="text-8xl mb-6"
+            >
+              🎉
+            </motion.div>
+            <motion.h2
+              className="text-4xl font-bold font-serif gradient-text mb-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              You&apos;re all set!
+            </motion.h2>
+            <motion.p
+              className="text-muted-foreground text-lg"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              Welcome to Fynity. Let&apos;s get you placed! 🚀
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div
         className="rounded-2xl p-8"
         style={{
@@ -217,8 +257,16 @@ export default function OnboardingPage() {
 
         <StepIndicator current={step} total={3} />
 
+        <AnimatePresence mode="wait">
         {/* ── Step 1: Personal Info ──────────────────────────────────────── */}
         {step === 1 && (
+          <motion.div
+            key={1}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.25 }}
+          >
           <form onSubmit={form1.handleSubmit(handleStep1)} className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-foreground">Full Name</Label>
@@ -291,10 +339,18 @@ export default function OnboardingPage() {
               Next →
             </Button>
           </form>
+          </motion.div>
         )}
 
         {/* ── Step 2: Academic Info ──────────────────────────────────────── */}
         {step === 2 && (
+          <motion.div
+            key={2}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.25 }}
+          >
           <form onSubmit={form2.handleSubmit(handleStep2)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
@@ -401,10 +457,18 @@ export default function OnboardingPage() {
               </Button>
             </div>
           </form>
+          </motion.div>
         )}
 
         {/* ── Step 3: Set Password ───────────────────────────────────────── */}
         {step === 3 && (
+          <motion.div
+            key={3}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.25 }}
+          >
           <form onSubmit={form3.handleSubmit(handleStep3)} className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-foreground">New Password</Label>
@@ -508,7 +572,9 @@ export default function OnboardingPage() {
               </Button>
             </div>
           </form>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </div>
   )

@@ -26,6 +26,7 @@ import {
   Newspaper,
   FlaskConical,
   FileText,
+  BriefcaseBusiness,
 } from "lucide-react"
 import { useState } from "react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -45,6 +46,7 @@ const studentNavItems = [
   { href: "/lab", label: "Code Lab", icon: FlaskConical },
   { href: "/company-prep", label: "Company Prep", icon: Building2 },
   { href: "/domain-programs", label: "Domain Programs", icon: Layers },
+  { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness },
   { href: "/feed", label: "College Feed", icon: Newspaper },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/resume", label: "Resume Builder", icon: FileText },
@@ -63,6 +65,7 @@ const superAdminNavItems = [
   { href: "/super-admin/colleges", label: "Colleges", icon: Building2 },
   { href: "/super-admin/students", label: "Students", icon: Users },
   { href: "/super-admin/packages", label: "Packages", icon: Package },
+  { href: "/super-admin/jobs", label: "Job Postings", icon: BriefcaseBusiness },
 ]
 
 const roleBadgeConfig = {
