@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { GlassCard } from "@/components/glass-card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
+import { FeedbackModal } from "@/components/feedback-modal"
 import { Building2, FileQuestion, Code, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -52,14 +53,17 @@ export default function CompanyPrepPage() {
             In-depth prep for top recruiters — hiring pattern, aptitude, coding & interview tips
           </p>
         </div>
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search company..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-secondary/30 border-white/10"
-          />
+        <div className="flex items-center gap-2">
+          <FeedbackModal compact triggerClassName="text-muted-foreground hover:text-primary flex-shrink-0" />
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search company..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 bg-secondary/30 border-white/10"
+            />
+          </div>
         </div>
       </div>
 

@@ -27,6 +27,7 @@ import {
   FlaskConical,
   FileText,
   BriefcaseBusiness,
+  MessageSquare,
 } from "lucide-react"
 import { useState } from "react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -36,6 +37,7 @@ import { useAuthStore } from "@/store/authStore"
 import { useUIStore } from "@/store/uiStore"
 import { Logo } from "@/components/logo"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { FeedbackModal } from "@/components/feedback-modal"
 import { toast } from "sonner"
 
 const studentNavItems = [
@@ -67,6 +69,7 @@ const superAdminNavItems = [
   { href: "/super-admin/students", label: "Students", icon: Users },
   { href: "/super-admin/packages", label: "Packages", icon: Package },
   { href: "/super-admin/jobs", label: "Job Postings", icon: BriefcaseBusiness },
+  { href: "/super-admin/feedback", label: "Feedback", icon: MessageSquare },
 ]
 
 const roleBadgeConfig = {
@@ -252,6 +255,13 @@ export function Sidebar() {
                 </div>
               </div>
             )
+          )}
+
+          {/* Feedback (students only) */}
+          {role === "student" && (
+            <div className={cn(isCollapsed ? "w-full flex justify-center" : "w-full")}>
+              <FeedbackModal compact={isCollapsed} />
+            </div>
           )}
 
           {/* Theme toggle */}

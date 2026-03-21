@@ -28,6 +28,7 @@ import { PointsBurst } from "@/components/points-burst"
 import { GlassCard } from "@/components/glass-card"
 import { ProgressRing } from "@/components/progress-ring"
 import { Button } from "@/components/ui/button"
+import { FeedbackModal } from "@/components/feedback-modal"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
@@ -590,6 +591,7 @@ export default function CourseDetailPage() {
           <Badge variant="outline" className={cn("text-xs border", difficultyColors[course.difficulty])}>
             {course.difficulty}
           </Badge>
+          <FeedbackModal compact triggerClassName="text-muted-foreground hover:text-primary" />
           <ProgressRing progress={progress} size={52} strokeWidth={4} />
         </div>
       </div>

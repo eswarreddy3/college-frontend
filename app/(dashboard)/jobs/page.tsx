@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { GlassCard } from "@/components/glass-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { FeedbackModal } from "@/components/feedback-modal"
 import { Skeleton } from "@/components/ui/skeleton"
 import { motion } from "framer-motion"
 import {
@@ -78,9 +79,12 @@ export default function JobsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="text-3xl font-bold font-serif text-foreground">Job Postings</h1>
-        <p className="text-muted-foreground mt-2">Opportunities shared by your college — apply before the deadline</p>
+      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold font-serif text-foreground">Job Postings</h1>
+          <p className="text-muted-foreground mt-2">Opportunities shared by your college — apply before the deadline</p>
+        </div>
+        <FeedbackModal compact triggerClassName="text-muted-foreground hover:text-primary mt-1 flex-shrink-0" />
       </motion.div>
 
       {/* Filters */}

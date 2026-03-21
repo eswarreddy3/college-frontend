@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import api from "@/lib/api"
 import { useAuthStore } from "@/store/authStore"
 import { motion } from "framer-motion"
+import { FeedbackModal } from "@/components/feedback-modal"
 
 interface DashboardData {
   points: number
@@ -201,6 +202,7 @@ export default function DashboardPage() {
                   )}
                 </Button>
               </Link>
+              <FeedbackModal />
             </div>
           </GlassCard>
 

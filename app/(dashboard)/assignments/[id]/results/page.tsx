@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import api from "@/lib/api"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
+import { FeedbackModal } from "@/components/feedback-modal"
 import { Badge } from "@/components/ui/badge"
 import {
   CheckCircle2,
@@ -393,7 +394,7 @@ export default function AssignmentResultsPage() {
       </div>
 
       {/* Bottom actions */}
-      <div className="flex gap-3 justify-center pb-8">
+      <div className="flex flex-wrap gap-3 justify-center pb-8">
         <Button
           className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
           onClick={() => router.push("/assignments")}
@@ -401,6 +402,7 @@ export default function AssignmentResultsPage() {
           <ArrowLeft className="h-4 w-4" />
           All Assignments
         </Button>
+        <FeedbackModal triggerClassName="border-primary/30 text-primary hover:bg-primary/10 w-auto justify-center gap-2 px-4" />
       </div>
     </div>
   )

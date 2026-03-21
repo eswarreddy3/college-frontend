@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
+import { FeedbackModal } from "@/components/feedback-modal"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -340,6 +341,9 @@ export default function CodingPage() {
               <ChevronRight className="h-5 w-5" />
             </Button>
             <span className="text-xs text-muted-foreground">{currentIndex + 1} / {problemsList.length}</span>
+            <div className="ml-auto">
+              <FeedbackModal compact triggerClassName="text-muted-foreground hover:text-primary" />
+            </div>
           </div>
 
           <GlassCard className="flex-1 overflow-y-auto">

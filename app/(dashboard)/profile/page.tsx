@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Pencil, Loader2, Eye, EyeOff, Github, Linkedin, ExternalLink } from "lucide-react"
+import { Pencil, Loader2, Eye, EyeOff, Github, Linkedin, ExternalLink, MessageSquarePlus } from "lucide-react"
 import { toast } from "sonner"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
+import { FeedbackModal } from "@/components/feedback-modal"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -454,6 +455,22 @@ export default function ProfilePage() {
           </GlassCard>
         </div>
       </div>
+
+      {/* Platform Feedback */}
+      <GlassCard>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex-1">
+            <h3 className="font-semibold font-serif text-foreground flex items-center gap-2">
+              <MessageSquarePlus className="h-4 w-4 text-primary" />
+              Platform Feedback
+            </h3>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Found a bug? Have a suggestion? We'd love to hear from you.
+            </p>
+          </div>
+          <FeedbackModal triggerClassName="sm:w-auto" />
+        </div>
+      </GlassCard>
     </div>
   )
 }

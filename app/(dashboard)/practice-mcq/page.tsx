@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
+import { FeedbackModal } from "@/components/feedback-modal"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -373,6 +374,7 @@ function PracticeMCQContent() {
             </GlassCard>
           </button>
         </div>
+        <FeedbackModal triggerClassName="border-primary/30 text-primary hover:bg-primary/10 w-auto gap-2 px-4" />
       </div>
     )
   }
@@ -410,13 +412,16 @@ function PracticeMCQContent() {
         </AnimatePresence>
 
         {/* Back */}
-        <button
-          onClick={() => setView("home")}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to categories
-        </button>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setView("home")}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to categories
+          </button>
+          <FeedbackModal compact triggerClassName="text-muted-foreground hover:text-primary" />
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-10rem)]">
           {/* Left Panel */}
