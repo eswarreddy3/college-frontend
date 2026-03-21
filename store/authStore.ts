@@ -33,7 +33,7 @@ interface AuthState {
   updateUser: (partial: Partial<User>) => void
 }
 
-const TOKEN_KEY = "fynity_access_token"
+const TOKEN_KEY = "careerezi_access_token"
 
 function setCookie(name: string, value: string, days = 7) {
   if (typeof document === "undefined") return
@@ -58,7 +58,7 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== "undefined") {
           localStorage.setItem(TOKEN_KEY, token)
         }
-        setCookie("fynity_token", token)
+        setCookie("careerezi_token", token)
         set({ token, refreshToken, user })
       },
 
@@ -66,7 +66,7 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== "undefined") {
           localStorage.removeItem(TOKEN_KEY)
         }
-        deleteCookie("fynity_token")
+        deleteCookie("careerezi_token")
         set({ token: null, refreshToken: null, user: null })
       },
 
@@ -76,7 +76,7 @@ export const useAuthStore = create<AuthState>()(
         })),
     }),
     {
-      name: "fynity-auth",
+      name: "careerezi-auth",
       partialize: (state) => ({
         token: state.token,
         refreshToken: state.refreshToken,

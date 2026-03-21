@@ -1,11 +1,11 @@
 // Python course — scenario-based lessons (indexed by lesson order, 1-based)
-// Every lesson tells the story of building the Fynity platform itself.
+// Every lesson tells the story of building the CareerEzi platform itself.
 
 const pythonContent: Record<number, string> = {
 
   // ───────────────────────────────────────────────────────────────────────
   1: `:::scenario
-You just got the offer letter. You're joining a fast-growing EdTech startup as a backend intern. The product? A college placement platform — Fynity.
+You just got the offer letter. You're joining a fast-growing EdTech startup as a backend intern. The product? A college placement platform — CareerEzi.
 
 Day 1. Your team lead, Priya, walks over.
 "Our first feature: when a student logs in for the first time, print a personalized welcome message. Simple script. Can you do it?"
@@ -24,13 +24,13 @@ name = "Arjun Sharma"
 college = "VIT Vellore"
 branch = "CSE"
 
-print(f"Welcome to Fynity, {name}!")
+print(f"Welcome to CareerEzi, {name}!")
 print(f"College: {college}  |  Branch: {branch}")
 print("Let's get you placed. 🚀")
 \`\`\`
 
 \`\`\`output
-Welcome to Fynity, Arjun Sharma!
+Welcome to CareerEzi, Arjun Sharma!
 College: VIT Vellore  |  Branch: CSE
 Let's get you placed. 🚀
 \`\`\`
@@ -169,7 +169,7 @@ No \`String name;\` or \`int cgpa;\` like Java. Python infers the type.
 ## Building the Student Profile
 
 \`\`\`python
-# Student model for Fynity
+# Student model for CareerEzi
 student_id = 1001
 name = "Arjun Sharma"
 email = "arjun@vit.ac.in"
@@ -1131,7 +1131,7 @@ Write a docstring for every non-trivial function. Your teammates see it when the
 :::challenge
 **Mission 7: Placement Utility Module**
 
-Build a collection of functions for the Fynity platform:
+Build a collection of functions for the CareerEzi platform:
 
 1. \`is_eligible(student, company)\` returns bool
 2. \`format_profile(student)\` returns formatted string
@@ -1655,7 +1655,7 @@ Create 3 students, apply them to 3 companies each, give 1 student an offer, prin
   11: `:::scenario
 Day 42. New user roles enter the picture.
 
-"We now have three types of users on Fynity: regular Students, Premium Students (paid tier — extra features, priority applications), and Admin Students (college reps who can see all data)."
+"We now have three types of users on CareerEzi: regular Students, Premium Students (paid tier — extra features, priority applications), and Admin Students (college reps who can see all data)."
 
 "They all share basic Student behavior. But each has extras."
 
@@ -1668,7 +1668,7 @@ A **child class** inherits all the attributes and methods of a **parent class**,
 
 \`\`\`python
 class Student:
-    """Base class for all Fynity users."""
+    """Base class for all CareerEzi users."""
 
     def __init__(self, student_id, name, cgpa, branch):
         self.id = student_id
@@ -1896,23 +1896,23 @@ parse_student_cgpa("12.5")
 ## Custom Exceptions — Domain-Specific Errors
 
 \`\`\`python
-class FynityError(Exception):
-    """Base exception for all Fynity errors."""
+class CareerEziError(Exception):
+    """Base exception for all CareerEzi errors."""
     pass
 
-class IneligibleError(FynityError):
+class IneligibleError(CareerEziError):
     """Raised when a student does not meet criteria."""
     def __init__(self, student_name, reason):
         self.student_name = student_name
         self.reason = reason
         super().__init__(f"{student_name} is ineligible: {reason}")
 
-class DuplicateApplicationError(FynityError):
+class DuplicateApplicationError(CareerEziError):
     """Raised when student applies to a company twice."""
     def __init__(self, student_name, company):
         super().__init__(f"{student_name} already applied to {company}")
 
-class InvalidCGPAError(FynityError):
+class InvalidCGPAError(CareerEziError):
     """Raised for out-of-range CGPA values."""
     def __init__(self, value):
         super().__init__(f"CGPA {value} is not in valid range [0.0 to 10.0]")

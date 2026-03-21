@@ -21,23 +21,13 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Fynity - Placement Preparation Platform',
-  description: 'Your complete placement preparation platform for mastering coding, aptitude, and interview skills',
+  title: 'CareerEzi - Placement Preparation Platform',
+  description: 'CareerEzi — Placement preparation platform by Finity Innovations',
   generator: 'v0.app',
   icons: {
     icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
+      { url: '/careerezi-icon-32-favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon-dark-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
     apple: '/apple-icon.png',
   },
@@ -60,7 +50,7 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          storageKey="fynity-theme"
+          storageKey="careerezi-theme"
           disableTransitionOnChange={false}
         >
           {children}

@@ -1,7 +1,7 @@
 import axios from "axios"
 
-const TOKEN_KEY = "fynity_access_token"
-const AUTH_KEY = "fynity-auth"
+const TOKEN_KEY = "careerezi_access_token"
+const AUTH_KEY = "careerezi-auth"
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
 
 function getToken(): string | null {
@@ -39,14 +39,14 @@ function updateTokens(accessToken: string, refreshToken: string) {
     }
   } catch { /* ignore */ }
   const expires = new Date(Date.now() + 7 * 864e5).toUTCString()
-  document.cookie = `fynity_token=${encodeURIComponent(accessToken)};expires=${expires};path=/;SameSite=Lax`
+  document.cookie = `careerezi_token=${encodeURIComponent(accessToken)};expires=${expires};path=/;SameSite=Lax`
 }
 
 function clearAuth() {
   if (typeof window === "undefined") return
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(AUTH_KEY)
-  document.cookie = "fynity_token=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/"
+  document.cookie = "careerezi_token=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/"
   window.location.href = "/login"
 }
 

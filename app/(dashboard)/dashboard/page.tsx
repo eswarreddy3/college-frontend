@@ -20,6 +20,7 @@ interface DashboardData {
   total_in_college: number
   solved_count: number
   active_days: number[]
+  activity_map: Record<string, number>
   recent_activity: {
     id: number
     action: string
@@ -133,10 +134,10 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity */}
         <div className="lg:col-span-2">
-          <GlassCard>
-            <h2 className="text-lg font-semibold font-serif text-foreground mb-4">Recent Activity</h2>
+          <GlassCard className="flex flex-col h-[320px] lg:h-[420px]">
+            <h2 className="text-lg font-semibold font-serif text-foreground mb-4 flex-shrink-0">Recent Activity</h2>
             {data && data.recent_activity.length > 0 ? (
-              <div className="space-y-3">
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                 {data.recent_activity.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30">
                     <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
@@ -156,7 +157,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
+              <div className="flex flex-col items-center justify-center flex-1 text-center">
                 <Code className="h-10 w-10 text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">No activity yet</p>
                 <p className="text-xs text-muted-foreground/70">Start solving problems to see your activity here</p>
@@ -166,7 +167,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="space-y-4">
+        <div className="space-y-4 lg:h-[420px] lg:flex lg:flex-col">
           <GlassCard>
             <h3 className="font-semibold font-serif mb-4 text-foreground">Quick Actions</h3>
             <div className="space-y-2">
@@ -229,7 +230,7 @@ export default function DashboardPage() {
       {/* Streak Calendar */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
         <StreakCalendar
-          activeDays={data?.active_days ?? []}
+          activityMap={data?.activity_map ?? {}}
           currentStreak={data?.streak ?? 0}
           longestStreak={data?.longest_streak ?? 0}
         />

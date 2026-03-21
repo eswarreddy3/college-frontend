@@ -1,5 +1,5 @@
 // HTML/CSS course — scenario-based lessons (indexed by lesson order, 1-based)
-// Building Fynity's web frontend from scratch.
+// Building CareerEzi's web frontend from scratch.
 // Pattern mirrors Python/SQL: :::scenario, :::insight, :::tip, :::mistake, :::challenge
 
 const htmlCssContent: Record<number, string> = {
@@ -9,7 +9,7 @@ const htmlCssContent: Record<number, string> = {
   // ─────────────────────────────────────────────────────────────────────────
 
   1: `:::scenario
-Week 1 at Fynity. Your team lead Priya drops a task in your inbox:
+Week 1 at CareerEzi. Your team lead Priya drops a task in your inbox:
 
 "The marketing team needs a landing page by Friday. We have the design — we just need someone to build it. It's HTML/CSS only. Can you handle it?"
 
@@ -28,11 +28,11 @@ Every web page is an HTML file — a text document that browsers parse and rende
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fynity — Get Placed</title>
+    <title>CareerEzi — Get Placed</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h1>Welcome to Fynity</h1>
+    <h1>Welcome to CareerEzi</h1>
     <p>Your college placement preparation platform.</p>
   </body>
 </html>
@@ -78,7 +78,7 @@ Everything users **see** goes inside \`<body>\`. Text, images, buttons, forms �
 ## Tags, Elements & Attributes
 
 \`\`\`html
-<a href="https://fynity.in" target="_blank">Visit Fynity</a>
+<a href="https://careerezi.in" target="_blank">Visit CareerEzi</a>
 <!-- ↑tag  ↑attribute="value"              ↑content  ↑closing tag -->
 \`\`\`
 
@@ -128,8 +128,8 @@ HTML has a rich set of tags for text. Choosing the right one matters — not jus
 Headings create hierarchy. Think of them like a newspaper — one big headline, a few sub-headlines, smaller sections.
 
 \`\`\`html
-<h1>Fynity — Get Placed at Your Dream Company</h1>
-<h2>Why Students Choose Fynity</h2>
+<h1>CareerEzi — Get Placed at Your Dream Company</h1>
+<h2>Why Students Choose CareerEzi</h2>
 <h3>Practice with Real Interview Questions</h3>
 <h4>Topic-wise MCQs</h4>
 \`\`\`
@@ -149,7 +149,7 @@ Don't use headings just to make text bigger. Use them for **document outline**. 
 
 \`\`\`html
 <p>
-  Fynity helps college students prepare for campus placements with curated
+  CareerEzi helps college students prepare for campus placements with curated
   courses, mock tests, and real company interview questions.
 </p>
 <p>
@@ -214,7 +214,7 @@ This is one of the most important HTML concepts:
 <div class="hero-section">
   <h1>Get Placed at Top Companies</h1>
   <!-- span: generic inline container (for styling a portion of text) -->
-  <p>Join <span class="highlight">4,200+</span> students already on Fynity</p>
+  <p>Join <span class="highlight">4,200+</span> students already on CareerEzi</p>
 </div>
 \`\`\`
 
@@ -231,7 +231,7 @@ Avoid overusing \`<br />\` to create vertical space. That's CSS's job. Use \`<br
 :::
 
 :::challenge
-Mark up the Fynity landing page hero section: one \`<h1>\` with the main tagline, a \`<p>\` with a short description using \`<strong>\` for emphasis, and a \`<p>\` showing the number of students with the count wrapped in \`<span class="stat">\`.
+Mark up the CareerEzi landing page hero section: one \`<h1>\` with the main tagline, a \`<p>\` with a short description using \`<strong>\` for emphasis, and a \`<p>\` showing the number of students with the count wrapped in \`<span class="stat">\`.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -254,7 +254,7 @@ The \`<a>\` (anchor) tag creates clickable links.
 <a href="/dashboard">Go to Dashboard</a>
 
 <!-- External link -->
-<a href="https://github.com/fynity" target="_blank" rel="noopener noreferrer">
+<a href="https://github.com/careerezi" target="_blank" rel="noopener noreferrer">
   GitHub
 </a>
 
@@ -263,7 +263,7 @@ The \`<a>\` (anchor) tag creates clickable links.
 <section id="features">...</section>
 
 <!-- Email link -->
-<a href="mailto:support@fynity.in">Contact Support</a>
+<a href="mailto:support@careerezi.in">Contact Support</a>
 
 <!-- Phone link (mobile) -->
 <a href="tel:+919876543210">Call Us</a>
@@ -285,7 +285,7 @@ a:visited { color: #8B5CF6; }
 
 \`\`\`html
 <!-- Basic image -->
-<img src="logo.png" alt="Fynity Logo" />
+<img src="logo.png" alt="CareerEzi Logo" />
 
 <!-- With dimensions -->
 <img src="hero.jpg" alt="Students celebrating placement" width="800" height="400" />
@@ -313,7 +313,7 @@ Never leave \`alt\` empty on meaningful images. Screen reader users depend on it
 <img src="../assets/hero.jpg" alt="Hero" />
 
 <!-- Absolute: full URL -->
-<img src="https://cdn.fynity.in/logo.png" alt="Logo" />
+<img src="https://cdn.careerezi.in/logo.png" alt="Logo" />
 \`\`\`
 
 ## Responsive Images
@@ -324,14 +324,14 @@ Never leave \`alt\` empty on meaningful images. Screen reader users depend on it
   src="hero-800.jpg"
   srcset="hero-400.jpg 400w, hero-800.jpg 800w, hero-1200.jpg 1200w"
   sizes="(max-width: 600px) 400px, (max-width: 1000px) 800px, 1200px"
-  alt="Fynity hero banner"
+  alt="CareerEzi hero banner"
 />
 
 <!-- picture: art direction (different crops at different sizes) -->
 <picture>
   <source media="(max-width: 600px)" srcset="hero-mobile.jpg" />
   <source media="(max-width: 1000px)" srcset="hero-tablet.jpg" />
-  <img src="hero-desktop.jpg" alt="Fynity hero" />
+  <img src="hero-desktop.jpg" alt="CareerEzi hero" />
 </picture>
 \`\`\`
 
@@ -365,7 +365,7 @@ Never leave \`alt\` empty on meaningful images. Screen reader users depend on it
 
 \`\`\`html
 <figure>
-  <img src="leaderboard.png" alt="Fynity leaderboard screenshot" />
+  <img src="leaderboard.png" alt="CareerEzi leaderboard screenshot" />
   <figcaption>Top 10 students from VIT Vellore — March 2026</figcaption>
 </figure>
 \`\`\`
@@ -557,7 +557,7 @@ Always pair \`<label>\` with \`<input>\` using matching \`for\` / \`id\` attribu
 :::
 
 :::challenge
-Build the Fynity signup form: fields for name, email, college (select dropdown with 4 options), password, a checkbox for "I agree to terms", and a submit button. Add \`required\` to all fields. Test that the browser blocks empty submission.
+Build the CareerEzi signup form: fields for name, email, college (select dropdown with 4 options), password, a checkbox for "I agree to terms", and a submit button. Add \`required\` to all fields. Test that the browser blocks empty submission.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -583,7 +583,7 @@ Semantic elements **describe their purpose** in the tag name itself.
 
   <header>
     <nav>
-      <a href="/">Fynity</a>
+      <a href="/">CareerEzi</a>
       <ul>
         <li><a href="/learn">Learn</a></li>
         <li><a href="/practice">Practice</a></li>
@@ -599,7 +599,7 @@ Semantic elements **describe their purpose** in the tag name itself.
     </section>
 
     <section id="features">
-      <h2>Why Students Love Fynity</h2>
+      <h2>Why Students Love CareerEzi</h2>
 
       <article class="feature-card">
         <h3>Practice MCQs</h3>
@@ -619,9 +619,9 @@ Semantic elements **describe their purpose** in the tag name itself.
   </main>
 
   <footer>
-    <p>&copy; 2026 Fynity. All rights reserved.</p>
+    <p>&copy; 2026 CareerEzi. All rights reserved.</p>
     <address>
-      <a href="mailto:support@fynity.in">support@fynity.in</a>
+      <a href="mailto:support@careerezi.in">support@careerezi.in</a>
     </address>
   </footer>
 
@@ -659,7 +659,7 @@ Semantic elements **describe their purpose** in the tag name itself.
 <!-- article: standalone content (could be shared/syndicated alone) -->
 <article>
   <h2>How I Got Placed at Google — by Aarav Shah</h2>
-  <p>My preparation journey started with Fynity...</p>
+  <p>My preparation journey started with CareerEzi...</p>
 </article>
 
 <!-- div: no semantic meaning — use only for styling/layout hooks -->
@@ -696,7 +696,7 @@ Semantic HTML directly impacts SEO. Google's crawler assigns more weight to cont
 :::
 
 :::challenge
-Audit your Fynity landing page. Replace every \`<div class="header">\` with \`<header>\`, every \`<div class="nav">\` with \`<nav>\`, and so on. Then open Chrome DevTools → Accessibility panel and check the document outline.
+Audit your CareerEzi landing page. Replace every \`<div class="header">\` with \`<header>\`, every \`<div class="nav">\` with \`<nav>\`, and so on. Then open Chrome DevTools → Accessibility panel and check the document outline.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1002,7 +1002,7 @@ Apply it globally — this is standard in every modern project:
 \`\`\`
 
 :::challenge
-Build a Fynity stats card: a 300px wide card with 24px padding, a 1px border with border-radius 12px, a heading, a big number, and a label. Use \`box-sizing: border-box\`. Then add \`margin: 0 auto\` to center it on the page.
+Build a CareerEzi stats card: a 300px wide card with 24px padding, a 1px border with border-radius 12px, a heading, a big number, and a label. Use \`box-sizing: border-box\`. Then add \`margin: 0 auto\` to center it on the page.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1176,7 +1176,7 @@ p {
   background: url('hero.jpg') center/cover no-repeat #0A0F1E;
 }
 
-/* Glass morphism (Fynity's card style) */
+/* Glass morphism (CareerEzi's card style) */
 .card {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
@@ -1186,7 +1186,7 @@ p {
 \`\`\`
 
 :::challenge
-Style the Fynity hero section: dark gradient background, white heading with gradient text effect using the teal-to-purple gradient, DM Sans font loaded from Google Fonts, a comfortable \`line-height\` of 1.6 for the body text, and a glass-morphism card in the center.
+Style the CareerEzi hero section: dark gradient background, white heading with gradient text effect using the teal-to-purple gradient, DM Sans font loaded from Google Fonts, a comfortable \`line-height\` of 1.6 for the body text, and a glass-morphism card in the center.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1214,7 +1214,7 @@ Flexbox is a **one-dimensional** layout system — it lays items in a row OR a c
 
 \`\`\`html
 <nav class="navbar">
-  <a href="/" class="logo">Fynity</a>  <!-- flex item 1 -->
+  <a href="/" class="logo">CareerEzi</a>  <!-- flex item 1 -->
   <ul class="nav-links">...</ul>       <!-- flex item 2 -->
   <button>Sign Up</button>             <!-- flex item 3 -->
 </nav>
@@ -1257,7 +1257,7 @@ The **cross axis** is perpendicular to the main axis.
 }
 \`\`\`
 
-## Building the Fynity Navbar
+## Building the CareerEzi Navbar
 
 \`\`\`css
 .navbar {
@@ -1356,7 +1356,7 @@ The rule of thumb: if you're thinking "row OR column," use Flexbox. If you're th
 :::
 
 :::challenge
-Build the Fynity navbar with: logo on the left, nav links in the center using \`<ul>\` with \`display: flex; gap: 24px\`, and a "Sign Up" button on the right using \`justify-content: space-between\`. The whole navbar should be vertically centered with \`align-items: center\`.
+Build the CareerEzi navbar with: logo on the left, nav links in the center using \`<ul>\` with \`display: flex; gap: 24px\`, and a "Sign Up" button on the right using \`justify-content: space-between\`. The whole navbar should be vertically centered with \`align-items: center\`.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1532,7 +1532,7 @@ You can (and should) nest Grid and Flexbox. A Grid handles the outer page layout
 :::
 
 :::challenge
-Build the Fynity dashboard skeleton using Grid: \`grid-template-areas\` with a topbar spanning full width, a 260px sidebar on the left, and a main content area filling the rest. Add a \`gap: 0\` and make sure the layout takes full viewport height.
+Build the CareerEzi dashboard skeleton using Grid: \`grid-template-areas\` with a topbar spanning full width, a 260px sidebar on the left, and a main content area filling the rest. Add a \`gap: 0\` and make sure the layout takes full viewport height.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1726,14 +1726,14 @@ A new stacking context is created when you combine \`position\` with \`z-index\`
 \`\`\`
 
 :::challenge
-Build a Fynity notification toast that appears fixed in the bottom-right corner of the viewport (position: fixed, bottom: 24px, right: 24px). Give it a high z-index so it appears above all other content. Add a badge with \`position: absolute\` in the top-right corner of a card component.
+Build a CareerEzi notification toast that appears fixed in the bottom-right corner of the viewport (position: fixed, bottom: 24px, right: 24px). Give it a high z-index so it appears above all other content. Add a badge with \`position: absolute\` in the top-right corner of a card component.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
   12: `:::scenario
 "Open the site on your phone," Priya says. You pull out your phone. Everything is tiny — the desktop layout squeezed into 390px.
 
-"We need this to be mobile-first," she continues. "60% of students will access Fynity on their phones. If it doesn't work on mobile, it doesn't work."
+"We need this to be mobile-first," she continues. "60% of students will access CareerEzi on their phones. If it doesn't work on mobile, it doesn't work."
 :::
 
 # Responsive Design & Media Queries
@@ -1913,7 +1913,7 @@ p  { font-size: clamp(0.9rem, 1vw + 0.5rem, 1.1rem); }
 \`\`\`
 
 :::challenge
-Make the Fynity landing page fully responsive: stack the hero content vertically on mobile (< 768px), show a 2-column feature grid on tablet, and 3-column on desktop. Use \`clamp()\` for the hero title font size. Add a media query that hides the sidebar on mobile.
+Make the CareerEzi landing page fully responsive: stack the hero content vertically on mobile (< 768px), show a 2-column feature grid on tablet, and 3-column on desktop. Use \`clamp()\` for the hero title font size. Add a media query that hides the sidebar on mobile.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -2068,7 +2068,7 @@ While transitions handle two states, \`@keyframes\` define multi-step animations
 | \`animation-fill-mode\` | \`none\`, \`forwards\`, \`backwards\`, \`both\` |
 | \`animation-play-state\` | \`running\`, \`paused\` |
 
-## Fynity UI Animations
+## CareerEzi UI Animations
 
 \`\`\`css
 /* Staggered card entrance */
@@ -2112,7 +2112,7 @@ Use \`transform\` and \`opacity\` for animations — the browser can animate the
 :::
 
 :::challenge
-Add entrance animations to the Fynity hero section: the heading fades in from the top, the subtext fades in from below with a 0.2s delay, and the CTA button scales in with a 0.4s delay. Use \`animation-fill-mode: both\` so elements start invisible. Add a pulsing animation to the "Live" badge.
+Add entrance animations to the CareerEzi hero section: the heading fades in from the top, the subtext fades in from below with a 0.2s delay, and the CTA button scales in with a 0.4s delay. Use \`animation-fill-mode: both\` so elements start invisible. Add a pulsing animation to the "Live" badge.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -2325,7 +2325,7 @@ Pseudo-elements insert generated content **without touching the HTML**.
 input[type="email"] { /* email inputs only */ }
 
 /* Contains */
-a[href*="fynity"] { color: var(--color-primary); }
+a[href*="careerezi"] { color: var(--color-primary); }
 
 /* Starts with */
 a[href^="https"] { /* external links */ }
@@ -2335,14 +2335,14 @@ a[href$=".pdf"]::after { content: " 📄"; }
 \`\`\`
 
 :::challenge
-Create a Fynity design token system: define at least 10 CSS variables in \`:root\` covering colors, spacing, and border-radius. Build a card component using only \`var()\` references. Add an \`::after\` pseudo-element that creates an animated teal underline on card headings when hovered.
+Create a CareerEzi design token system: define at least 10 CSS variables in \`:root\` covering colors, spacing, and border-radius. Build a card component using only \`var()\` references. Add an \`::after\` pseudo-element that creates an animated teal underline on card headings when hovered.
 :::`,
 
   // ─────────────────────────────────────────────────────────────────────────
   15: `:::scenario
 "We're launching in a week," Priya says. "The page needs to feel premium — deep shadows, smooth gradients, refined details. Look at Stripe's website, look at Linear.app. That level of polish."
 
-You look at the Fynity design. The bones are there. Time to make it shine.
+You look at the CareerEzi design. The bones are there. Time to make it shine.
 :::
 
 # Modern CSS: Shadows, Gradients & Advanced Layout
@@ -2535,10 +2535,10 @@ html { scroll-behavior: smooth; }
 }
 \`\`\`
 
-## Complete Fynity Card Component
+## Complete CareerEzi Card Component
 
 \`\`\`css
-.fynity-card {
+.careerezi-card {
   /* Layout */
   position: relative;
   overflow: hidden;
@@ -2558,7 +2558,7 @@ html { scroll-behavior: smooth; }
 }
 
 /* Gradient border glow on hover */
-.fynity-card::before {
+.careerezi-card::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -2568,23 +2568,23 @@ html { scroll-behavior: smooth; }
   transition: opacity 0.3s;
 }
 
-.fynity-card:hover {
+.careerezi-card:hover {
   transform: translateY(-4px);
   border-color: rgba(0, 212, 200, 0.3);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0,212,200,0.15);
 }
 
-.fynity-card:hover::before {
+.careerezi-card:hover::before {
   opacity: 1;
 }
 \`\`\`
 
 :::insight
-The combination of \`backdrop-filter: blur()\`, semi-transparent background, and subtle border is called **glassmorphism** — it's the core visual language of Fynity's UI. It works best on dark backgrounds with colorful content behind the glass layer.
+The combination of \`backdrop-filter: blur()\`, semi-transparent background, and subtle border is called **glassmorphism** — it's the core visual language of CareerEzi's UI. It works best on dark backgrounds with colorful content behind the glass layer.
 :::
 
 :::challenge
-Build the final Fynity landing page bringing all 15 lessons together: semantic HTML structure, CSS custom properties for all design tokens, a responsive grid layout, a glass-morphism hero section with gradient text, animated feature cards with staggered entrance, a smooth-scrolling nav, and a responsive mobile layout. This is your portfolio piece.
+Build the final CareerEzi landing page bringing all 15 lessons together: semantic HTML structure, CSS custom properties for all design tokens, a responsive grid layout, a glass-morphism hero section with gradient text, animated feature cards with staggered entrance, a smooth-scrolling nav, and a responsive mobile layout. This is your portfolio piece.
 :::`,
 
 }

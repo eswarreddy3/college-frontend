@@ -16,12 +16,13 @@ import {
 } from "@/components/ui/select"
 import {
   Users, Search, Flame, Mail, Loader2, Download,
-  ChevronUp, ChevronDown, ChevronsUpDown, AlertTriangle, CheckCircle, ExternalLink,
+  ChevronUp, ChevronDown, ChevronsUpDown, AlertTriangle, CheckCircle, ExternalLink, FileDown,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import api from "@/lib/api"
+import { generateStudentPDF, StudentPerformance } from "@/lib/student-report"
 
 interface Student {
   id: number
@@ -35,6 +36,17 @@ interface Student {
   streak: number
   last_active: string | null
   is_inactive: boolean
+}
+
+interface ExportStudent {
+  id: number; name: string; email: string; roll_number: string
+  branch: string; section: string; passout_year: number | string
+  phone: string; linkedin: string; github: string
+  status: string; points: number; streak: number; last_active: string | null
+  mcq_attempts: number; mcq_correct: number; mcq_accuracy: number
+  coding_submissions: number; coding_solved: number
+  assignments_completed: number; assignment_avg_score: number
+  lessons_completed: number
 }
 
 type SortKey = "name" | "points" | "streak" | "last_active"
@@ -67,6 +79,7 @@ export default function AdminStudentsPage() {
   const [loading, setLoading] = useState(true)
   const [remindingId, setRemindingId] = useState<number | null>(null)
   const [remindingSelected, setRemindingSelected] = useState(false)
+  const [downloadingId, setDownloadingId] = useState<number | null>(null)
 
   const [searchQuery, setSearchQuery] = useState("")
   const [branchFilter, setBranchFilter] = useState("all")
@@ -130,24 +143,63 @@ export default function AdminStudentsPage() {
     setRemindingSelected(false)
   }
 
-  function exportCSV() {
-    const rows = [
-      ["Name", "Email", "Roll No", "Branch", "Section", "Year", "Points", "Streak", "Last Active", "Status"],
-      ...sortedStudents.map(s => [
-        s.name, s.email, s.roll_number || "", s.branch || "", s.section || "",
-        s.passout_year || "", s.points, s.streak,
-        s.last_active ? new Date(s.last_active).toLocaleDateString() : "Never",
-        s.is_inactive ? "Inactive" : "Active",
-      ]),
-    ]
-    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n")
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "students.csv"
-    a.click()
-    URL.revokeObjectURL(url)
+  async function handleDownloadReport(student: Student) {
+    setDownloadingId(student.id)
+    try {
+      const res = await api.get(`/admin/students/${student.id}/performance`)
+      generateStudentPDF(res.data as StudentPerformance)
+    } catch {
+      toast.error("Failed to load report")
+    } finally {
+      setDownloadingId(null)
+    }
+  }
+
+  const [exportingCSV, setExportingCSV] = useState(false)
+
+  async function exportCSV() {
+    setExportingCSV(true)
+    try {
+      const res = await api.get("/admin/students/export")
+      const all: ExportStudent[] = res.data.students
+
+      const headers = [
+        "Roll No", "Name", "Email", "Branch", "Section", "Batch Year",
+        "Phone", "LinkedIn", "GitHub",
+        "Status", "Points", "Streak", "Last Active",
+        "MCQ Attempts", "MCQ Correct", "MCQ Accuracy (%)",
+        "Coding Submissions", "Coding Problems Solved",
+        "Assignments Completed", "Assignment Avg Score (%)",
+        "Lessons Completed",
+      ]
+      const rows = all.map(s => [
+        s.roll_number, s.name, s.email, s.branch, s.section, s.passout_year,
+        s.phone, s.linkedin, s.github,
+        s.status, s.points, s.streak,
+        s.last_active ? new Date(s.last_active).toLocaleDateString("en-IN") : "Never",
+        s.mcq_attempts, s.mcq_correct, s.mcq_accuracy,
+        s.coding_submissions, s.coding_solved,
+        s.assignments_completed, s.assignment_avg_score,
+        s.lessons_completed,
+      ])
+
+      const csv = [headers, ...rows]
+        .map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","))
+        .join("\n")
+
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `NAC_Student_Report_${new Date().toISOString().slice(0, 10)}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success(`Exported ${all.length} students`)
+    } catch {
+      toast.error("Failed to export")
+    } finally {
+      setExportingCSV(false)
+    }
   }
 
   function toggleSort(key: SortKey) {
@@ -306,8 +358,13 @@ export default function AdminStudentsPage() {
                 variant="outline"
                 className="border-primary/30 text-primary hover:bg-primary/10 gap-1"
                 onClick={exportCSV}
+                disabled={exportingCSV}
               >
-                <Download className="h-3 w-3" /> CSV
+                {exportingCSV
+                  ? <Loader2 className="h-3 w-3 animate-spin" />
+                  : <Download className="h-3 w-3" />
+                }
+                {exportingCSV ? "Exporting…" : "Export NAC CSV"}
               </Button>
             </div>
           </div>
@@ -451,6 +508,19 @@ export default function AdminStudentsPage() {
                             <span className="hidden sm:inline">View</span>
                           </Button>
                         </Link>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-secondary text-muted-foreground hover:text-foreground gap-1"
+                          onClick={() => handleDownloadReport(student)}
+                          disabled={downloadingId === student.id}
+                        >
+                          {downloadingId === student.id
+                            ? <Loader2 className="h-3 w-3 animate-spin" />
+                            : <FileDown className="h-3 w-3" />
+                          }
+                          <span className="hidden xl:inline">Report</span>
+                        </Button>
                       </div>
                     </td>
                   </tr>

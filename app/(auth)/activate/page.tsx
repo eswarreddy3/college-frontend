@@ -80,7 +80,7 @@ function ActivateContent() {
           <div className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center primary-glow-sm mb-4">
             <span className="text-2xl font-bold text-primary-foreground font-serif">F</span>
           </div>
-          <h1 className="text-2xl font-bold font-serif gradient-text">Fynity</h1>
+          <Logo size={44} />
         </div>
 
         {status === "loading" && (

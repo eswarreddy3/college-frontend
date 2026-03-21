@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { TopNav } from "@/components/top-nav"
+import { Logo } from "@/components/logo"
 
 // ─── Animated counter ──────────────────────────────────────────────────────────
 function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
@@ -250,10 +251,10 @@ export default function LandingPage() {
                 <span className="gradient-text">Campus & Career</span>
               </h2>
               <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-5">
-                Fynity was built to solve a real problem — students graduating with degrees but without the practical skills companies want. We give colleges a complete, managed platform so every student gets access to structured prep, regardless of which tier their institution belongs to.
+                CareerEzi was built to solve a real problem — students graduating with degrees but without the practical skills companies want. We give colleges a complete, managed platform so every student gets access to structured prep, regardless of which tier their institution belongs to.
               </p>
               <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
-                From a first-year learning Python basics to a final-year cracking interviews at top product companies — Fynity tracks, motivates, and equips every student at every stage.
+                From a first-year learning Python basics to a final-year cracking interviews at top product companies — CareerEzi tracks, motivates, and equips every student at every stage.
               </p>
             </FadeIn>
 
@@ -360,7 +361,7 @@ export default function LandingPage() {
             {/* Contact info */}
             <FadeIn className="lg:col-span-2 space-y-4 sm:space-y-6">
               {[
-                { icon: Mail,   label: "Email",    value: "hello@fynity.in" },
+                { icon: Mail,   label: "Email",    value: "hello@careerezi.in" },
                 { icon: Phone,  label: "Phone",    value: "+91 98765 43210" },
                 { icon: MapPin, label: "Location", value: "Chennai, Tamil Nadu, India" },
               ].map((item) => (
@@ -444,11 +445,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-8 sm:mb-10">
             <div className="col-span-2 md:col-span-2">
-              <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-8 h-8 rounded-lg gradient-bg primary-glow-sm flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-xl font-bold font-serif gradient-text">Fynity</span>
+              <div className="mb-4">
+                <Logo size={34} />
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
                 India's campus placement preparation platform. Helping students crack placements with structured learning, practice, and community.
@@ -479,8 +477,8 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="pt-5 sm:pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
-            <p className="text-xs text-muted-foreground">© 2026 Fynity. All rights reserved.</p>
-            <p className="text-xs text-muted-foreground">Made with ❤️ for Indian engineering students</p>
+            <p className="text-xs text-muted-foreground">© 2026 Finity Innovations. All rights reserved.</p>
+            <p className="text-xs text-muted-foreground">CareerEzi — Developed by Finity Innovations</p>
           </div>
         </div>
       </footer>

@@ -27,7 +27,7 @@ const LANGS = [
     monacoLang: "python",
     ext: ".py",
     comment: "#",
-    starter: `# 🐍 Python 3 — Fynity Code Lab
+    starter: `# 🐍 Python 3 — CareerEzi Code Lab
 # Press Ctrl+Enter or click ▶ Run
 
 def greet(name: str) -> str:
@@ -61,7 +61,7 @@ print("Sum of squares:", sum(squares))
     monacoLang: "javascript",
     ext: ".js",
     comment: "//",
-    starter: `// ⚡ JavaScript — Fynity Code Lab
+    starter: `// ⚡ JavaScript — CareerEzi Code Lab
 // Press Ctrl+Enter or click ▶ Run
 
 const greet = (name) => \`Hello, \${name}! 👋\`
@@ -94,7 +94,7 @@ console.log("Sum:", nums.reduce((a, b) => a + b, 0))
     monacoLang: "cpp",
     ext: ".cpp",
     comment: "//",
-    starter: `// ⚙️ C++ 17 — Fynity Code Lab
+    starter: `// ⚙️ C++ 17 — CareerEzi Code Lab
 // Press Ctrl+Enter or click ▶ Run
 
 #include <iostream>
@@ -138,7 +138,7 @@ int main() {
     monacoLang: "java",
     ext: ".java",
     comment: "//",
-    starter: `// ☕ Java — Fynity Code Lab
+    starter: `// ☕ Java — CareerEzi Code Lab
 // Press Ctrl+Enter or click ▶ Run
 
 import java.util.*;
@@ -184,7 +184,7 @@ public class Solution {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fynity Lab 🌐</title>
+  <title>CareerEzi Lab 🌐</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -240,7 +240,7 @@ public class Solution {
       <span class="tag">HTML5</span>
       <span class="tag">CSS3</span>
       <span class="tag">JavaScript</span>
-      <span class="tag">Fynity Lab</span>
+      <span class="tag">CareerEzi Lab</span>
     </div>
   </div>
 </body>

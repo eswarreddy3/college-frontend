@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuthStore } from "@/store/authStore"
 import { useUIStore } from "@/store/uiStore"
+import { Logo } from "@/components/logo"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { toast } from "sonner"
 
@@ -140,13 +141,8 @@ export function Sidebar() {
             isCollapsed ? "justify-center" : "justify-between"
           )}
         >
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="relative w-10 h-10 rounded-xl gradient-bg flex items-center justify-center primary-glow-sm">
-              <span className="text-xl font-bold text-primary-foreground font-serif">F</span>
-            </div>
-            {!isCollapsed && (
-              <span className="text-xl font-bold font-serif gradient-text">Fynity</span>
-            )}
+          <Link href="/dashboard" className="flex items-center">
+            <Logo size={36} showText={!isCollapsed} />
           </Link>
           <Button
             variant="ghost"

@@ -8,6 +8,7 @@ import { z } from "zod"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -60,7 +61,7 @@ export default function LoginPage() {
           <div className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center primary-glow-sm mb-4">
             <span className="text-2xl font-bold text-primary-foreground font-serif">F</span>
           </div>
-          <h1 className="text-2xl font-bold font-serif gradient-text">Fynity</h1>
+          <Logo size={44} />
           <p className="text-sm text-muted-foreground mt-1">
             Your placement journey starts here
           </p>

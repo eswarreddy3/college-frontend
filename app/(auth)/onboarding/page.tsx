@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Loader2, Eye, EyeOff, Check, Github, Linkedin } from "lucide-react"
 import { toast } from "sonner"
+import { Logo } from "@/components/logo"
 import { motion, AnimatePresence } from "framer-motion"
 import { fireSchoolPride } from "@/lib/effects"
 import { Button } from "@/components/ui/button"
@@ -175,7 +176,7 @@ export default function OnboardingPage() {
     try {
       await api.patch("/auth/complete-onboarding", payload)
       updateUser({ first_login: false, name: formData.full_name || user!.name })
-      toast.success("Setup complete! Welcome to Fynity 🎉")
+      toast.success("Setup complete! Welcome to CareerEzi 🎉")
       setDone(true)
       fireSchoolPride()
       setTimeout(() => router.replace("/dashboard"), 2500)
@@ -221,7 +222,7 @@ export default function OnboardingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              Welcome to Fynity. Let&apos;s get you placed! 🚀
+              Welcome to CareerEzi. Let&apos;s get you placed! 🚀
             </motion.p>
           </motion.div>
         )}
@@ -241,7 +242,7 @@ export default function OnboardingPage() {
             <div className="w-10 h-10 rounded-full gradient-bg flex items-center justify-center primary-glow-sm">
               <span className="text-lg font-bold text-primary-foreground font-serif">F</span>
             </div>
-            <h1 className="text-xl font-bold font-serif gradient-text">Fynity</h1>
+            <Logo size={38} />
           </div>
           <h2 className="text-2xl font-bold font-serif text-foreground">
             {step === 1

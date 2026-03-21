@@ -919,7 +919,7 @@ export default function ResumePage() {
       })
       .catch(() => {
         // API failed — fall back to localStorage
-        const saved = localStorage.getItem("fynity-resume")
+        const saved = localStorage.getItem("careerezi-resume")
         if (saved) {
           try { const parsed = JSON.parse(saved); setData({ ...EMPTY, ...parsed, achievements: parsed.achievements ?? [] }) } catch {}
         } else if (user) {
@@ -942,7 +942,7 @@ export default function ResumePage() {
   useEffect(() => {
     if (initialLoad.current) { initialLoad.current = false; return }
     setSaveStatus("unsaved")
-    localStorage.setItem("fynity-resume", JSON.stringify(data))
+    localStorage.setItem("careerezi-resume", JSON.stringify(data))
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
       setSaveStatus("saving")
@@ -1012,7 +1012,7 @@ export default function ResumePage() {
               onClick={async () => {
                 if (!confirm("Clear all resume data?")) return
                 setData(EMPTY)
-                localStorage.removeItem("fynity-resume")
+                localStorage.removeItem("careerezi-resume")
                 try { await api.put("/student/resume", {}); setSaveStatus("saved") } catch {}
                 toast.success("Resume cleared")
               }}

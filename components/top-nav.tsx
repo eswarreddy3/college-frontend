@@ -3,8 +3,9 @@
 import { useState } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Zap, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Logo } from "@/components/logo"
 
 interface TopNavProps {
   /** Pass a scrollTo fn on pages that have in-page sections; omit on auth pages to get href links */
@@ -51,11 +52,8 @@ export function TopNav({ onScrollTo }: TopNavProps) {
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg gradient-bg primary-glow-sm flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-xl font-bold font-serif gradient-text">Fynity</span>
+        <Link href="/">
+          <Logo size={34} />
         </Link>
 
         {/* Desktop links */}

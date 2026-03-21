@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Loader2, Eye, EyeOff, CheckCircle2, XCircle, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
+import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -87,7 +88,7 @@ function ResetPasswordForm() {
           <div className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center primary-glow-sm mb-4">
             <span className="text-2xl font-bold text-primary-foreground font-serif">F</span>
           </div>
-          <h1 className="text-2xl font-bold font-serif gradient-text">Fynity</h1>
+          <Logo size={44} />
         </div>
 
         {/* Checking token */}

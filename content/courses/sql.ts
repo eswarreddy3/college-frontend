@@ -1,5 +1,5 @@
 // SQL course — scenario-based lessons (indexed by lesson order, 1-based)
-// Every lesson tells the story of building Fynity's database layer.
+// Every lesson tells the story of building CareerEzi's database layer.
 // Pattern mirrors the Python course: :::scenario, :::insight, :::tip, :::mistake, :::challenge
 
 const sqlContent: Record<number, string> = {
@@ -12,7 +12,7 @@ const sqlContent: Record<number, string> = {
   1: `:::scenario
 Week 2. You survived Python basics. Now the CTO, Vikram, calls you into the server room.
 
-"The heart of Fynity isn't the code — it's the data. Every student profile, every course, every leaderboard rank, every placement record — it all lives in MySQL." He pulls up a terminal. "You write the queries, the backend does the heavy lifting. Let's see what you've got."
+"The heart of CareerEzi isn't the code — it's the data. Every student profile, every course, every leaderboard rank, every placement record — it all lives in MySQL." He pulls up a terminal. "You write the queries, the backend does the heavy lifting. Let's see what you've got."
 
 He types one line:
 
@@ -27,7 +27,7 @@ A table floods the screen. 4,200 students from 17 colleges. Your job is to make 
 
 SQL (Structured Query Language) is the language databases understand. While Python is how you *build* the app, SQL is how you *talk to the data* it stores.
 
-Every action in Fynity eventually becomes a SQL query:
+Every action in CareerEzi eventually becomes a SQL query:
 - Student logs in → \`SELECT * FROM users WHERE email = ?\`
 - Leaderboard loads → \`SELECT name, points FROM users ORDER BY points DESC\`
 - Admin checks stats → \`SELECT COUNT(*) FROM users WHERE college_id = ?\`
@@ -36,7 +36,7 @@ SQL is not a general-purpose language — it does one thing and does it exceptio
 
 ## Your First Table: students
 
-Here's what Fynity's \`students\` table looks like:
+Here's what CareerEzi's \`students\` table looks like:
 
 | id | name | branch | cgpa | points | streak | placed |
 |----|------|--------|------|--------|--------|--------|
@@ -107,7 +107,7 @@ Always match the exact case of your stored data in WHERE conditions.
 :::
 
 :::challenge
-**Mission 1: Your First Fynity Query**
+**Mission 1: Your First CareerEzi Query**
 
 Vikram asks you to pull a report: show only the \`name\`, \`branch\`, and \`cgpa\` columns for all students. Label \`cgpa\` as \`gpa\` in the output.
 
@@ -271,7 +271,7 @@ NULL is not a value — it's the *absence* of a value. You can't compare it with
 :::
 
 :::insight
-In Fynity's database, we never store empty strings ("") for optional fields — we store NULL. This distinction matters: \`COUNT(linkedin)\` counts only non-NULL values, while \`COUNT(*)\` counts all rows. An empty string \`""\` would be counted by both.
+In CareerEzi's database, we never store empty strings ("") for optional fields — we store NULL. This distinction matters: \`COUNT(linkedin)\` counts only non-NULL values, while \`COUNT(*)\` counts all rows. An empty string \`""\` would be counted by both.
 :::
 
 :::challenge
@@ -406,7 +406,7 @@ LIMIT 50 OFFSET 0;              -- page 1
 \`\`\`
 
 :::insight
-Without \`ORDER BY\`, SQL databases make **no guarantee** about the order of results. The same query can return rows in different orders on different runs. If your feature depends on a specific order, always add \`ORDER BY\`. The leaderboard rendering in Fynity broke because someone assumed database insertion order = display order. It doesn't.
+Without \`ORDER BY\`, SQL databases make **no guarantee** about the order of results. The same query can return rows in different orders on different runs. If your feature depends on a specific order, always add \`ORDER BY\`. The leaderboard rendering in CareerEzi broke because someone assumed database insertion order = display order. It doesn't.
 :::
 
 :::tip
@@ -1291,7 +1291,7 @@ DELETE FROM temp_import;     -- slower, logged, can use WHERE, respects foreign 
 \`\`\`
 
 :::insight
-Every UPDATE and DELETE without a WHERE clause affects **every row in the table**. At Fynity, accidentally running \`DELETE FROM user_lesson_progress;\` without a WHERE would wipe every student's progress record — thousands of rows, instantly gone. Most production databases have auditing enabled to detect exactly this.
+Every UPDATE and DELETE without a WHERE clause affects **every row in the table**. At CareerEzi, accidentally running \`DELETE FROM user_lesson_progress;\` without a WHERE would wipe every student's progress record — thousands of rows, instantly gone. Most production databases have auditing enabled to detect exactly this.
 :::
 
 :::tip
@@ -1326,7 +1326,7 @@ SELECT COUNT(*) FROM users WHERE last_active < '2022-01-01';
 :::challenge
 **Mission 9: The Lesson Completion Handler**
 
-When a student completes a lesson, Fynity needs to:
+When a student completes a lesson, CareerEzi needs to:
 1. Insert a row in \`user_lesson_progress\` (user_id=1042, lesson_id=37, points_earned=10)
 2. Update the student's \`points\` (add 10) and \`last_active\` (set to NOW())
 3. Delete any existing \`temp_lesson_state\` rows for this user+lesson combination
@@ -1450,7 +1450,7 @@ Kiran Rao     | 760    | 980      | NULL     | NULL
 \`\`\`
 
 :::insight
-Window functions were added to SQL in 2003 but most developers discover them 5-10 years into their career. They're the difference between a query that takes 8 seconds (correlated subquery, runs N times) and one that takes 80ms (window function, single pass). At Fynity, switching the leaderboard from subqueries to DENSE_RANK() reduced query time from 8s to 40ms.
+Window functions were added to SQL in 2003 but most developers discover them 5-10 years into their career. They're the difference between a query that takes 8 seconds (correlated subquery, runs N times) and one that takes 80ms (window function, single pass). At CareerEzi, switching the leaderboard from subqueries to DENSE_RANK() reduced query time from 8s to 40ms.
 :::
 
 :::tip
@@ -1586,7 +1586,7 @@ WITH RECURSIVE manager_chain AS (
 SELECT * FROM manager_chain ORDER BY level;
 \`\`\`
 
-## Real Fynity Use: Course Completion Path
+## Real CareerEzi Use: Course Completion Path
 
 \`\`\`sql
 -- For a student, show all courses and their completion %
@@ -1713,7 +1713,7 @@ Key columns:
 - **key**: which index is being used (NULL = no index)
 - **rows**: estimated rows scanned (lower is better)
 
-## The Fynity Slow Queries — Fixed
+## The CareerEzi Slow Queries — Fixed
 
 \`\`\`sql
 -- Before: full scan on users for every leaderboard load
@@ -1756,7 +1756,7 @@ SELECT * FROM users WHERE email = 'arjun@vit.ac.in'
 \`\`\`
 
 :::insight
-After adding indexes, Fynity's leaderboard went from 6 seconds to 40ms — a 150x speedup. The query didn't change at all. Indexes are one of the highest-leverage optimizations in database performance. Most production performance problems are missing or wrong indexes, not poorly written queries.
+After adding indexes, CareerEzi's leaderboard went from 6 seconds to 40ms — a 150x speedup. The query didn't change at all. Indexes are one of the highest-leverage optimizations in database performance. Most production performance problems are missing or wrong indexes, not poorly written queries.
 :::
 
 :::tip
