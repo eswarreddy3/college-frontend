@@ -105,8 +105,8 @@
 
 /* ── Tailwind theme wiring ────────────────────────────────────────────────── */
 @theme inline {
-  --font-sans:  'DM Sans', 'DM Sans Fallback', sans-serif;
-  --font-serif: 'Syne', 'Syne Fallback', sans-serif;
+  --font-sans:  'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Space Grotesk', sans-serif;
   --font-mono:  'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
 
   --color-background:             var(--background);
@@ -340,6 +340,40 @@
 .animate-ripple-out {
   animation: ripple-out 0.55s ease-out forwards;
 }
+
+/* ── Hide scrollbar utility ───────────────────────────────────────────────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* ── Typewriter cursor blink ──────────────────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor-blink { animation: blink 0.9s step-start infinite; }
+
+/* ── Feature-tab progress bar ─────────────────────────────────────────────── */
+@keyframes tab-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.tab-progress {
+  transform-origin: left;
+  animation: tab-fill 5s linear forwards;
+}
+
+/* ── Space Grotesk headings — tighter tracking ────────────────────────────── */
+.font-serif {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.02em;
+  font-feature-settings: 'kern' 1;
+}
+
+/* ── 3D card transform preserve ───────────────────────────────────────────── */
+.preserve-3d { transform-style: preserve-3d; }
 
 /* ── Resume builder: print styles ─────────────────────────────────────────── */
 @media print {
