@@ -19,6 +19,15 @@ import {
   Code2,
   Brain,
   RotateCcw,
+  Star,
+  Database,
+  GitBranch,
+  Table2,
+  Cpu,
+  Network,
+  FileCode2,
+  Terminal,
+  Layers,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -62,20 +71,28 @@ const difficultyColors = {
 
 // ── Aptitude types ────────────────────────────────────────────────────────────
 
+interface AptSubtopic {
+  name: string
+  total: number
+  answered: number
+}
 interface AptTopic {
   topic_name: string
   total: number
   answered: number
+  subtopics: AptSubtopic[]
 }
 interface AptQuestion {
   id: number
   topic_name: string
+  subtopic: string | null
   image_url: string | null
   question: string
   option_a: string
   option_b: string
   option_c: string
   option_d: string
+  correct_answer?: string
   explanation: string | null
   already_correct: boolean
 }
@@ -102,6 +119,7 @@ function PracticeMCQContent() {
   // ── Programming state ──────────────────────────────────────────────────────
   const [topics, setTopics] = useState<Topic[]>([])
   const [expandedTopics, setExpandedTopics] = useState<string[]>([])
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
   const [selectedSubtopic, setSelectedSubtopic] = useState<{ topic: string; subtopic: string } | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
   const [loadingTopics, setLoadingTopics] = useState(false)
@@ -121,6 +139,7 @@ function PracticeMCQContent() {
   const [aptTopics, setAptTopics] = useState<AptTopic[]>([])
   const [loadingAptTopics, setLoadingAptTopics] = useState(false)
   const [selectedAptTopic, setSelectedAptTopic] = useState<string | null>(null)
+  const [selectedAptSubtopic, setSelectedAptSubtopic] = useState<string | null>(null)
   const [aptPage, setAptPage] = useState(1)
   const [aptTotalPages, setAptTotalPages] = useState(1)
   const [aptTotal, setAptTotal] = useState(0)
@@ -150,6 +169,7 @@ function PracticeMCQContent() {
     const topicParam = searchParams.get("topic")
     const subtopicParam = searchParams.get("subtopic")
     if (topicParam && subtopicParam) {
+      setSelectedTopic(topicParam)
       setExpandedTopics((prev) => (prev.includes(topicParam) ? prev : [...prev, topicParam]))
       loadSubtopic(topicParam, subtopicParam)
     }
@@ -254,16 +274,18 @@ function PracticeMCQContent() {
     if (view === "aptitude") loadAptTopics()
   }, [view]) // eslint-disable-line
 
-  const loadAptQuestions = useCallback((topic: string, page: number) => {
+  const loadAptQuestions = useCallback((topic: string, subtopic: string | null, page: number) => {
     setLoadingAptQ(true)
-    api.get(`/mcq/aptitude/questions?topic=${encodeURIComponent(topic)}&page=${page}`)
+    let url = `/mcq/aptitude/questions?topic=${encodeURIComponent(topic)}&page=${page}`
+    if (subtopic) url += `&subtopic=${encodeURIComponent(subtopic)}`
+    api.get(url)
       .then((res) => {
         const qs: AptQuestion[] = res.data.questions
         setAptQuestions(qs)
         setAptTotalPages(res.data.total_pages)
         setAptTotal(res.data.total)
         setAptStates(qs.map((q) => ({
-          selected: null,
+          selected: q.already_correct ? (q.correct_answer as "A"|"B"|"C"|"D" ?? null) : null,
           submitting: false,
           result: null,
           locked: q.already_correct,
@@ -273,16 +295,17 @@ function PracticeMCQContent() {
       .finally(() => setLoadingAptQ(false))
   }, [])
 
-  function selectAptTopic(topic: string) {
+  function selectAptSubtopic(topic: string, subtopic: string) {
     setSelectedAptTopic(topic)
+    setSelectedAptSubtopic(subtopic)
     setAptPage(1)
-    loadAptQuestions(topic, 1)
+    loadAptQuestions(topic, subtopic, 1)
   }
 
   function aptChangePage(newPage: number) {
     if (!selectedAptTopic) return
     setAptPage(newPage)
-    loadAptQuestions(selectedAptTopic, newPage)
+    loadAptQuestions(selectedAptTopic, selectedAptSubtopic, newPage)
   }
 
   function updateAptState(index: number, patch: Partial<AptQState>) {
@@ -317,65 +340,139 @@ function PracticeMCQContent() {
     updateAptState(qIndex, { selected: null, result: null, locked: false })
   }
 
+  // ── Topic meta ────────────────────────────────────────────────────────────
+  const TOPIC_META: Record<string, { icon: React.ElementType }> = {
+    "Python":            { icon: FileCode2  },
+    "Java":              { icon: Code2      },
+    "C":                 { icon: Terminal   },
+    "C++":               { icon: Terminal   },
+    "SQL":               { icon: Database   },
+    "DBMS":              { icon: Database   },
+    "DSA":               { icon: Layers     },
+    "Data Structures":   { icon: Layers     },
+    "Algorithms":        { icon: Cpu        },
+    "OS":                { icon: Cpu        },
+    "Operating Systems": { icon: Cpu        },
+    "Networks":          { icon: Network    },
+    "Computer Networks": { icon: Network    },
+    "Git":               { icon: GitBranch  },
+    "Excel":             { icon: Table2     },
+    "JavaScript":        { icon: FileCode2  },
+    "Web":               { icon: Network    },
+  }
+  const getTopicMeta = (name: string) =>
+    TOPIC_META[name] ?? { icon: Code2 }
+
   // ── Render: Home ───────────────────────────────────────────────────────────
   if (view === "home") {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
-        <div className="text-center mb-2">
-          <h1 className="text-2xl font-bold font-serif gradient-text mb-2">Practice MCQ</h1>
-          <p className="text-muted-foreground text-sm">Choose a category to start practising</p>
+      <motion.div
+        className="flex flex-col gap-10 max-w-4xl mx-auto py-6"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        {/* Page header */}
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold font-serif gradient-text">Practice MCQ</h1>
+          <p className="text-muted-foreground text-sm">Sharpen your skills across two categories</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
-          {/* Programming Card */}
-          <button
-            onClick={() => setView("programming")}
-            className="group text-left"
-          >
-            <GlassCard className="h-full transition-all duration-200 hover:border-primary/50 group-hover:primary-glow cursor-pointer">
-              <div className="flex flex-col gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                  <Code2 className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold font-serif text-foreground mb-1">Programming</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Topic-based MCQs on DSA, Python, Java, DBMS, OS, and more. Earn points for each correct answer.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-primary text-sm font-medium mt-auto">
-                  Start practising
-                  <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </GlassCard>
-          </button>
 
-          {/* Aptitude Card */}
-          <button
-            onClick={() => setView("aptitude")}
-            className="group text-left"
+        {/* Two cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Programming card */}
+          <motion.button
+            onClick={() => setView("programming")}
+            className="text-left"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <GlassCard className="h-full transition-all duration-200 hover:border-amber-500/50 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] cursor-pointer">
-              <div className="flex flex-col gap-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                  <Brain className="h-6 w-6 text-amber-400" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold font-serif text-foreground mb-1">Aptitude</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Quantitative aptitude, logical reasoning, and data interpretation. 5 questions per page, 1 pt each.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-amber-400 text-sm font-medium mt-auto">
-                  Start practising
-                  <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </div>
+            <div className="glass-card rounded-2xl p-8 h-full flex flex-col gap-5 cursor-pointer border border-border hover:border-primary/50 teal-glow transition-all duration-200">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Code2 className="w-7 h-7 text-primary" />
               </div>
-            </GlassCard>
-          </button>
+              <div className="flex-1 space-y-2">
+                <h2 className="text-xl font-bold font-serif text-foreground">Programming MCQ</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Topic-based questions on DSA, Python, Java, DBMS, OS, Networks, and more. Perfect for technical interview prep.
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 text-xs">
+                  5 pts per correct answer
+                </Badge>
+                <span className="text-sm font-medium text-primary flex items-center gap-1.5">
+                  Start Practice
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </div>
+              <Button
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                tabIndex={-1}
+              >
+                Start Practice →
+              </Button>
+            </div>
+          </motion.button>
+
+          {/* Aptitude card */}
+          <motion.button
+            onClick={() => setView("aptitude")}
+            className="text-left"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            <div className="glass-card rounded-2xl p-8 h-full flex flex-col gap-5 cursor-pointer border border-border hover:border-amber-500/50 transition-all duration-200"
+              style={{ boxShadow: "none" }}
+            >
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                <Brain className="w-7 h-7 text-amber-400" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <h2 className="text-xl font-bold font-serif text-foreground">Aptitude &amp; Reasoning</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Quantitative aptitude, logical reasoning, and data interpretation. Boost your placement test scores.
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <Badge variant="outline" className="text-amber-400 border-amber-500/30 bg-amber-500/5 text-xs">
+                  1 pt per correct answer
+                </Badge>
+                <span className="text-sm font-medium text-amber-400 flex items-center gap-1.5">
+                  Start Practice
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </div>
+              <Button
+                className="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 font-medium"
+                variant="outline"
+                tabIndex={-1}
+              >
+                Start Practice →
+              </Button>
+            </div>
+          </motion.button>
         </div>
-        <FeedbackModal triggerClassName="border-primary/30 text-primary hover:bg-primary/10 w-auto gap-2 px-4" />
-      </div>
+
+        {/* Tip pills */}
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {[
+            { icon: "💡", label: "Instant feedback" },
+            { icon: "📊", label: "Progress tracking" },
+            { icon: "🏆", label: "Earn points" },
+          ].map((tip) => (
+            <div
+              key={tip.label}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-card text-sm text-muted-foreground"
+            >
+              <span>{tip.icon}</span>
+              <span>{tip.label}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
     )
   }
 
@@ -397,12 +494,21 @@ function PracticeMCQContent() {
         } : null))
       : null
 
+    const totalAttempted = topics.reduce(
+      (acc, t) => acc + t.subtopics.reduce((a, s) => a + s.attempted, 0),
+      0
+    )
+
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 h-full">
+        {/* Answer feedback flash */}
         <AnimatePresence>
           {answerFeedback && (
             <motion.div
-              className={`fixed inset-0 pointer-events-none z-40 ${answerFeedback === "correct" ? "bg-emerald-500/10" : "bg-red-500/10"}`}
+              className={cn(
+                "fixed inset-0 pointer-events-none z-40",
+                answerFeedback === "correct" ? "bg-emerald-500/10" : "bg-red-500/10"
+              )}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -411,83 +517,182 @@ function PracticeMCQContent() {
           )}
         </AnimatePresence>
 
-        {/* Back */}
-        <div className="flex items-center justify-between">
+        {/* Top bar */}
+        <div className="flex items-center justify-between gap-3 flex-shrink-0">
           <button
-            onClick={() => setView("home")}
+            onClick={() => { setView("home"); setSelectedTopic(null); setSelectedSubtopic(null) }}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to categories
+            Back
           </button>
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Code2 className="h-4 w-4 text-primary" />
+            Programming MCQ
+          </div>
           <FeedbackModal compact triggerClassName="text-muted-foreground hover:text-primary" />
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-10rem)]">
-          {/* Left Panel */}
-          <div className="w-full lg:w-64 flex-shrink-0">
-            <GlassCard className="h-full overflow-y-auto">
-              <h2 className="font-semibold font-serif mb-4 text-foreground flex items-center gap-2">
-                <Code2 className="h-4 w-4 text-primary" />
-                Topics
-              </h2>
-              {loadingTopics ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 text-primary animate-spin" />
+        {/* ── Step 1: Full-width topic card grid (no topic selected) ── */}
+        {!selectedTopic && (
+          <div className="flex-1">
+            {loadingTopics ? (
+              <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-8 w-8 text-primary animate-spin" />
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-bold font-serif text-foreground">Choose a Topic</h2>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {totalAttempted > 0
+                        ? `${totalAttempted} questions answered across all topics`
+                        : "Pick a topic to start practising"}
+                    </p>
+                  </div>
+                  {totalAttempted > 0 && (
+                    <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5">
+                      {totalAttempted} done
+                    </Badge>
+                  )}
                 </div>
-              ) : (
-                <div className="space-y-1">
-                  {topics.map((t) => (
-                    <div key={t.topic}>
-                      <button
-                        onClick={() => toggleTopic(t.topic)}
-                        className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-secondary/50 transition-colors text-foreground"
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {topics.map((t, i) => {
+                    const meta = getTopicMeta(t.topic)
+                    const total = t.subtopics.reduce((a, s) => a + s.total, 0)
+                    const attempted = t.subtopics.reduce((a, s) => a + s.attempted, 0)
+                    const pct = total > 0 ? Math.round((attempted / total) * 100) : 0
+                    const Icon = meta.icon
+                    return (
+                      <motion.button
+                        key={t.topic}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05, duration: 0.3 }}
+                        whileHover={{ y: -4, scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => { setSelectedTopic(t.topic); setExpandedTopics([t.topic]) }}
+                        className="text-left group"
                       >
-                        <span className="text-sm font-medium">{t.topic}</span>
-                        {expandedTopics.includes(t.topic)
-                          ? <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                          : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-                      </button>
-                      {expandedTopics.includes(t.topic) && (
-                        <div className="ml-4 mt-1 space-y-1">
-                          {t.subtopics.map((sub) => {
-                            const isSelected = selectedSubtopic?.topic === t.topic && selectedSubtopic?.subtopic === sub.name
-                            return (
-                              <button
-                                key={sub.name}
-                                onClick={() => loadSubtopic(t.topic, sub.name)}
-                                className={cn(
-                                  "w-full text-left p-2 rounded-lg text-sm transition-colors",
-                                  isSelected ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
-                                )}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span>{sub.name}</span>
-                                  <span className="text-xs">{sub.attempted}/{sub.total}</span>
-                                </div>
-                                {sub.attempted > 0 && (
-                                  <Progress value={(sub.attempted / sub.total) * 100} className="h-1 mt-1" />
-                                )}
-                              </button>
-                            )
-                          })}
+                        <div className="glass-card rounded-2xl p-5 flex flex-col gap-4 h-full border border-border hover:border-primary/40 transition-all duration-200">
+                          {/* Top row: icon + chevron */}
+                          <div className="flex items-start justify-between">
+                            <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center">
+                              <Icon className="h-6 w-6 text-primary" />
+                            </div>
+                            <ChevronRight className="h-4 w-4 mt-1 text-muted-foreground group-hover:text-primary transition-colors group-hover:translate-x-0.5" />
+                          </div>
+
+                          {/* Topic name + subtopics */}
+                          <div className="flex-1">
+                            <p className="font-bold text-base leading-tight text-foreground">{t.topic}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t.subtopics.length} subtopics · {total} questions</p>
+                          </div>
+
+                          {/* Progress */}
+                          <div className="space-y-1.5">
+                            <div className="w-full h-1.5 rounded-full bg-secondary overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-primary transition-all duration-500"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                              {pct === 100 ? (
+                                <span className="font-semibold text-emerald-400">✓ Complete</span>
+                              ) : attempted > 0 ? (
+                                <span className="text-primary font-medium">In Progress</span>
+                              ) : (
+                                <span className="text-muted-foreground">Not started</span>
+                              )}
+                              <span className="text-muted-foreground">{attempted}/{total}</span>
+                            </div>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      </motion.button>
+                    )
+                  })}
                 </div>
-              )}
+              </motion.div>
+            )}
+          </div>
+        )}
+
+        {/* ── Step 2: Split view (topic selected) ── */}
+        {selectedTopic && (
+        <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0" style={{ height: "calc(100vh - 10rem)" }}>
+          {/* Left sidebar — subtopic list */}
+          <div className="w-full lg:w-72 flex-shrink-0 flex flex-col min-h-0">
+            <GlassCard className="h-full overflow-y-auto flex flex-col gap-0">
+              {/* Back + topic header */}
+              <button
+                onClick={() => { setSelectedTopic(null); setSelectedSubtopic(null) }}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-3"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> All Topics
+              </button>
+              {(() => {
+                const t = topics.find(t => t.topic === selectedTopic)!
+                const meta = getTopicMeta(selectedTopic)
+                const Icon = meta.icon
+                const total = t?.subtopics.reduce((a, s) => a + s.total, 0) ?? 0
+                const attempted = t?.subtopics.reduce((a, s) => a + s.attempted, 0) ?? 0
+                return (
+                  <div className="rounded-xl p-3 mb-4 border border-primary/20 bg-primary/5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-bold text-primary">{selectedTopic}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5 relative z-10">
+                      <span>{attempted} of {total} answered</span>
+                      <span className="font-semibold">{total > 0 ? Math.round((attempted/total)*100) : 0}%</span>
+                    </div>
+                    <Progress value={total > 0 ? (attempted/total)*100 : 0} className="h-1.5 relative z-10" />
+                  </div>
+                )
+              })()}
+              {/* Subtopics */}
+              <div className="space-y-1">
+                {topics.find(t => t.topic === selectedTopic)?.subtopics.map((sub) => {
+                  const isActive = selectedSubtopic?.topic === selectedTopic && selectedSubtopic?.subtopic === sub.name
+                  const pct = sub.total > 0 ? (sub.attempted / sub.total) * 100 : 0
+                  return (
+                    <button
+                      key={sub.name}
+                      onClick={() => loadSubtopic(selectedTopic, sub.name)}
+                      className={cn(
+                        "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors border",
+                        isActive
+                          ? "bg-primary/10 text-primary border-primary/30"
+                          : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground border-transparent hover:border-border"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium">{sub.name}</span>
+                        <span className="text-xs opacity-70">{sub.attempted}/{sub.total}</span>
+                      </div>
+                      <Progress value={pct} className="h-0.5 opacity-50" />
+                    </button>
+                  )
+                })}
+              </div>
             </GlassCard>
           </div>
 
-          {/* Right Panel */}
-          <div className="flex-1 flex flex-col min-h-0">
+          {/* Right panel */}
+          <div className="flex-1 flex flex-col min-h-0 gap-3">
             {!selectedSubtopic ? (
               <div className="flex-1 flex flex-col items-center justify-center">
                 <GlassCard className="text-center max-w-sm">
-                  <CheckCircle className="h-12 w-12 text-primary/40 mx-auto mb-4" />
-                  <h3 className="font-semibold font-serif text-foreground mb-2">Select a Topic</h3>
-                  <p className="text-sm text-muted-foreground">Choose a subtopic from the left panel to start practising</p>
+                  <ChevronRight className="h-12 w-12 text-primary/30 mx-auto mb-4" />
+                  <h3 className="font-semibold font-serif text-foreground mb-2">Choose a Subtopic</h3>
+                  <p className="text-sm text-muted-foreground">Pick a subtopic from the left panel to start practising</p>
                 </GlassCard>
               </div>
             ) : loadingQuestions ? (
@@ -496,30 +701,48 @@ function PracticeMCQContent() {
               </div>
             ) : questions.length === 0 ? (
               <div className="flex-1 flex items-center justify-center">
-                <p className="text-muted-foreground">No questions available for this subtopic.</p>
+                <p className="text-muted-foreground text-sm">No questions available for this subtopic.</p>
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-muted-foreground">
-                      {selectedSubtopic.topic} › {selectedSubtopic.subtopic} — {currentIndex + 1}/{questions.length}
+                {/* Top strip */}
+                <div className="flex items-center justify-between gap-3 flex-shrink-0">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-sm text-muted-foreground truncate">
+                      <span className="text-foreground font-medium">{selectedSubtopic.topic}</span>
+                      {" › "}
+                      <span className="text-foreground">{selectedSubtopic.subtopic}</span>
                     </span>
-                    <Progress value={((currentIndex + 1) / questions.length) * 100} className="w-32 h-2" />
+                    <Progress value={((currentIndex + 1) / questions.length) * 100} className="w-40 h-1.5" />
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      Q {currentIndex + 1}/{questions.length}
+                    </span>
                   </div>
-                  <Badge variant="outline" className={cn("text-xs", currentQuestion && difficultyColors[currentQuestion.difficulty])}>
+                  <Badge
+                    variant="outline"
+                    className={cn("text-xs flex-shrink-0", currentQuestion && difficultyColors[currentQuestion.difficulty])}
+                  >
                     {currentQuestion?.difficulty}
                   </Badge>
                 </div>
 
-                <GlassCard className="flex-1 flex flex-col overflow-y-auto">
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between gap-3 mb-6">
-                      <h3 className="text-base font-medium text-foreground leading-relaxed">
+                {/* Question card */}
+                <GlassCard className="flex-1 flex flex-col overflow-y-auto min-h-0">
+                  <div className="flex-1 flex flex-col">
+                    {/* Question header */}
+                    <div className="flex items-start gap-3 mb-6">
+                      <span className="flex-shrink-0 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold border border-primary/20">
+                        Q{currentIndex + 1}
+                      </span>
+                      <p className="text-base font-medium text-foreground leading-relaxed flex-1">
                         {currentQuestion?.question}
-                      </h3>
-                      <span className="text-xs text-primary whitespace-nowrap">{currentQuestion?.points} pts</span>
+                      </p>
+                      <Badge variant="outline" className="flex-shrink-0 text-xs text-primary border-primary/30 bg-primary/5">
+                        {currentQuestion?.points} pts
+                      </Badge>
                     </div>
+
+                    {/* Options */}
                     <div className="space-y-3">
                       {currentQuestion?.options.map((option, index) => {
                         const isSelected = index === selectedAnswer
@@ -544,7 +767,7 @@ function PracticeMCQContent() {
                           >
                             <div className="flex items-center gap-3">
                               <div className={cn(
-                                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium border flex-shrink-0",
+                                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border flex-shrink-0",
                                 !isSubmitted && isSelected && "border-primary bg-primary text-primary-foreground",
                                 !isSubmitted && !isSelected && "border-border text-muted-foreground",
                                 isSubmitted && isCorrect && "border-emerald-500 bg-emerald-500 text-white",
@@ -553,28 +776,31 @@ function PracticeMCQContent() {
                               )}>
                                 {String.fromCharCode(65 + index)}
                               </div>
-                              <span>{option}</span>
-                              {isSubmitted && isCorrect && <CheckCircle className="h-5 w-5 ml-auto text-emerald-400" />}
-                              {isSubmitted && wasSelected && !isCorrect && <XCircle className="h-5 w-5 ml-auto text-red-400" />}
+                              <span className="flex-1">{option}</span>
+                              {isSubmitted && isCorrect && <CheckCircle className="h-5 w-5 ml-auto text-emerald-400 flex-shrink-0" />}
+                              {isSubmitted && wasSelected && !isCorrect && <XCircle className="h-5 w-5 ml-auto text-red-400 flex-shrink-0" />}
                             </div>
                           </motion.button>
                         )
                       })}
                     </div>
+
+                    {/* Explanation */}
                     {isSubmitted && (displayResult?.explanation || currentQuestion?.explanation) && (
-                      <div className="mt-6 p-4 rounded-xl bg-secondary/50 border border-border">
-                        <h4 className="font-medium mb-2 text-foreground flex items-center gap-2">
+                      <div className="mt-6 p-4 rounded-xl border-l-4 border-primary bg-primary/5 border border-primary/20">
+                        <h4 className="font-medium mb-2 text-foreground flex items-center gap-2 text-sm">
                           <CheckCircle className="h-4 w-4 text-primary" />
                           Explanation
                         </h4>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground leading-relaxed">
                           {displayResult?.explanation ?? currentQuestion?.explanation}
                         </p>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
+                  {/* Bottom action bar */}
+                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-border flex-shrink-0">
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline" size="sm"
@@ -587,7 +813,8 @@ function PracticeMCQContent() {
                         className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
                         disabled={isSubmitted}
                       >
-                        <Flag className="h-4 w-4 mr-2" />Mark
+                        <Flag className="h-4 w-4 mr-1.5" />
+                        Mark
                       </Button>
                       {isSubmitted && (
                         <Button
@@ -595,53 +822,81 @@ function PracticeMCQContent() {
                           onClick={() => { tryingAgainRef.current = true; setIsSubmitted(false); setSelectedAnswer(null); setServerResult(null) }}
                           className="border-primary/30 text-primary hover:bg-primary/10"
                         >
+                          <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
                           Try Again
                         </Button>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={() => navigateTo(currentIndex - 1)} disabled={currentIndex === 0} className="text-foreground">
-                        <ArrowLeft className="h-4 w-4 mr-1" />Prev
+                      <Button
+                        variant="outline" size="sm"
+                        onClick={() => navigateTo(currentIndex - 1)}
+                        disabled={currentIndex === 0}
+                        className="text-foreground"
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-1" />
+                        Prev
                       </Button>
                       {!isSubmitted ? (
-                        <Button size="sm" onClick={handleSubmit} disabled={selectedAnswer === null || submitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                          {submitting && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Submit
+                        <Button
+                          size="sm"
+                          onClick={handleSubmit}
+                          disabled={selectedAnswer === null || submitting}
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
+                          {submitting && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
+                          Submit
                         </Button>
                       ) : (
-                        <Button size="sm" onClick={() => navigateTo(currentIndex + 1)} disabled={currentIndex === questions.length - 1} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                          Next<ArrowRight className="h-4 w-4 ml-1" />
+                        <Button
+                          size="sm"
+                          onClick={() => navigateTo(currentIndex + 1)}
+                          disabled={currentIndex === questions.length - 1}
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
+                          Next
+                          <ArrowRight className="h-4 w-4 ml-1" />
                         </Button>
                       )}
                     </div>
                   </div>
                 </GlassCard>
 
-                {/* Question Palette */}
-                <div className="mt-4">
+                {/* Question palette */}
+                <div className="flex-shrink-0">
                   <GlassCard className="p-4">
+                    {/* Legend */}
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-medium text-foreground">Question Palette</h4>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
+                      <h4 className="text-sm font-semibold text-foreground">Question Palette</h4>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-3 h-3 rounded bg-primary/80" />
+                          <span>Current</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
                           <div className="w-3 h-3 rounded bg-emerald-500/20 border border-emerald-500/30" />
                           <span>Answered</span>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                           <div className="w-3 h-3 rounded bg-amber-500/20 border border-amber-500/30" />
-                          <span>Review</span>
+                          <span>Marked</span>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                           <div className="w-3 h-3 rounded bg-secondary/50 border border-border" />
                           <span>Unattempted</span>
                         </div>
                       </div>
                     </div>
+                    {/* Grid */}
                     <div className="flex flex-wrap gap-2">
                       {questionStatuses.map((status, index) => (
                         <button
                           key={index}
                           onClick={() => navigateTo(index)}
-                          className={cn("w-8 h-8 rounded-lg text-xs font-medium transition-all", getStatusColor(status, index))}
+                          className={cn(
+                            "w-9 h-9 rounded-lg text-xs font-medium transition-all",
+                            getStatusColor(status, index)
+                          )}
                         >
                           {index + 1}
                         </button>
@@ -653,6 +908,7 @@ function PracticeMCQContent() {
             )}
           </div>
         </div>
+        )}
       </div>
     )
   }
@@ -660,23 +916,29 @@ function PracticeMCQContent() {
   // ── Render: Aptitude ───────────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-4">
-      {/* Back */}
-      <button
-        onClick={() => setView("home")}
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to categories
-      </button>
+      {/* Back button + header */}
+      <div className="flex items-center gap-3 flex-shrink-0">
+        <button
+          onClick={() => setView("home")}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </button>
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <Brain className="h-4 w-4 text-amber-400" />
+          Aptitude &amp; Reasoning
+        </div>
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-6" style={{ minHeight: "calc(100vh - 10rem)" }}>
-        {/* Left: Topic list */}
-        <div className="w-full lg:w-60 flex-shrink-0">
+        {/* Left sidebar */}
+        <div className="w-full lg:w-64 flex-shrink-0">
           <GlassCard className="h-full overflow-y-auto">
-            <h2 className="font-semibold font-serif mb-4 text-foreground flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-4">
               <Brain className="h-4 w-4 text-amber-400" />
-              Topics
-            </h2>
+              <span className="font-semibold font-serif text-foreground">Topics</span>
+            </div>
             {loadingAptTopics ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-6 w-6 text-amber-400 animate-spin" />
@@ -684,25 +946,53 @@ function PracticeMCQContent() {
             ) : (
               <div className="space-y-1">
                 {aptTopics.map((t) => {
-                  const isSelected = selectedAptTopic === t.topic_name
+                  const isTopicSelected = selectedAptTopic === t.topic_name
                   const pct = t.total > 0 ? (t.answered / t.total) * 100 : 0
                   return (
-                    <button
-                      key={t.topic_name}
-                      onClick={() => selectAptTopic(t.topic_name)}
-                      className={cn(
-                        "w-full text-left p-2 rounded-lg text-sm transition-colors",
-                        isSelected ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
-                      )}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium">{t.topic_name}</span>
-                        <span className="text-xs">{t.answered}/{t.total}</span>
-                      </div>
-                      {t.answered > 0 && (
-                        <Progress value={pct} className="h-1" />
-                      )}
-                    </button>
+                    <div key={t.topic_name}>
+                      {/* Topic row */}
+                      <button
+                        onClick={() => {
+                          if (isTopicSelected) { setSelectedAptTopic(null); setSelectedAptSubtopic(null) }
+                          else { setSelectedAptTopic(t.topic_name); setSelectedAptSubtopic(null) }
+                        }}
+                        className={cn(
+                          "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors",
+                          isTopicSelected
+                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground border border-transparent"
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-semibold">{t.topic_name}</span>
+                          <span className="text-xs opacity-70">{t.answered}/{t.total}</span>
+                        </div>
+                        <Progress value={pct} className="h-1 opacity-50" />
+                      </button>
+                      {/* Subtopics */}
+                      {isTopicSelected && t.subtopics.map((sub) => {
+                        const isActiveSub = selectedAptSubtopic === sub.name
+                        const subPct = sub.total > 0 ? (sub.answered / sub.total) * 100 : 0
+                        return (
+                          <button
+                            key={sub.name}
+                            onClick={() => selectAptSubtopic(t.topic_name, sub.name)}
+                            className={cn(
+                              "w-full text-left pl-6 pr-3 py-2 rounded-lg text-xs transition-colors mt-0.5",
+                              isActiveSub
+                                ? "bg-amber-500/15 text-amber-300 border border-amber-500/25"
+                                : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground border border-transparent"
+                            )}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-medium">{sub.name}</span>
+                              <span className="opacity-60">{sub.answered}/{sub.total}</span>
+                            </div>
+                            <Progress value={subPct} className="h-0.5 opacity-40" />
+                          </button>
+                        )
+                      })}
+                    </div>
                   )
                 })}
               </div>
@@ -710,14 +1000,18 @@ function PracticeMCQContent() {
           </GlassCard>
         </div>
 
-        {/* Right: Questions */}
+        {/* Right panel */}
         <div className="flex-1 flex flex-col gap-4">
-          {!selectedAptTopic ? (
+          {!selectedAptSubtopic ? (
             <div className="flex-1 flex items-center justify-center">
               <GlassCard className="text-center max-w-sm">
-                <Brain className="h-12 w-12 text-amber-400/40 mx-auto mb-4" />
-                <h3 className="font-semibold font-serif text-foreground mb-2">Select a Topic</h3>
-                <p className="text-sm text-muted-foreground">Choose an aptitude topic from the left panel</p>
+                <Brain className="h-12 w-12 text-amber-400/30 mx-auto mb-4" />
+                <h3 className="font-semibold font-serif text-foreground mb-2">
+                  {selectedAptTopic ? "Select a Subtopic" : "Select a Topic"}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {selectedAptTopic ? "Pick a subtopic from the left to start practising" : "Choose an aptitude topic from the left panel"}
+                </p>
               </GlassCard>
             </div>
           ) : loadingAptQ ? (
@@ -726,28 +1020,35 @@ function PracticeMCQContent() {
             </div>
           ) : (
             <>
-              {/* Page header */}
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  <span className="text-foreground font-medium">{selectedAptTopic}</span>
-                  {" — "}Page {aptPage} of {aptTotalPages}
-                  {" "}
-                  <span className="text-xs">(Q{(aptPage - 1) * 5 + 1}–{Math.min(aptPage * 5, aptTotal)} of {aptTotal})</span>
-                </p>
+              {/* Header row */}
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-sm text-muted-foreground">
+                    <span className="font-semibold text-foreground">{selectedAptTopic}</span>
+                    {selectedAptSubtopic && <> <span className="opacity-50">›</span> <span className="text-foreground">{selectedAptSubtopic}</span></>}
+                  </span>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    — Page {aptPage}/{aptTotalPages} ({aptTotal} Qs)
+                  </span>
+                </div>
+                {/* Legend pills */}
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-emerald-500/30 border border-emerald-500/50" />Correct
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-emerald-400">Correct</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-red-500/30 border border-red-500/50" />Wrong
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-red-500/20 bg-red-500/5">
+                    <div className="w-2 h-2 rounded-full bg-red-500" />
+                    <span className="text-red-400">Wrong</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-secondary/50 border border-border" />Unattempted
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-border bg-secondary/30">
+                    <div className="w-2 h-2 rounded-full bg-secondary border border-border" />
+                    <span>Unattempted</span>
                   </div>
                 </div>
               </div>
 
-              {/* 5 Questions */}
+              {/* 5 question cards */}
               <div className="space-y-4">
                 {aptQuestions.map((q, qIdx) => {
                   const state = aptStates[qIdx]
@@ -755,40 +1056,48 @@ function PracticeMCQContent() {
                   const result = state.result
 
                   return (
-                    <GlassCard key={q.id} className={cn(
-                      "transition-all duration-200",
-                      state.locked && "border-emerald-500/30 bg-emerald-500/5"
-                    )}>
+                    <GlassCard
+                      key={q.id}
+                      className={cn(
+                        "transition-all duration-200",
+                        state.locked && "border-emerald-500/30 bg-emerald-500/5"
+                      )}
+                    >
                       {/* Question header */}
-                      <div className="flex items-start justify-between gap-3 mb-4">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          <span className={cn(
-                            "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border",
-                            state.locked
-                              ? "bg-emerald-500 border-emerald-500 text-white"
-                              : result && !result.correct
-                              ? "bg-red-500/20 border-red-500/50 text-red-400"
-                              : "bg-secondary border-border text-muted-foreground"
-                          )}>
-                            {(aptPage - 1) * 5 + qIdx + 1}
-                          </span>
-                          <p className="text-sm font-medium text-foreground leading-relaxed">{q.question}</p>
-                        </div>
+                      <div className="flex items-start gap-3 mb-4">
+                        <span className={cn(
+                          "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border",
+                          state.locked
+                            ? "bg-emerald-500 border-emerald-500 text-white"
+                            : result && !result.correct
+                            ? "bg-red-500/20 border-red-500/50 text-red-400"
+                            : "bg-secondary border-border text-muted-foreground"
+                        )}>
+                          {(aptPage - 1) * 5 + qIdx + 1}
+                        </span>
+                        <p className="text-sm font-medium text-foreground leading-relaxed flex-1">
+                          {q.question}
+                        </p>
                         <span className="text-xs text-amber-400 whitespace-nowrap flex-shrink-0">1 pt</span>
                       </div>
 
                       {/* Image */}
                       {q.image_url && (
-                        <img src={q.image_url} alt="Question" className="mb-4 rounded-lg max-h-48 object-contain" />
+                        <img
+                          src={q.image_url}
+                          alt="Question"
+                          className="mb-4 rounded-lg max-h-48 object-contain"
+                        />
                       )}
 
-                      {/* Options */}
+                      {/* Options 2x2 grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {APT_OPTIONS.map(({ key, field }) => {
                           const optText = q[field] as string
                           const isSelected = state.selected === key
-                          const isCorrect = result ? key === result.correct_answer : false
-                          const wasSelected = result ? key === state.selected : false
+                          const correctAnswer = result?.correct_answer ?? q.correct_answer
+                          const isCorrect = correctAnswer ? key === correctAnswer : false
+                          const wasSelected = state.selected === key
                           const isLocked = state.locked
 
                           return (
@@ -798,16 +1107,12 @@ function PracticeMCQContent() {
                               disabled={isLocked || !!result || state.submitting}
                               className={cn(
                                 "p-3 rounded-xl text-left transition-all duration-150 border text-sm",
-                                // unattempted
                                 !result && !isLocked && isSelected && "border-amber-500 bg-amber-500/10 text-foreground",
                                 !result && !isLocked && !isSelected && "border-border hover:border-amber-500/40 hover:bg-amber-500/5 text-foreground",
-                                // after submit: correct answer
+                                isLocked && isCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
                                 result && isCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
-                                // after submit: wrong selection
                                 result && wasSelected && !isCorrect && "border-red-500 bg-red-500/10 text-red-400",
-                                // after submit: other options
                                 result && !isCorrect && !wasSelected && "border-border text-muted-foreground opacity-40",
-                                // locked (already correct from previous session)
                                 isLocked && isCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
                                 isLocked && !isCorrect && "border-border text-muted-foreground opacity-40",
                               )}
@@ -833,11 +1138,11 @@ function PracticeMCQContent() {
                         })}
                       </div>
 
-                      {/* Feedback */}
+                      {/* Feedback strip */}
                       {(result || state.locked) && (
                         <div className="mt-3 flex items-start justify-between gap-3">
                           <div className={cn(
-                            "flex-1 p-3 rounded-lg text-xs",
+                            "flex-1 p-3 rounded-lg text-xs leading-relaxed",
                             state.locked || result?.correct
                               ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
                               : "bg-red-500/10 border border-red-500/20 text-red-400"
@@ -850,7 +1155,7 @@ function PracticeMCQContent() {
                                 {result.correct ? "Correct!" : `Wrong — correct answer is ${result.correct_answer}`}
                               </p>
                             )}
-                            {(result?.explanation) && (
+                            {result?.explanation && (
                               <p className="text-muted-foreground">{result.explanation}</p>
                             )}
                           </div>
@@ -860,7 +1165,8 @@ function PracticeMCQContent() {
                               onClick={() => handleAptTryAgain(qIdx)}
                               className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 flex-shrink-0"
                             >
-                              <RotateCcw className="h-3 w-3 mr-1" />Try Again
+                              <RotateCcw className="h-3 w-3 mr-1" />
+                              Try Again
                             </Button>
                           )}
                         </div>
@@ -878,7 +1184,8 @@ function PracticeMCQContent() {
                   disabled={aptPage <= 1}
                   className="text-foreground"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-1" />Previous
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Previous
                 </Button>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: aptTotalPages }, (_, i) => i + 1).map((p) => (
@@ -902,7 +1209,8 @@ function PracticeMCQContent() {
                   disabled={aptPage >= aptTotalPages}
                   className="text-foreground"
                 >
-                  Next<ArrowRight className="h-4 w-4 ml-1" />
+                  Next
+                  <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             </>
