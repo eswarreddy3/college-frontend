@@ -72,7 +72,7 @@ const superAdminNavItems = [
   { href: "/super-admin/feedback", label: "Feedback", icon: MessageSquare },
 ]
 
-const BACKEND = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:5000"
+const BACKEND = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ?? "http://localhost:5000"
 
 function resolveLogoUrl(url: string | null | undefined): string | null {
   if (!url) return null

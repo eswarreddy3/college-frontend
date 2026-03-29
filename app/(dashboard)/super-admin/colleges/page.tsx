@@ -30,7 +30,7 @@ import {
 import { cn } from "@/lib/utils"
 import api from "@/lib/api"
 
-const BACKEND = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:5000"
+const BACKEND = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ?? "http://localhost:5000"
 
 function resolveLogoUrl(url: string | null): string | null {
   if (!url) return null

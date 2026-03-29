@@ -18,7 +18,7 @@ import api from "@/lib/api"
 import { useAuthStore } from "@/store/authStore"
 import Link from "next/link"
 
-const BACKEND = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ?? "http://localhost:5000"
+const BACKEND = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ?? "http://localhost:5000"
 
 function resolveLogoUrl(url: string | null): string | null {
   if (!url) return null
