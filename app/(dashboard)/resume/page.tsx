@@ -989,6 +989,31 @@ export default function ResumePage() {
   const zoomIn  = () => setZoom(z => Math.min(+(z + 0.1).toFixed(1), 1.2))
   const zoomOut = () => setZoom(z => Math.max(+(z - 0.1).toFixed(1), 0.3))
 
+  const downloadPDF = async () => {
+    const el = document.getElementById("resume-print-area")
+    if (!el) return
+    el.style.display = "block"
+    el.style.position = "absolute"
+    el.style.left = "-9999px"
+    el.style.top = "0"
+    try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ])
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" })
+      const imgData = canvas.toDataURL("image/jpeg", 1.0)
+      const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: [794, 1123] })
+      pdf.addImage(imgData, "JPEG", 0, 0, 794, 1123)
+      pdf.save(`${data.personal.name || "resume"}.pdf`)
+    } finally {
+      el.style.display = "none"
+      el.style.position = ""
+      el.style.left = ""
+      el.style.top = ""
+    }
+  }
+
   // Load from API on mount, fall back to profile pre-fill
   useEffect(() => {
     api.get("/student/resume")
@@ -1108,7 +1133,7 @@ export default function ResumePage() {
             <Button
               size="sm"
               className="bg-primary hover:brightness-110 text-primary-foreground"
-              onClick={() => window.print()}
+              onClick={downloadPDF}
             >
               <Printer className="h-4 w-4 mr-1.5" /> Download PDF
             </Button>
