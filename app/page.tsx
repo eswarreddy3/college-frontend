@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/authStore"
 import {
@@ -14,7 +14,7 @@ import {
   Github, Twitter, Linkedin, GraduationCap, HelpCircle,
   Flame, Plus, Terminal, CheckCircle2,
   ChevronRight, Rocket, Sparkles, MousePointer,
-  PlayCircle, FileText, MessageSquare, Pause, Play,
+  PlayCircle, FileText, MessageSquare,
   ChevronLeft, ScrollText, Download, Palette,
 } from "lucide-react"
 import Link from "next/link"
@@ -160,6 +160,216 @@ function Orb({ className }: { className: string }) {
       animate={{ scale: [1, 1.18, 1], opacity: [0.25, 0.45, 0.25] }}
       transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
     />
+  )
+}
+
+// ─── Feature Constellation ──────────────────────────────────────────────────────
+const C_R = 140
+const C_CX = 240
+const C_CY = 200
+
+// 7 nodes in heptagonal arrangement (radius=140, center=240,200)
+const C_NODES = [
+  { x: 240, y:  60 }, // 0 top
+  { x: 350, y: 113 }, // 1 top-right
+  { x: 377, y: 231 }, // 2 right
+  { x: 301, y: 326 }, // 3 bottom-right
+  { x: 179, y: 326 }, // 4 bottom-left
+  { x: 104, y: 231 }, // 5 left
+  { x: 131, y: 113 }, // 6 top-left
+]
+
+const C_COLORS = ["#8b5cf6","#ec4899","#06b6d4","#f59e0b","#10b981","#f97316","#14b8a6"]
+const C_INITIALS = ["SL","MCQ","IDE","CP","CF","LB","RES"]
+const C_LABELS   = ["Learning","MCQ","Coding","Co. Prep","Feed","Leaderboard","Resume"]
+// label direction: above, right, right, below, below, left, left
+const C_LPOS = ["top","right","right","bottom","bottom","left","left"] as const
+
+function cLabelRect(nx: number, ny: number, pos: "top"|"right"|"bottom"|"left") {
+  const W = 76, H = 15, G = 24
+  if (pos === "top")    return { rx: nx-W/2, ry: ny-G-H,   tx: nx,       ty: ny-G-H/2 }
+  if (pos === "bottom") return { rx: nx-W/2, ry: ny+G,     tx: nx,       ty: ny+G+H/2 }
+  if (pos === "right")  return { rx: nx+G,   ry: ny-H/2,   tx: nx+G+W/2, ty: ny       }
+  return                       { rx: nx-G-W, ry: ny-H/2,   tx: nx-G-W/2, ty: ny       }
+}
+
+function hexToRgb(hex: string) {
+  return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`
+}
+
+function FeatureConstellation({ active, onSelect }: { active: number; onSelect: (i: number) => void }) {
+  return (
+    <div className="relative w-full select-none" style={{ maxWidth: 480 }}>
+      <svg viewBox="0 0 480 400" className="w-full h-auto" style={{ overflow: "visible" }}>
+        <defs>
+          {C_COLORS.map((c,i) => (
+            <radialGradient key={i} id={`cng${i}`} cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor={c} stopOpacity="0.55"/>
+              <stop offset="100%" stopColor={c} stopOpacity="0"/>
+            </radialGradient>
+          ))}
+          <radialGradient id="ccg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#00d4c8" stopOpacity="0.7"/>
+            <stop offset="100%" stopColor="#00d4c8" stopOpacity="0"/>
+          </radialGradient>
+          {C_NODES.map((n,i) => (
+            <linearGradient key={i} id={`clg${i}`}
+              x1={C_CX} y1={C_CY} x2={n.x} y2={n.y} gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#00d4c8" stopOpacity="0.85"/>
+              <stop offset="100%" stopColor={C_COLORS[i]} stopOpacity="1"/>
+            </linearGradient>
+          ))}
+          {C_NODES.map((n,i) => {
+            const m = C_NODES[(i+1)%7]
+            return (
+              <linearGradient key={i} id={`cor${i}`}
+                x1={n.x} y1={n.y} x2={m.x} y2={m.y} gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor={C_COLORS[i]} stopOpacity="0.3"/>
+                <stop offset="100%" stopColor={C_COLORS[(i+1)%7]} stopOpacity="0.3"/>
+              </linearGradient>
+            )
+          })}
+          <filter id="cglow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="2.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        {/* Background dots */}
+        {Array.from({length:8},(_,r)=>Array.from({length:10},(_,c)=>(
+          <circle key={`bd${r}${c}`} cx={c*52+10} cy={r*50+10} r="1.2" fill="rgba(255,255,255,0.045)"/>
+        )))}
+
+        {/* Outer heptagon ring */}
+        {C_NODES.map((n,i)=>{
+          const m=C_NODES[(i+1)%7]
+          const lit=active===i||active===(i+1)%7
+          return(
+            <motion.line key={i}
+              x1={n.x} y1={n.y} x2={m.x} y2={m.y}
+              stroke={`url(#cor${i})`} strokeWidth="1"
+              animate={{opacity:lit?0.55:0.18}}
+              transition={{duration:0.4}}
+            />
+          )
+        })}
+
+        {/* Spoke lines + traveling particles */}
+        {C_NODES.map((n,i)=>{
+          const isAct=active===i
+          return(
+            <g key={i}>
+              <motion.line
+                x1={C_CX} y1={C_CY} x2={n.x} y2={n.y}
+                stroke={`url(#clg${i})`}
+                strokeWidth={isAct?2:0.8}
+                strokeDasharray={isAct?undefined:"3 6"}
+                animate={{opacity:isAct?1:0.28}}
+                transition={{duration:0.35}}
+              />
+              <motion.circle r="3"
+                fill={C_COLORS[i]}
+                filter="url(#cglow)"
+                animate={{
+                  cx:[C_CX, n.x, n.x, C_CX],
+                  cy:[C_CY, n.y, n.y, C_CY],
+                  opacity:[0, 1, 1, 0],
+                  r:[2, 3.5, 3.5, 2],
+                }}
+                transition={{
+                  duration: 3.2,
+                  repeat: Infinity,
+                  delay: i * 0.55,
+                  ease: "easeInOut",
+                  repeatDelay: 0.4,
+                }}
+              />
+            </g>
+          )
+        })}
+
+        {/* Center glow */}
+        <circle cx={C_CX} cy={C_CY} r="62" fill="url(#ccg)" opacity="0.28"/>
+
+        {/* Center node outer ring */}
+        <motion.circle cx={C_CX} cy={C_CY} r="32"
+          fill="rgba(0,212,200,0.07)"
+          stroke="rgba(0,212,200,0.38)"
+          strokeWidth="1.5"
+          animate={{r:[30,34,30]}}
+          transition={{duration:3.8,repeat:Infinity,ease:"easeInOut"}}
+        />
+        {/* Center node inner */}
+        <circle cx={C_CX} cy={C_CY} r="22"
+          fill="rgba(0,212,200,0.13)"
+          stroke="rgba(0,212,200,0.72)"
+          strokeWidth="1.5"
+        />
+        <text x={C_CX} y={C_CY-4} textAnchor="middle" fontSize="9" fontWeight="800" fill="#00d4c8" fontFamily="sans-serif">Career</text>
+        <text x={C_CX} y={C_CY+8} textAnchor="middle" fontSize="9" fontWeight="800" fill="#00d4c8" fontFamily="sans-serif">Ezi</text>
+
+        {/* Feature nodes */}
+        {C_NODES.map((n,i)=>{
+          const isAct=active===i
+          const col=C_COLORS[i]
+          const {rx,ry,tx,ty}=cLabelRect(n.x,n.y,C_LPOS[i])
+          return(
+            <motion.g key={i} onClick={()=>onSelect(i)} className="cursor-pointer">
+              {/* Glow halo */}
+              <circle cx={n.x} cy={n.y} r="34" fill={`url(#cng${i})`} opacity={isAct?0.65:0.18}/>
+
+              {/* Active pulse rings */}
+              {isAct&&(<>
+                <motion.circle cx={n.x} cy={n.y} fill="none"
+                  stroke={col} strokeWidth="1.5"
+                  animate={{r:[22,44],opacity:[0.75,0]}}
+                  transition={{duration:1.6,repeat:Infinity,ease:"easeOut"}}
+                />
+                <motion.circle cx={n.x} cy={n.y} fill="none"
+                  stroke={col} strokeWidth="1"
+                  animate={{r:[22,44],opacity:[0.42,0]}}
+                  transition={{duration:1.6,repeat:Infinity,ease:"easeOut",delay:0.65}}
+                />
+              </>)}
+
+              {/* Node circle */}
+              <motion.circle cx={n.x} cy={n.y}
+                fill={`rgba(${hexToRgb(col)},${isAct?0.22:0.08})`}
+                stroke={col}
+                strokeWidth={isAct?2:1.5}
+                animate={{r:isAct?21:18}}
+                transition={{duration:0.3,type:"spring",stiffness:300}}
+              />
+
+              {/* Initials label */}
+              <text x={n.x} y={n.y+1}
+                textAnchor="middle" dominantBaseline="middle"
+                fontSize={C_INITIALS[i].length>2?"7":"9"}
+                fontWeight="700" fill={col}
+                fontFamily="sans-serif"
+                style={{pointerEvents:"none",userSelect:"none"}}
+              >{C_INITIALS[i]}</text>
+
+              {/* Node name tag */}
+              <motion.g animate={{opacity:isAct?1:0.52}} transition={{duration:0.3}}>
+                <rect x={rx} y={ry} width={76} height={15} rx="4"
+                  fill="rgba(8,12,28,0.9)"
+                  stroke={isAct?col:"rgba(255,255,255,0.08)"}
+                  strokeWidth="0.8"
+                />
+                <text x={tx} y={ty+1}
+                  textAnchor="middle" dominantBaseline="middle"
+                  fontSize="7.5" fontWeight={isAct?"700":"400"}
+                  fill={isAct?col:"rgba(255,255,255,0.62)"}
+                  fontFamily="sans-serif"
+                  style={{pointerEvents:"none",userSelect:"none"}}
+                >{C_LABELS[i]}</text>
+              </motion.g>
+            </motion.g>
+          )
+        })}
+      </svg>
+    </div>
   )
 }
 
@@ -767,7 +977,6 @@ export default function LandingPage() {
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" })
   const [submitted, setSubmitted] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
-  const [tabPaused, setTabPaused] = useState(false)
   const [testimonialIdx, setTestimonialIdx] = useState(0)
   const [dragStart, setDragStart] = useState(0)
 
@@ -775,17 +984,6 @@ export default function LandingPage() {
   const { scrollYProgress } = useScroll({ target: heroRef })
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 60])
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
-
-  // Auto-cycle feature tabs
-  const advanceTab = useCallback(
-    () => setActiveTab((i) => (i + 1) % featureTabs.length),
-    []
-  )
-  useEffect(() => {
-    if (tabPaused) return
-    const t = setTimeout(advanceTab, 5000)
-    return () => clearTimeout(t)
-  }, [activeTab, tabPaused, advanceTab])
 
   // Auto-rotate testimonials
   useEffect(() => {
@@ -970,13 +1168,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Features ───────────────────────────────────────────────────────────── */}
-      <section id="features" className="scroll-mt-20 py-16 sm:py-24 px-4 sm:px-6"
-        onMouseEnter={() => setTabPaused(true)}
-        onMouseLeave={() => setTabPaused(false)}
+      {/* ── Features ─────────────────────────────────────────────────────────────── */}
+      <section id="features" className="scroll-mt-20 py-16 sm:py-24 px-4 sm:px-6 relative overflow-hidden"
       >
-        <div className="max-w-7xl mx-auto">
-          <FadeIn className="text-center mb-10 sm:mb-12">
+        <Orb className="w-[500px] h-[500px] bg-violet-500/6 -left-48 top-0" />
+        <Orb className="w-[400px] h-[400px] bg-cyan-500/6 -right-32 bottom-0" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <FadeIn className="text-center mb-12 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs sm:text-sm mb-4 font-medium">
               <Zap className="w-3.5 h-3.5" />
               Everything You Need
@@ -985,77 +1183,46 @@ export default function LandingPage() {
               Built for <span className="gradient-text">Placement Success</span>
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
-              Every feature designed to take students from zero to job-ready. Click any feature to explore.
+              Every feature designed to take students from zero to job-ready. Click any node to explore.
             </p>
           </FadeIn>
 
-          {/* Tab pills — horizontal scroll on mobile */}
-          <FadeIn delay={0.1}>
-            <div className="relative mb-8 sm:mb-10">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide sm:flex-wrap sm:justify-center">
-                {featureTabs.map((f, i) => (
-                  <motion.button
-                    key={f.title}
-                    onClick={() => { setActiveTab(i); setTabPaused(true); setTimeout(() => setTabPaused(false), 8000) }}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`relative flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all overflow-hidden ${
-                      activeTab === i
-                        ? `${f.bg} ${f.border} ${f.color} shadow-sm`
-                        : "border-border text-muted-foreground hover:border-primary/25 hover:text-foreground hover:bg-secondary/40"
-                    }`}
-                  >
-                    <f.icon className="w-4 h-4 flex-shrink-0" />
-                    <span className="whitespace-nowrap">{f.title}</span>
-                    {/* Progress bar for active tab */}
-                    {activeTab === i && !tabPaused && (
-                      <motion.div
-                        key={`prog-${activeTab}`}
-                        className="absolute bottom-0 left-0 h-[3px] gradient-bg"
-                        initial={{ width: "0%" }}
-                        animate={{ width: "100%" }}
-                        transition={{ duration: 5, ease: "linear" }}
-                      />
-                    )}
-                  </motion.button>
-                ))}
-              </div>
-              {/* Pause indicator */}
-              <div className="hidden sm:flex items-center gap-1.5 absolute right-0 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/50">
-                {tabPaused ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-                <span>{tabPaused ? "paused" : "auto"}</span>
-              </div>
-            </div>
-          </FadeIn>
-
-          {/* Tab content */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 24, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -12, filter: "blur(4px)" }}
-              transition={{ duration: 0.38, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center"
-            >
-              {/* Text */}
-              <div>
-                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl ${featureTabs[activeTab].bg} border ${featureTabs[activeTab].border} mb-5`}>
-                  {(() => { const Icon = featureTabs[activeTab].icon; return <Icon className={`w-4 h-4 ${featureTabs[activeTab].color}`} /> })()}
-                  <span className={`text-sm font-bold ${featureTabs[activeTab].color}`}>{featureTabs[activeTab].title}</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Left: detail panel */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: -28, filter: "blur(4px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: 28, filter: "blur(4px)" }}
+                transition={{ duration: 0.42, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="space-y-6 order-2 lg:order-1"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-mono text-muted-foreground/45 tracking-widest">
+                    {String(activeTab + 1).padStart(2, "0")} / {String(featureTabs.length).padStart(2, "0")}
+                  </span>
+                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl ${featureTabs[activeTab].bg} border ${featureTabs[activeTab].border}`}>
+                    {(() => { const Icon = featureTabs[activeTab].icon; return <Icon className={`w-4 h-4 ${featureTabs[activeTab].color}`} /> })()}
+                    <span className={`text-sm font-bold ${featureTabs[activeTab].color}`}>{featureTabs[activeTab].title}</span>
+                  </div>
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-bold font-serif mb-3 leading-tight">
-                  {featureTabs[activeTab].tagline}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed mb-6 text-sm sm:text-base">
-                  {featureTabs[activeTab].desc}
-                </p>
+
+                <div>
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif leading-tight mb-3">
+                    {featureTabs[activeTab].tagline}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                    {featureTabs[activeTab].desc}
+                  </p>
+                </div>
+
                 <ul className="space-y-3">
                   {featureTabs[activeTab].bullets.map((b, bi) => (
                     <motion.li key={b}
-                      initial={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, x: -12 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: bi * 0.08 }}
+                      transition={{ delay: bi * 0.09 }}
                       className="flex items-start gap-3"
                     >
                       <div className={`w-5 h-5 rounded-full ${featureTabs[activeTab].bg} border ${featureTabs[activeTab].border} flex items-center justify-center flex-shrink-0 mt-0.5`}>
@@ -1065,13 +1232,39 @@ export default function LandingPage() {
                     </motion.li>
                   ))}
                 </ul>
-              </div>
-              {/* Preview */}
-              <TiltCard>
-                {featureTabs[activeTab].preview}
-              </TiltCard>
-            </motion.div>
-          </AnimatePresence>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    onClick={() => setActiveTab((i) => (i - 1 + featureTabs.length) % featureTabs.length)}
+                    className="w-9 h-9 rounded-xl border border-border hover:border-primary/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <div className="flex gap-1.5">
+                    {featureTabs.map((_, i) => (
+                      <button key={i} onClick={() => setActiveTab(i)}
+                        className={`rounded-full transition-all duration-300 ${i === activeTab ? "w-6 h-2 gradient-bg" : "w-2 h-2 bg-border hover:bg-primary/40"}`}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setActiveTab((i) => (i + 1) % featureTabs.length)}
+                    className="w-9 h-9 rounded-xl border border-border hover:border-primary/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Right: constellation */}
+            <FadeIn delay={0.2} className="flex justify-center lg:justify-end order-1 lg:order-2">
+              <FeatureConstellation
+                active={activeTab % 7}
+                onSelect={(i) => setActiveTab(i)}
+              />
+            </FadeIn>
+          </div>
         </div>
       </section>
 
