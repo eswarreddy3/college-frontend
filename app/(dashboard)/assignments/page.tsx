@@ -20,6 +20,7 @@ import {
   Timer,
   ChevronDown,
   ChevronUp,
+  Lock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -38,6 +39,7 @@ interface ApiAssignment {
   status: "pending" | "in-progress" | "completed" | "overdue"
   points: number
   score: number
+  is_locked?: boolean
 }
 
 const statusConfig = {
@@ -119,13 +121,20 @@ function ModuleSection({
                 const config = statusConfig[a.status]
                 const StatusIcon = config.icon
                 return (
-                  <GlassCard key={a.id} hover className="relative overflow-hidden group flex flex-col gap-3">
+                  <GlassCard key={a.id} className={cn("relative overflow-hidden flex flex-col gap-3", !a.is_locked && "group hover:border-white/20", a.is_locked && "opacity-60")}>
                     <div className="flex items-center justify-between">
                       <span className="text-2xl">{a.icon}</span>
-                      <span className={cn("flex items-center gap-1 text-xs px-2 py-1 rounded-full border", config.color)}>
-                        <StatusIcon className="h-3 w-3" />
-                        {config.label}
-                      </span>
+                      {a.is_locked ? (
+                        <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full border bg-secondary/80 text-muted-foreground border-white/10">
+                          <Lock className="h-3 w-3" />
+                          Locked
+                        </span>
+                      ) : (
+                        <span className={cn("flex items-center gap-1 text-xs px-2 py-1 rounded-full border", config.color)}>
+                          <StatusIcon className="h-3 w-3" />
+                          {config.label}
+                        </span>
+                      )}
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground text-sm">{a.title}</h3>
@@ -134,7 +143,7 @@ function ModuleSection({
                         <FileText className="h-3 w-3" /> {a.total_questions} questions
                       </p>
                     </div>
-                    {a.status === "completed" && (
+                    {a.status === "completed" && !a.is_locked && (
                       <div className="text-xs text-emerald-400 font-medium">
                         Score: {a.score} / {a.points} pts
                       </div>
@@ -144,13 +153,20 @@ function ModuleSection({
                         <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
                         <span className="text-sm font-semibold text-foreground">{a.points} pts</span>
                       </div>
-                      <Button
-                        size="sm"
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1"
-                        onClick={() => onStart(a.id, a.status)}
-                      >
-                        {a.status === "completed" ? "Review" : "Start"} <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
+                      {a.is_locked ? (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Lock className="h-3.5 w-3.5" />
+                          Not in your plan
+                        </div>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1"
+                          onClick={() => onStart(a.id, a.status)}
+                        >
+                          {a.status === "completed" ? "Review" : "Start"} <ArrowRight className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </GlassCard>
                 )
@@ -173,7 +189,9 @@ export default function AssignmentsPage() {
 
   useEffect(() => {
     api.get("/assignments/list")
-      .then((res) => setAllAssignments(res.data))
+      .then((res) => setAllAssignments(
+        [...res.data].sort((a: ApiAssignment, b: ApiAssignment) => (a.is_locked ? 1 : 0) - (b.is_locked ? 1 : 0))
+      ))
       .catch(() => toast.error("Failed to load assignments"))
       .finally(() => setLoading(false))
   }, [])
@@ -188,18 +206,28 @@ export default function AssignmentsPage() {
   const sqlModuleAssignments = allAssignments.filter((a) => SQL_MODULES.includes(a.module_id))
   const htmlModuleAssignments = allAssignments.filter((a) => HTML_MODULES.includes(a.module_id))
   const cssModuleAssignments = allAssignments.filter((a) => CSS_MODULES.includes(a.module_id))
-  const generalAssignments = allAssignments.filter((a) => !MODULE_IDS.includes(a.module_id))
+
+  const isAllLocked = (list: ApiAssignment[]) => list.length > 0 && list.every((a) => a.is_locked)
+
+  const moduleSections = [
+    { key: "python", emoji: "🐍", title: "Python — Module Assessments", assignments: pythonModuleAssignments, expanded: pythonExpanded, onToggle: () => setPythonExpanded((p) => !p) },
+    { key: "sql",    emoji: "🗄️", title: "SQL — Module Assessments",    assignments: sqlModuleAssignments,    expanded: sqlExpanded,    onToggle: () => setSqlExpanded((p) => !p) },
+    { key: "html",   emoji: "🌐", title: "HTML — Module Assessments",   assignments: htmlModuleAssignments,   expanded: htmlExpanded,   onToggle: () => setHtmlExpanded((p) => !p) },
+    { key: "css",    emoji: "🎨", title: "CSS — Module Assessments",    assignments: cssModuleAssignments,    expanded: cssExpanded,    onToggle: () => setCssExpanded((p) => !p) },
+  ].sort((a, b) => (isAllLocked(a.assignments) ? 1 : 0) - (isAllLocked(b.assignments) ? 1 : 0))
+  const generalAssignments = allAssignments.filter((a) => !MODULE_IDS.includes(a.module_id) && !a.is_locked)
 
   const filtered =
     activeTab === "all"
       ? generalAssignments
       : generalAssignments.filter((a) => a.status === activeTab)
 
-  const pendingCount = allAssignments.filter((a) => a.status === "pending").length
-  const inProgressCount = allAssignments.filter((a) => a.status === "in-progress").length
-  const completedCount = allAssignments.filter((a) => a.status === "completed").length
-  const overdueCount = allAssignments.filter((a) => a.status === "overdue").length
-  const totalPoints = allAssignments
+  const unlockedAssignments = allAssignments.filter((a) => !a.is_locked)
+  const pendingCount = unlockedAssignments.filter((a) => a.status === "pending").length
+  const inProgressCount = unlockedAssignments.filter((a) => a.status === "in-progress").length
+  const completedCount = unlockedAssignments.filter((a) => a.status === "completed").length
+  const overdueCount = unlockedAssignments.filter((a) => a.status === "overdue").length
+  const totalPoints = unlockedAssignments
     .filter((a) => a.status === "completed")
     .reduce((sum, a) => sum + a.score, 0)
 
@@ -253,49 +281,18 @@ export default function AssignmentsPage() {
         </GlassCard>
       </div>
 
-      {/* Python Module Assignments */}
-      <ModuleSection
-        emoji="🐍"
-        title="Python — Module Assessments"
-        expanded={pythonExpanded}
-        onToggle={() => setPythonExpanded((p) => !p)}
-        assignments={pythonModuleAssignments}
-        loading={loading}
-        onStart={(id, status) => router.push(status === "completed" ? `/assignments/${id}/results` : `/assignments/${id}`)}
-      />
-
-      {/* SQL Module Assignments */}
-      <ModuleSection
-        emoji="🗄️"
-        title="SQL — Module Assessments"
-        expanded={sqlExpanded}
-        onToggle={() => setSqlExpanded((p) => !p)}
-        assignments={sqlModuleAssignments}
-        loading={loading}
-        onStart={(id, status) => router.push(status === "completed" ? `/assignments/${id}/results` : `/assignments/${id}`)}
-      />
-
-      {/* HTML Module Assignments */}
-      <ModuleSection
-        emoji="🌐"
-        title="HTML — Module Assessments"
-        expanded={htmlExpanded}
-        onToggle={() => setHtmlExpanded((p) => !p)}
-        assignments={htmlModuleAssignments}
-        loading={loading}
-        onStart={(id, status) => router.push(status === "completed" ? `/assignments/${id}/results` : `/assignments/${id}`)}
-      />
-
-      {/* CSS Module Assignments */}
-      <ModuleSection
-        emoji="🎨"
-        title="CSS — Module Assessments"
-        expanded={cssExpanded}
-        onToggle={() => setCssExpanded((p) => !p)}
-        assignments={cssModuleAssignments}
-        loading={loading}
-        onStart={(id, status) => router.push(status === "completed" ? `/assignments/${id}/results` : `/assignments/${id}`)}
-      />
+      {moduleSections.map((s) => (
+        <ModuleSection
+          key={s.key}
+          emoji={s.emoji}
+          title={s.title}
+          expanded={s.expanded}
+          onToggle={s.onToggle}
+          assignments={s.assignments}
+          loading={loading}
+          onStart={(id, status) => router.push(status === "completed" ? `/assignments/${id}/results` : `/assignments/${id}`)}
+        />
+      ))}
 
       <div className="border-t border-white/5" />
 
@@ -341,16 +338,17 @@ export default function AssignmentsPage() {
               return (
                 <GlassCard
                   key={assignment.id}
-                  hover
+                  hover={!assignment.is_locked}
                   className={cn(
                     "group relative overflow-hidden",
-                    assignment.status === "overdue" && "border-red-500/20"
+                    assignment.status === "overdue" && !assignment.is_locked && "border-red-500/20",
+                    assignment.is_locked && "opacity-60"
                   )}
                 >
-                  {assignment.status === "overdue" && (
+                  {assignment.status === "overdue" && !assignment.is_locked && (
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 rounded-l-xl" />
                   )}
-                  {assignment.status === "in-progress" && (
+                  {assignment.status === "in-progress" && !assignment.is_locked && (
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500 rounded-l-xl" />
                   )}
 
@@ -362,13 +360,20 @@ export default function AssignmentsPage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-semibold text-foreground">{assignment.title}</h3>
-                          <Badge
-                            variant="outline"
-                            className={cn("text-xs border flex items-center gap-1", config.color)}
-                          >
-                            <span className={cn("w-1.5 h-1.5 rounded-full", config.dot)} />
-                            {config.label}
-                          </Badge>
+                          {assignment.is_locked ? (
+                            <Badge variant="outline" className="text-xs border flex items-center gap-1 bg-secondary/80 text-muted-foreground border-white/10">
+                              <Lock className="h-3 w-3" />
+                              Locked
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className={cn("text-xs border flex items-center gap-1", config.color)}
+                            >
+                              <span className={cn("w-1.5 h-1.5 rounded-full", config.dot)} />
+                              {config.label}
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-3 mt-1 flex-wrap">
                           <span className="text-xs text-muted-foreground">{assignment.course}</span>
@@ -417,6 +422,12 @@ export default function AssignmentsPage() {
                         </span>
                       </div>
 
+                      {assignment.is_locked ? (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground min-w-[100px] justify-end">
+                          <Lock className="h-3.5 w-3.5" />
+                          Not in your plan
+                        </div>
+                      ) : (
                       <Button
                         size="sm"
                         className={cn(
@@ -436,6 +447,7 @@ export default function AssignmentsPage() {
                           : "Start"}
                         <ArrowRight className="h-4 w-4 ml-1" />
                       </Button>
+                      )}
                     </div>
                   </div>
                 </GlassCard>
