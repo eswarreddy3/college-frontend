@@ -1,8 +1,16 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import { TopNav } from "@/components/top-nav"
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const isOnboarding = pathname === "/onboarding"
+
+  if (isOnboarding) {
+    return <>{children}</>
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <TopNav />

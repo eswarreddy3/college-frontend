@@ -58,6 +58,8 @@ export default function SuperAdminStudentsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedCollegeId, setSelectedCollegeId] = useState("")
   const [selectedBranch, setSelectedBranch] = useState("")
+  const [selectedSection, setSelectedSection] = useState("")
+  const [selectedPassoutYear, setSelectedPassoutYear] = useState("")
   const [bulkFile, setBulkFile] = useState<File | null>(null)
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false)
   const [isBulkUploading, setIsBulkUploading] = useState(false)
@@ -93,8 +95,12 @@ export default function SuperAdminStudentsPage() {
     const data: Record<string, string | number> = Object.fromEntries(new FormData(form)) as Record<string, string>
     if (selectedCollegeId) data.college_id = Number(selectedCollegeId)
     if (selectedBranch) data.branch = selectedBranch
+    if (selectedSection) data.section = selectedSection
+    if (selectedPassoutYear) data.passout_year = Number(selectedPassoutYear)
     if (!selectedCollegeId) { toast.error("Please select a college"); return }
     if (!selectedBranch) { toast.error("Please select a branch"); return }
+    if (!selectedSection) { toast.error("Please select a section"); return }
+    if (!selectedPassoutYear) { toast.error("Please select a passout year"); return }
     setIsSubmitting(true)
     try {
       await api.post("/super-admin/students", data)
@@ -102,6 +108,8 @@ export default function SuperAdminStudentsPage() {
       setIsCreateOpen(false)
       setSelectedCollegeId("")
       setSelectedBranch("")
+      setSelectedSection("")
+      setSelectedPassoutYear("")
       form.reset()
       fetchStudents()
     } catch (err: any) {
@@ -238,10 +246,10 @@ export default function SuperAdminStudentsPage() {
 
   const downloadSampleCsv = () => {
     const rows = [
-      ["name", "email", "roll_number", "branch", "college"],
-      ["Arjun Sharma", "arjun@example.com", "21CS001", "CSE", "Sri Venkateswara Engineering College"],
-      ["Priya Menon", "priya@example.com", "21EC042", "ECE", "Sri Venkateswara Engineering College"],
-      ["Rahul Kumar", "rahul@example.com", "21ME015", "ME", "Sri Venkateswara Engineering College"],
+      ["name", "email", "roll_number", "branch", "section", "passout_year", "college"],
+      ["Arjun Sharma", "arjun@example.com", "21CS001", "CSE", "A", "2025", "Sri Venkateswara Engineering College"],
+      ["Priya Menon", "priya@example.com", "21EC042", "ECE", "B", "2026", "Sri Venkateswara Engineering College"],
+      ["Rahul Kumar", "rahul@example.com", "21ME015", "MECH", "A", "2025", "Sri Venkateswara Engineering College"],
     ]
     const csv = rows.map((r) => r.map((v) => `"${v}"`).join(",")).join("\n")
     const blob = new Blob([csv], { type: "text/csv" })
@@ -382,7 +390,7 @@ export default function SuperAdminStudentsPage() {
         title="Create Student"
         description="Enter the basics — the student will complete their profile during onboarding."
         isOpen={isCreateOpen}
-        onClose={() => { setIsCreateOpen(false); setSelectedCollegeId(""); setSelectedBranch("") }}
+        onClose={() => { setIsCreateOpen(false); setSelectedCollegeId(""); setSelectedBranch(""); setSelectedSection(""); setSelectedPassoutYear("") }}
         onSubmit={handleCreate}
         isLoading={isSubmitting}
         submitLabel="Create & Send Welcome Email"
@@ -421,6 +429,36 @@ export default function SuperAdminStudentsPage() {
             </div>
           </div>
 
+          {/* Section + Passout Year */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-foreground">Section <span className="text-destructive">*</span></Label>
+              <Select value={selectedSection} onValueChange={setSelectedSection}>
+                <SelectTrigger className="bg-secondary/50 border-border text-foreground">
+                  <SelectValue placeholder="Select section" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["A", "B", "C", "D", "E", "F"].map((s) => (
+                    <SelectItem key={s} value={s}>Section {s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-foreground">Passout Year <span className="text-destructive">*</span></Label>
+              <Select value={selectedPassoutYear} onValueChange={setSelectedPassoutYear}>
+                <SelectTrigger className="bg-secondary/50 border-border text-foreground">
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["2025", "2026", "2027", "2028", "2029"].map((y) => (
+                    <SelectItem key={y} value={y}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {/* College */}
           <div className="space-y-1.5">
             <Label className="text-foreground">College <span className="text-destructive">*</span></Label>
@@ -439,7 +477,7 @@ export default function SuperAdminStudentsPage() {
           {/* Info note */}
           <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-primary/8 border border-primary/20 text-xs text-muted-foreground">
             <span className="text-primary mt-0.5">ℹ️</span>
-            <span>Section, passout year, phone, LinkedIn, GitHub and password will be set by the student during onboarding.</span>
+            <span>Profile photo, DOB, phone, LinkedIn and GitHub will be set by the student during onboarding. Password is set on first login.</span>
           </div>
         </div>
       </ModalForm>
@@ -493,8 +531,10 @@ export default function SuperAdminStudentsPage() {
           {/* Required columns info */}
           <div className="rounded-lg bg-secondary/40 border border-border px-3 py-2.5 text-xs text-muted-foreground space-y-1">
             <p className="font-medium text-foreground">Required columns:</p>
-            <p><code className="text-primary">name</code>, <code className="text-primary">email</code>, <code className="text-primary">roll_number</code>, <code className="text-primary">branch</code>, <code className="text-primary">college</code></p>
-            <p className="mt-1">College must match the exact name in the system. Section, passout year and password are filled by the student during onboarding. Existing emails are skipped.</p>
+            <p>
+              <code className="text-primary">name</code>, <code className="text-primary">email</code>, <code className="text-primary">roll_number</code>, <code className="text-primary">branch</code>, <code className="text-primary">section</code>, <code className="text-primary">passout_year</code>, <code className="text-primary">college</code>
+            </p>
+            <p className="mt-1">College must match the exact name in the system. Profile photo, DOB, phone, LinkedIn and GitHub are filled by the student during onboarding. Existing emails are skipped.</p>
           </div>
         </div>
       </ModalForm>

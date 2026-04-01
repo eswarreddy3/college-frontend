@@ -1,11 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Loader2, Eye, EyeOff, Check, Github, Linkedin } from "lucide-react"
+import {
+  Loader2, Eye, EyeOff, Check, Github, Linkedin, Camera,
+  BookOpen, Trophy, Zap, Users, Code2, Target,
+} from "lucide-react"
 import { toast } from "sonner"
 import { Logo } from "@/components/logo"
 import { motion, AnimatePresence } from "framer-motion"
@@ -13,43 +16,19 @@ import { fireSchoolPride } from "@/lib/effects"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { useAuthStore } from "@/store/authStore"
 import api from "@/lib/api"
 import { cn } from "@/lib/utils"
 
-// ── Schemas ──────────────────────────────────────────────────────────────────
+// ── Schemas ───────────────────────────────────────────────────────────────────
 const step1Schema = z.object({
-  full_name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z
-    .string()
-    .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
-  linkedin_url: z
-    .string()
-    .url("Enter a valid LinkedIn URL")
-    .optional()
-    .or(z.literal("")),
-  github_url: z
-    .string()
-    .url("Enter a valid GitHub URL")
-    .optional()
-    .or(z.literal("")),
+  phone: z.string().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
+  dob: z.string().min(1, "Date of birth is required"),
+  linkedin_url: z.string().url("Enter a valid LinkedIn URL").optional().or(z.literal("")),
+  github_url: z.string().url("Enter a valid GitHub URL").optional().or(z.literal("")),
 })
 
-const step2Schema = z.object({
-  branch: z.string().min(1, "Select your branch"),
-  section: z.string().min(1, "Select your section"),
-  roll_number: z.string().min(1, "Roll number is required"),
-  passout_year: z.string().min(1, "Select your pass-out year"),
-})
-
-const step3Schema = z
+const step2Schema = z
   .object({
     new_password: z
       .string()
@@ -65,31 +44,39 @@ const step3Schema = z
 
 type Step1 = z.infer<typeof step1Schema>
 type Step2 = z.infer<typeof step2Schema>
-type Step3 = z.infer<typeof step3Schema>
 
-// ── Password strength ────────────────────────────────────────────────────────
+// ── Password strength ─────────────────────────────────────────────────────────
 function passwordStrength(pwd: string): { score: number; label: string; color: string } {
   let score = 0
   if (pwd.length >= 8) score++
   if (/[A-Z]/.test(pwd)) score++
   if (/[0-9]/.test(pwd)) score++
   if (/[^A-Za-z0-9]/.test(pwd)) score++
-
   if (score <= 1) return { score, label: "Weak", color: "bg-red-500" }
   if (score <= 2) return { score, label: "Fair", color: "bg-amber-500" }
   if (score <= 3) return { score, label: "Good", color: "bg-yellow-400" }
   return { score, label: "Strong", color: "bg-emerald-500" }
 }
 
-// ── Step indicators ──────────────────────────────────────────────────────────
+// ── Left panel feature items ──────────────────────────────────────────────────
+const features = [
+  { icon: BookOpen,  label: "Structured Learning",   desc: "Course roadmaps built for placements" },
+  { icon: Code2,     label: "Live Coding IDE",        desc: "Practice problems with real test cases" },
+  { icon: Trophy,    label: "Leaderboard & Points",   desc: "Compete with your college peers" },
+  { icon: Target,    label: "MCQ & Assignments",      desc: "Track your exam readiness daily" },
+  { icon: Users,     label: "Company Prep",           desc: "Interview guides for top recruiters" },
+  { icon: Zap,       label: "Streak & Gamification",  desc: "Build habits that last till placement" },
+]
+
+// ── Step indicator ────────────────────────────────────────────────────────────
 function StepIndicator({ current, total }: { current: number; total: number }) {
   return (
-    <div className="flex items-center gap-2 mb-8">
+    <div className="flex items-center gap-2 mb-6">
       {Array.from({ length: total }, (_, i) => i + 1).map((step) => (
         <div key={step} className="flex items-center gap-2">
           <div
             className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all",
+              "w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-all",
               step < current
                 ? "bg-primary text-primary-foreground"
                 : step === current
@@ -97,21 +84,14 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
                 : "bg-secondary text-muted-foreground"
             )}
           >
-            {step < current ? <Check className="h-4 w-4" /> : step}
+            {step < current ? <Check className="h-3.5 w-3.5" /> : step}
           </div>
           {step < total && (
-            <div
-              className={cn(
-                "h-0.5 w-12 transition-all",
-                step < current ? "bg-primary" : "bg-border"
-              )}
-            />
+            <div className={cn("h-0.5 w-10 transition-all", step < current ? "bg-primary" : "bg-border")} />
           )}
         </div>
       ))}
-      <span className="ml-2 text-sm text-muted-foreground">
-        Step {current} of {total}
-      </span>
+      <span className="ml-1 text-xs text-muted-foreground">Step {current} of {total}</span>
     </div>
   )
 }
@@ -120,62 +100,63 @@ export default function OnboardingPage() {
   const router = useRouter()
   const { user, token, updateUser } = useAuthStore()
   const [step, setStep] = useState(1)
-  const [formData, setFormData] = useState<Partial<Step1 & Step2 & Step3>>({})
+  const [formData, setFormData] = useState<Partial<Step1 & Step2>>({})
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [pwdValue, setPwdValue] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [done, setDone] = useState(false)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
 
-  // Redirect if not first_login
   useEffect(() => {
-    if (!token || !user) {
-      router.replace("/login")
-      return
-    }
-    if (!user.first_login) {
-      router.replace("/dashboard")
-    }
+    if (!token || !user) { router.replace("/login"); return }
+    if (!user.first_login) router.replace("/dashboard")
   }, [token, user, router])
 
-  // ── Step 1 ──────────────────────────────────────────────────────────────────
   const form1 = useForm<Step1>({
     resolver: zodResolver(step1Schema),
-    defaultValues: { full_name: user?.name || "", phone: "", linkedin_url: "", github_url: "" },
+    defaultValues: { phone: "", dob: "", linkedin_url: "", github_url: "" },
   })
+  const form2 = useForm<Step2>({ resolver: zodResolver(step2Schema) })
 
-  // ── Step 2 ──────────────────────────────────────────────────────────────────
-  const form2 = useForm<Step2>({
-    resolver: zodResolver(step2Schema),
-    defaultValues: {
-      branch: (user as any)?.branch || "",
-      section: (user as any)?.section || "",
-      roll_number: (user as any)?.roll_number || "",
-      passout_year: (user as any)?.passout_year ? String((user as any).passout_year) : "",
-    },
-  })
-
-  // ── Step 3 ──────────────────────────────────────────────────────────────────
-  const form3 = useForm<Step3>({
-    resolver: zodResolver(step3Schema),
-  })
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
+  }
 
   const handleStep1 = (data: Step1) => {
     setFormData((prev) => ({ ...prev, ...data }))
     setStep(2)
   }
 
-  const handleStep2 = (data: Step2) => {
-    setFormData((prev) => ({ ...prev, ...data }))
-    setStep(3)
-  }
-
-  const handleStep3 = async (data: Step3) => {
+  const handleStep2 = async (data: Step2) => {
     setIsSubmitting(true)
-    const payload = { ...formData, new_password: data.new_password }
     try {
-      await api.patch("/auth/complete-onboarding", payload)
-      updateUser({ first_login: false, name: formData.full_name || user!.name })
+      let photo_url: string | undefined
+      if (avatarFile) {
+        setUploadingAvatar(true)
+        const fd = new FormData()
+        fd.append("file", avatarFile)
+        const uploadRes = await api.post("/student/profile/avatar", fd, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        photo_url = uploadRes.data.photo_url
+        setUploadingAvatar(false)
+      }
+      await api.patch("/auth/complete-onboarding", {
+        phone: formData.phone,
+        linkedin_url: formData.linkedin_url,
+        github_url: formData.github_url,
+        dob: formData.dob,
+        new_password: data.new_password,
+        photo_url,
+      })
+      updateUser({ first_login: false })
       toast.success("Setup complete! Welcome to CareerEzi 🎉")
       setDone(true)
       fireSchoolPride()
@@ -186,13 +167,18 @@ export default function OnboardingPage() {
       })
     } finally {
       setIsSubmitting(false)
+      setUploadingAvatar(false)
     }
   }
 
   const strength = passwordStrength(pwdValue)
+  const initials = user?.name
+    ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "??"
 
   return (
-    <div className="w-full max-w-lg">
+    <>
+      {/* Success overlay */}
       <AnimatePresence>
         {done && (
           <motion.div
@@ -210,17 +196,13 @@ export default function OnboardingPage() {
             </motion.div>
             <motion.h2
               className="text-4xl font-bold font-serif gradient-text mb-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
             >
               You&apos;re all set!
             </motion.h2>
             <motion.p
               className="text-muted-foreground text-lg"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
             >
               Welcome to CareerEzi. Let&apos;s get you placed! 🚀
             </motion.p>
@@ -228,355 +210,308 @@ export default function OnboardingPage() {
         )}
       </AnimatePresence>
 
-      <div
-        className="rounded-2xl p-8"
-        style={{
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          backdropFilter: "blur(10px)",
-        }}
-      >
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full gradient-bg flex items-center justify-center primary-glow-sm">
-              <span className="text-lg font-bold text-primary-foreground font-serif">F</span>
-            </div>
-            <Logo size={38} />
+      {/* Two-panel layout — fixed to escape auth layout wrapper */}
+      <div className="flex min-h-screen w-full">
+
+        {/* ── LEFT PANEL ────────────────────────────────────────────────────── */}
+        <div className="hidden lg:flex flex-col justify-between w-[52%] min-h-screen bg-secondary/30 border-r border-border px-10 py-10 relative overflow-hidden">
+          {/* Background glow blobs */}
+          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-primary/6 blur-3xl pointer-events-none" />
+
+          {/* Logo */}
+          <div className="relative z-10">
+            <Logo size={36} />
           </div>
-          <h2 className="text-2xl font-bold font-serif text-foreground">
-            {step === 1
-              ? "Personal Information"
-              : step === 2
-              ? "Academic Details"
-              : "Set Your Password"}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Complete your profile to get started
-          </p>
+
+          {/* Main copy */}
+          <motion.div
+            className="relative z-10 space-y-8"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <div>
+              <h1 className="text-4xl font-bold font-serif text-foreground leading-tight">
+                Your placement journey<br />
+                <span className="gradient-text">starts here.</span>
+              </h1>
+              <p className="text-muted-foreground mt-3 text-base leading-relaxed max-w-sm">
+                Set up your profile once — then focus entirely on getting placed. Everything you need is in one place.
+              </p>
+            </div>
+
+            {/* Feature grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {features.map(({ icon: Icon, label, desc }, i) => (
+                <motion.div
+                  key={label}
+                  className="flex items-start gap-3 p-3 rounded-xl bg-background/40 border border-border/60"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.2 + i * 0.06 }}
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Icon className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground leading-tight">{label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Bottom student info pill */}
+          <motion.div
+            className="relative z-10 flex items-center gap-3 px-4 py-3 rounded-2xl bg-background/50 border border-border w-fit"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
+          >
+            <div className="w-9 h-9 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-bold text-primary font-serif">{initials}</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground leading-tight">{user?.name || "—"}</p>
+              <p className="text-xs text-muted-foreground">{user?.email || "—"}</p>
+            </div>
+            <div className="ml-2 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+              <span className="text-xs text-primary font-medium">Student</span>
+            </div>
+          </motion.div>
         </div>
 
-        <StepIndicator current={step} total={3} />
+        {/* ── RIGHT PANEL (form) ─────────────────────────────────────────────── */}
+        <div className="flex-1 flex flex-col justify-start lg:justify-center px-5 sm:px-8 lg:px-12 py-8 overflow-y-auto">
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8">
+            <Logo size={32} />
+          </div>
 
-        <AnimatePresence mode="wait">
-        {/* ── Step 1: Personal Info ──────────────────────────────────────── */}
-        {step === 1 && (
           <motion.div
-            key={1}
-            initial={{ opacity: 0, x: 30 }}
+            className="w-full max-w-md mx-auto"
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.4 }}
           >
-          <form onSubmit={form1.handleSubmit(handleStep1)} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-foreground">Full Name</Label>
-              <Input
-                placeholder="Rahul Kumar"
-                className="bg-secondary/50 border-border text-foreground"
-                {...form1.register("full_name")}
-              />
-              {form1.formState.errors.full_name && (
-                <p className="text-xs text-destructive">
-                  {form1.formState.errors.full_name.message}
-                </p>
-              )}
+            {/* Step heading */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold font-serif text-foreground">
+                {step === 1 ? "Personal Information" : "Set Your Password"}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {step === 1
+                  ? "Tell us a bit about yourself to complete your profile."
+                  : "Choose a strong password to secure your account."}
+              </p>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-foreground">Phone Number</Label>
-              <Input
-                placeholder="9876543210"
-                className="bg-secondary/50 border-border text-foreground"
-                {...form1.register("phone")}
-              />
-              {form1.formState.errors.phone && (
-                <p className="text-xs text-destructive">
-                  {form1.formState.errors.phone.message}
-                </p>
-              )}
-            </div>
+            <StepIndicator current={step} total={2} />
 
-            <div className="space-y-1.5">
-              <Label className="text-foreground flex items-center gap-1.5">
-                <Linkedin className="h-3.5 w-3.5 text-blue-400" />
-                LinkedIn URL{" "}
-                <span className="text-muted-foreground text-xs">(optional)</span>
-              </Label>
-              <Input
-                placeholder="https://linkedin.com/in/yourname"
-                className="bg-secondary/50 border-border text-foreground"
-                {...form1.register("linkedin_url")}
-              />
-              {form1.formState.errors.linkedin_url && (
-                <p className="text-xs text-destructive">
-                  {form1.formState.errors.linkedin_url.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-foreground flex items-center gap-1.5">
-                <Github className="h-3.5 w-3.5" />
-                GitHub URL{" "}
-                <span className="text-muted-foreground text-xs">(optional)</span>
-              </Label>
-              <Input
-                placeholder="https://github.com/yourusername"
-                className="bg-secondary/50 border-border text-foreground"
-                {...form1.register("github_url")}
-              />
-              {form1.formState.errors.github_url && (
-                <p className="text-xs text-destructive">
-                  {form1.formState.errors.github_url.message}
-                </p>
-              )}
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-primary hover:brightness-110 text-primary-foreground"
-            >
-              Next →
-            </Button>
-          </form>
-          </motion.div>
-        )}
-
-        {/* ── Step 2: Academic Info ──────────────────────────────────────── */}
-        {step === 2 && (
-          <motion.div
-            key={2}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.25 }}
-          >
-          <form onSubmit={form2.handleSubmit(handleStep2)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-foreground">Branch</Label>
-                <Select
-                  onValueChange={(v) => form2.setValue("branch", v)}
-                  defaultValue={form2.getValues("branch")}
+            <AnimatePresence mode="wait">
+              {/* ── Step 1 ──────────────────────────────────────────────── */}
+              {step === 1 && (
+                <motion.div
+                  key="step1"
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.22 }}
                 >
-                  <SelectTrigger className="bg-secondary/50 border-border text-foreground">
-                    <SelectValue placeholder="Select branch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "AIDS", "AIML", "CSD"].map((b) => (
-                      <SelectItem key={b} value={b}>
-                        {b}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form2.formState.errors.branch && (
-                  <p className="text-xs text-destructive">
-                    {form2.formState.errors.branch.message}
-                  </p>
-                )}
-              </div>
+                  <form onSubmit={form1.handleSubmit(handleStep1)} className="space-y-4">
+                    {/* Admin-set info banner */}
+                    <div className="rounded-xl bg-secondary/50 border border-border px-3.5 py-3 space-y-2">
+                      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Confirmed by your college</p>
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+                        {[
+                          ["Roll No.", (user as any)?.roll_number],
+                          ["Branch",   (user as any)?.branch],
+                          ["Section",  (user as any)?.section],
+                          ["Batch",    (user as any)?.passout_year],
+                        ].map(([k, v]) => (
+                          <div key={k as string} className="flex justify-between items-baseline">
+                            <span className="text-xs text-muted-foreground">{k}</span>
+                            <span className="text-xs font-medium text-foreground">{v || "—"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-foreground">Section</Label>
-                <Select
-                  onValueChange={(v) => form2.setValue("section", v)}
-                  defaultValue={form2.getValues("section")}
-                >
-                  <SelectTrigger className="bg-secondary/50 border-border text-foreground">
-                    <SelectValue placeholder="Select section" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["A", "B", "C", "D"].map((s) => (
-                      <SelectItem key={s} value={s}>
-                        Section {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form2.formState.errors.section && (
-                  <p className="text-xs text-destructive">
-                    {form2.formState.errors.section.message}
-                  </p>
-                )}
-              </div>
-            </div>
+                    {/* Avatar */}
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex-shrink-0">
+                        <div className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden">
+                          {avatarPreview
+                            ? <img src={avatarPreview} alt="preview" className="w-full h-full object-cover" />
+                            : <span className="text-xl font-bold text-primary font-serif">{initials}</span>
+                          }
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => fileRef.current?.click()}
+                          className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center hover:brightness-110 transition-all"
+                        >
+                          <Camera className="h-2.5 w-2.5 text-primary-foreground" />
+                        </button>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{user?.name}</p>
+                        <button
+                          type="button"
+                          onClick={() => fileRef.current?.click()}
+                          className="text-xs text-primary hover:underline mt-0.5"
+                        >
+                          {avatarPreview ? "Change photo" : "Upload profile photo"}
+                          <span className="text-muted-foreground ml-1">(optional)</span>
+                        </button>
+                      </div>
+                      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleAvatarChange} />
+                    </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-foreground">Roll Number</Label>
-              <Input
-                placeholder="21CS001"
-                className="bg-secondary/50 border-border text-foreground"
-                {...form2.register("roll_number")}
-              />
-              {form2.formState.errors.roll_number && (
-                <p className="text-xs text-destructive">
-                  {form2.formState.errors.roll_number.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-foreground">Pass-out Year</Label>
-              <Select
-                onValueChange={(v) => form2.setValue("passout_year", v)}
-                defaultValue={form2.getValues("passout_year")}
-              >
-                <SelectTrigger className="bg-secondary/50 border-border text-foreground">
-                  <SelectValue placeholder="Select year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {["2025", "2026", "2027", "2028"].map((y) => (
-                    <SelectItem key={y} value={y}>
-                      {y}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form2.formState.errors.passout_year && (
-                <p className="text-xs text-destructive">
-                  {form2.formState.errors.passout_year.message}
-                </p>
-              )}
-            </div>
-
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1 border-border text-foreground"
-                onClick={() => setStep(1)}
-              >
-                ← Back
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1 bg-primary hover:brightness-110 text-primary-foreground"
-              >
-                Next →
-              </Button>
-            </div>
-          </form>
-          </motion.div>
-        )}
-
-        {/* ── Step 3: Set Password ───────────────────────────────────────── */}
-        {step === 3 && (
-          <motion.div
-            key={3}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.25 }}
-          >
-          <form onSubmit={form3.handleSubmit(handleStep3)} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-foreground">New Password</Label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Min 8 chars, 1 uppercase, 1 number"
-                  className="bg-secondary/50 border-border text-foreground pr-10"
-                  {...form3.register("new_password", {
-                    onChange: (e) => setPwdValue(e.target.value),
-                  })}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              {/* Strength bar */}
-              {pwdValue && (
-                <div className="mt-2 space-y-1">
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          "h-1.5 flex-1 rounded-full transition-all",
-                          i <= strength.score ? strength.color : "bg-border"
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Strength:{" "}
-                    <span
-                      className={cn(
-                        strength.score <= 1
-                          ? "text-red-400"
-                          : strength.score <= 2
-                          ? "text-amber-400"
-                          : "text-emerald-400"
+                    {/* Phone */}
+                    <div className="space-y-1.5">
+                      <Label className="text-foreground text-sm">Mobile Number</Label>
+                      <Input placeholder="9876543210" className="bg-secondary/50 border-border text-foreground h-10" {...form1.register("phone")} />
+                      {form1.formState.errors.phone && (
+                        <p className="text-xs text-destructive">{form1.formState.errors.phone.message}</p>
                       )}
-                    >
-                      {strength.label}
-                    </span>
-                  </p>
-                </div>
-              )}
-              {form3.formState.errors.new_password && (
-                <p className="text-xs text-destructive">
-                  {form3.formState.errors.new_password.message}
-                </p>
-              )}
-            </div>
+                    </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-foreground">Confirm Password</Label>
-              <div className="relative">
-                <Input
-                  type={showConfirm ? "text" : "password"}
-                  placeholder="Re-enter your password"
-                  className="bg-secondary/50 border-border text-foreground pr-10"
-                  {...form3.register("confirm_password")}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    {/* DOB */}
+                    <div className="space-y-1.5">
+                      <Label className="text-foreground text-sm">Date of Birth</Label>
+                      <Input type="date" className="bg-secondary/50 border-border text-foreground h-10" max={new Date().toISOString().split("T")[0]} {...form1.register("dob")} />
+                      {form1.formState.errors.dob && (
+                        <p className="text-xs text-destructive">{form1.formState.errors.dob.message}</p>
+                      )}
+                    </div>
+
+                    {/* LinkedIn + GitHub side by side */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-foreground text-sm flex items-center gap-1.5">
+                          <Linkedin className="h-3.5 w-3.5 text-blue-400" />LinkedIn
+                          <span className="text-muted-foreground text-[10px]">(optional)</span>
+                        </Label>
+                        <Input placeholder="linkedin.com/in/you" className="bg-secondary/50 border-border text-foreground h-10 text-xs" {...form1.register("linkedin_url")} />
+                        {form1.formState.errors.linkedin_url && (
+                          <p className="text-xs text-destructive">{form1.formState.errors.linkedin_url.message}</p>
+                        )}
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-foreground text-sm flex items-center gap-1.5">
+                          <Github className="h-3.5 w-3.5" />GitHub
+                          <span className="text-muted-foreground text-[10px]">(optional)</span>
+                        </Label>
+                        <Input placeholder="github.com/you" className="bg-secondary/50 border-border text-foreground h-10 text-xs" {...form1.register("github_url")} />
+                        {form1.formState.errors.github_url && (
+                          <p className="text-xs text-destructive">{form1.formState.errors.github_url.message}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <Button type="submit" className="w-full bg-primary hover:brightness-110 text-primary-foreground h-10">
+                      Continue →
+                    </Button>
+                  </form>
+                </motion.div>
+              )}
+
+              {/* ── Step 2 ──────────────────────────────────────────────── */}
+              {step === 2 && (
+                <motion.div
+                  key="step2"
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.22 }}
                 >
-                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              {form3.formState.errors.confirm_password && (
-                <p className="text-xs text-destructive">
-                  {form3.formState.errors.confirm_password.message}
-                </p>
-              )}
-            </div>
+                  <form onSubmit={form2.handleSubmit(handleStep2)} className="space-y-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-foreground text-sm">New Password</Label>
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Min 8 chars, 1 uppercase, 1 number"
+                          className="bg-secondary/50 border-border text-foreground pr-10 h-10"
+                          {...form2.register("new_password", { onChange: (e) => setPwdValue(e.target.value) })}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      {pwdValue && (
+                        <div className="mt-1.5 space-y-1">
+                          <div className="flex gap-1">
+                            {[1, 2, 3, 4].map((i) => (
+                              <div key={i} className={cn("h-1 flex-1 rounded-full transition-all", i <= strength.score ? strength.color : "bg-border")} />
+                            ))}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Strength:{" "}
+                            <span className={cn(strength.score <= 1 ? "text-red-400" : strength.score <= 2 ? "text-amber-400" : "text-emerald-400")}>
+                              {strength.label}
+                            </span>
+                          </p>
+                        </div>
+                      )}
+                      {form2.formState.errors.new_password && (
+                        <p className="text-xs text-destructive">{form2.formState.errors.new_password.message}</p>
+                      )}
+                    </div>
 
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1 border-border text-foreground"
-                onClick={() => setStep(2)}
-                disabled={isSubmitting}
-              >
-                ← Back
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1 bg-primary hover:brightness-110 text-primary-foreground"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : null}
-                Complete Setup
-              </Button>
-            </div>
-          </form>
+                    <div className="space-y-1.5">
+                      <Label className="text-foreground text-sm">Confirm Password</Label>
+                      <div className="relative">
+                        <Input
+                          type={showConfirm ? "text" : "password"}
+                          placeholder="Re-enter your password"
+                          className="bg-secondary/50 border-border text-foreground pr-10 h-10"
+                          {...form2.register("confirm_password")}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirm(!showConfirm)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      {form2.formState.errors.confirm_password && (
+                        <p className="text-xs text-destructive">{form2.formState.errors.confirm_password.message}</p>
+                      )}
+                    </div>
+
+                    <div className="flex gap-3 pt-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="flex-1 border-border text-foreground h-10"
+                        onClick={() => setStep(1)}
+                        disabled={isSubmitting}
+                      >
+                        ← Back
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="flex-1 bg-primary hover:brightness-110 text-primary-foreground h-10"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                        {uploadingAvatar ? "Uploading…" : "Complete Setup"}
+                      </Button>
+                    </div>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
-        )}
-        </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

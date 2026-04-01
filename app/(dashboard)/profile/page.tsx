@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Pencil, Loader2, Eye, EyeOff, Github, Linkedin, ExternalLink, MessageSquarePlus } from "lucide-react"
+import { Pencil, Loader2, Eye, EyeOff, Github, Linkedin, ExternalLink, MessageSquarePlus, Camera, Lock } from "lucide-react"
 import { toast } from "sonner"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
@@ -54,65 +54,134 @@ function timeAgo(iso: string): string {
   return `${diffDays} days ago`
 }
 
-const linksSchema = z.object({
+const personalSchema = z.object({
+  phone: z.string().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number").optional().or(z.literal("")),
+  dob: z.string().optional().or(z.literal("")),
   linkedin: z.string().url("Enter a valid URL").optional().or(z.literal("")),
   github: z.string().url("Enter a valid URL").optional().or(z.literal("")),
 })
-type LinksForm = z.infer<typeof linksSchema>
+type PersonalForm = z.infer<typeof personalSchema>
 
-function LinksSection({ user, updateUser }: { user: any; updateUser: (u: Partial<any>) => void }) {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LinksForm>({
-    resolver: zodResolver(linksSchema),
-    defaultValues: { linkedin: user?.linkedin || "", github: user?.github || "" },
+function PersonalInfoSection({ user, updateUser }: { user: any; updateUser: (u: Partial<any>) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<PersonalForm>({
+    resolver: zodResolver(personalSchema),
+    defaultValues: {
+      phone: user?.phone || "",
+      dob: user?.dob || "",
+      linkedin: user?.linkedin || "",
+      github: user?.github || "",
+    },
   })
 
-  const onSave = async (data: LinksForm) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarPreview(URL.createObjectURL(file))
+    setUploadingAvatar(true)
     try {
-      await api.patch("/student/profile", { linkedin: data.linkedin, github: data.github })
-      updateUser({ linkedin: data.linkedin, github: data.github } as any)
-      toast.success("Links updated")
+      const fd = new FormData()
+      fd.append("file", file)
+      const res = await api.post("/student/profile/avatar", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      updateUser({ photo_url: res.data.photo_url } as any)
+      toast.success("Profile photo updated")
     } catch {
-      toast.error("Failed to update links")
+      toast.error("Failed to upload photo")
+      setAvatarPreview(null)
+    } finally {
+      setUploadingAvatar(false)
     }
   }
 
+  const onSave = async (data: PersonalForm) => {
+    try {
+      await api.patch("/student/profile", {
+        phone: data.phone,
+        dob: data.dob || null,
+        linkedin: data.linkedin,
+        github: data.github,
+      })
+      updateUser({ phone: data.phone, dob: data.dob, linkedin: data.linkedin, github: data.github } as any)
+      toast.success("Profile updated")
+    } catch {
+      toast.error("Failed to update profile")
+    }
+  }
+
+  const photoUrl = avatarPreview || user?.photo_url
+  const initials = user?.name ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : "??"
+
   return (
     <div>
-      <h3 className="font-semibold font-serif text-foreground mb-4 flex items-center gap-2">
-        Social Links
-      </h3>
+      <h3 className="font-semibold font-serif text-foreground mb-4">Personal Info</h3>
       <form onSubmit={handleSubmit(onSave)} className="space-y-4">
+        {/* Avatar */}
+        <div className="space-y-1.5">
+          <Label className="text-foreground">Profile Photo</Label>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden">
+                {photoUrl
+                  ? <img src={photoUrl.startsWith("/static") ? `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "")}${photoUrl}` : photoUrl} alt="avatar" className="w-full h-full object-cover" />
+                  : <span className="text-xl font-bold text-primary font-serif">{initials}</span>
+                }
+              </div>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center hover:brightness-110 transition-all disabled:opacity-50"
+              >
+                {uploadingAvatar ? <Loader2 className="h-2.5 w-2.5 text-primary-foreground animate-spin" /> : <Camera className="h-2.5 w-2.5 text-primary-foreground" />}
+              </button>
+            </div>
+            <button type="button" onClick={() => fileRef.current?.click()} className="text-sm text-primary hover:underline">
+              {uploadingAvatar ? "Uploading…" : "Change photo"}
+            </button>
+            <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleAvatarChange} />
+          </div>
+        </div>
+
+        {/* Phone */}
+        <div className="space-y-1.5">
+          <Label className="text-foreground">Mobile Number</Label>
+          <Input placeholder="9876543210" className="bg-secondary/50 border-border text-foreground" {...register("phone")} />
+          {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+        </div>
+
+        {/* DOB */}
+        <div className="space-y-1.5">
+          <Label className="text-foreground">Date of Birth</Label>
+          <Input type="date" className="bg-secondary/50 border-border text-foreground" max={new Date().toISOString().split("T")[0]} {...register("dob")} />
+          {errors.dob && <p className="text-xs text-destructive">{errors.dob.message}</p>}
+        </div>
+
+        {/* LinkedIn */}
         <div className="space-y-1.5">
           <Label className="text-foreground flex items-center gap-1.5">
-            <Linkedin className="h-3.5 w-3.5 text-blue-400" />
-            LinkedIn URL
+            <Linkedin className="h-3.5 w-3.5 text-blue-400" /> LinkedIn URL
           </Label>
-          <Input
-            placeholder="https://linkedin.com/in/yourname"
-            className="bg-secondary/50 border-border text-foreground"
-            {...register("linkedin")}
-          />
+          <Input placeholder="https://linkedin.com/in/yourname" className="bg-secondary/50 border-border text-foreground" {...register("linkedin")} />
           {errors.linkedin && <p className="text-xs text-destructive">{errors.linkedin.message}</p>}
         </div>
+
+        {/* GitHub */}
         <div className="space-y-1.5">
           <Label className="text-foreground flex items-center gap-1.5">
-            <Github className="h-3.5 w-3.5" />
-            GitHub URL
+            <Github className="h-3.5 w-3.5" /> GitHub URL
           </Label>
-          <Input
-            placeholder="https://github.com/yourusername"
-            className="bg-secondary/50 border-border text-foreground"
-            {...register("github")}
-          />
+          <Input placeholder="https://github.com/yourusername" className="bg-secondary/50 border-border text-foreground" {...register("github")} />
           {errors.github && <p className="text-xs text-destructive">{errors.github.message}</p>}
         </div>
-        <Button
-          type="submit"
-          className="bg-primary hover:brightness-110 text-primary-foreground"
-          disabled={isSubmitting}
-        >
+
+        <Button type="submit" className="bg-primary hover:brightness-110 text-primary-foreground" disabled={isSubmitting}>
           {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-          Save Links
+          Save
         </Button>
       </form>
     </div>
@@ -138,8 +207,11 @@ export default function ProfilePage() {
   }, [])
 
   const initials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
     : "??"
+
+  const photoUrl: string | undefined = (user as any)?.photo_url
+  const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ?? ""
 
   const {
     register,
@@ -186,12 +258,12 @@ export default function ProfilePage() {
             <div className="flex flex-col items-center text-center">
               {/* Avatar */}
               <div className="relative mb-4">
-                <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center primary-glow">
-                  <span className="text-3xl font-bold text-primary font-serif">{initials}</span>
+                <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center primary-glow overflow-hidden">
+                  {photoUrl
+                    ? <img src={photoUrl.startsWith("/static") ? `${apiBase}${photoUrl}` : photoUrl} alt="avatar" className="w-full h-full object-cover" />
+                    : <span className="text-3xl font-bold text-primary font-serif">{initials}</span>
+                  }
                 </div>
-                <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center hover:brightness-110 transition-all">
-                  <Pencil className="h-3.5 w-3.5 text-primary-foreground" />
-                </button>
               </div>
 
               <h2 className="text-xl font-bold font-serif text-foreground">
@@ -213,15 +285,29 @@ export default function ProfilePage() {
 
             {/* Info rows */}
             <div className="mt-6 space-y-3">
+              {/* Editable fields */}
+              {[
+                { label: "Phone", value: (user as any)?.phone || "—" },
+                { label: "DOB", value: (user as any)?.dob || "—" },
+              ].map(({ label, value }) => (
+                <div key={label} className="flex items-center justify-between py-2 border-b border-border/50">
+                  <span className="text-sm text-muted-foreground">{label}</span>
+                  <span className="text-sm font-medium text-foreground">{value}</span>
+                </div>
+              ))}
+              {/* Admin-locked fields */}
               {[
                 { label: "College", value: user?.college_name || "—" },
-                { label: "Branch", value: user?.branch || "—" },
-                { label: "Section", value: user?.section ? `Section ${user.section}` : "—" },
-                { label: "Roll No.", value: user?.roll_number || "—" },
-                { label: "Pass-out Year", value: user?.passout_year || "—" },
+                { label: "Branch", value: (user as any)?.branch || "—" },
+                { label: "Section", value: (user as any)?.section ? `Section ${(user as any).section}` : "—" },
+                { label: "Roll No.", value: (user as any)?.roll_number || "—" },
+                { label: "Pass-out Year", value: (user as any)?.passout_year || "—" },
               ].map(({ label, value }) => (
                 <div key={label} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
-                  <span className="text-sm text-muted-foreground">{label}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm text-muted-foreground">{label}</span>
+                    <Lock className="h-3 w-3 text-muted-foreground/50" />
+                  </div>
                   <span className="text-sm font-medium text-foreground">{value}</span>
                 </div>
               ))}
@@ -284,11 +370,10 @@ export default function ProfilePage() {
                 </TabsTrigger>
               </TabsList>
 
-              {/* Account tab — links + change password */}
+              {/* Account tab — personal info + change password */}
               <TabsContent value="account">
                 <div className="max-w-sm space-y-8">
-                  {/* Social Links */}
-                  <LinksSection user={user} updateUser={updateUser} />
+                  <PersonalInfoSection user={user} updateUser={updateUser} />
 
                   <div>
                   <h3 className="font-semibold font-serif text-foreground mb-4">
