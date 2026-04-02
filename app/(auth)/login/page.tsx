@@ -60,9 +60,10 @@ export default function LoginPage() {
   }
 
   const redirectByUser = (user: User) => {
-    if (user.first_login)             return router.replace("/onboarding")
-    if (user.role === "super_admin")  return router.replace("/super-admin")
+    if (user.first_login)              return router.replace("/onboarding")
+    if (user.role === "super_admin")   return router.replace("/super-admin")
     if (user.role === "college_admin") return router.replace("/admin")
+    if (user.role === "branch_admin")  return router.replace("/branch-admin")
     router.replace("/dashboard")
   }
 

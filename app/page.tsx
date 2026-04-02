@@ -994,7 +994,12 @@ export default function LandingPage() {
   useEffect(() => {
     if (!token || !user) return
     if (user.first_login) { router.replace("/onboarding"); return }
-    router.replace(user.role === "super_admin" ? "/super-admin" : user.role === "college_admin" ? "/admin" : "/dashboard")
+    router.replace(
+      user.role === "super_admin" ? "/super-admin"
+      : user.role === "college_admin" ? "/admin"
+      : user.role === "branch_admin" ? "/branch-admin"
+      : "/dashboard"
+    )
   }, [token, user, router])
 
   const scrollTo = (id: string) => {

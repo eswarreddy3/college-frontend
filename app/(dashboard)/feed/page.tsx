@@ -171,7 +171,9 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
   const [notifyStudents,  setNotifyStudents]  = useState(false)
   const [submitting,      setSubmitting]      = useState(false)
 
-  const isAdmin = user?.role === "college_admin"
+  const isAdmin = user?.role === "college_admin" || user?.role === "branch_admin"
+  const notifyLabel = user?.role === "branch_admin" ? "Notify branch students via email" : "Notify all students via email"
+  const notifyOnLabel = user?.role === "branch_admin" ? "Email notification ON — branch students will be notified" : "Email notification ON — all students will be notified"
 
   const submit = async (publish: boolean) => {
     if (!content.trim()) { toast.error("Content is required"); return }
@@ -322,7 +324,7 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
             >
               <Bell className={cn("h-4 w-4 flex-shrink-0", notifyStudents && "fill-amber-400")} />
               <span className="flex-1 text-left">
-                {notifyStudents ? "Email notification ON — all students will be notified" : "Notify all students via email"}
+                {notifyStudents ? notifyOnLabel : notifyLabel}
               </span>
               <span className={cn(
                 "ml-auto w-9 h-5 rounded-full border-2 transition-colors flex items-center px-0.5",

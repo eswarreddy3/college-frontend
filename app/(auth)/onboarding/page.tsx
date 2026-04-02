@@ -97,6 +97,127 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
   )
 }
 
+// ── Simple set-password form for branch_admin / college_admin ─────────────────
+function SetPasswordOnboarding({ user }: { user: any }) {
+  const router = useRouter()
+  const { clearAuth, updateUser } = useAuthStore()
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [pwdValue, setPwdValue] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const form = useForm<Step2>({ resolver: zodResolver(step2Schema) })
+  const strength = passwordStrength(pwdValue)
+
+  const onSubmit = async (data: Step2) => {
+    setIsSubmitting(true)
+    try {
+      await api.patch("/auth/complete-onboarding", { new_password: data.new_password })
+      updateUser({ first_login: false })
+      toast.success("Password set! Please log in with your new password.")
+      clearAuth()
+      router.replace("/login")
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || "Failed to set password. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
+      >
+        <div className="mb-8 text-center">
+          <Logo size={40} showText />
+          <h1 className="text-2xl font-bold font-serif text-foreground mt-6 mb-1">Set your password</h1>
+          <p className="text-muted-foreground text-sm">
+            Welcome, <span className="text-foreground font-medium">{user?.name}</span>! Choose a secure password to activate your account.
+          </p>
+        </div>
+
+        <div className="glass-card rounded-2xl p-6 border border-border">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            {/* New password */}
+            <div className="space-y-1.5">
+              <Label>New Password</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="At least 8 characters"
+                  className="bg-secondary/50 pr-10"
+                  {...form.register("new_password")}
+                  onChange={(e) => {
+                    form.setValue("new_password", e.target.value)
+                    setPwdValue(e.target.value)
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {pwdValue && (
+                <div className="space-y-1 mt-1">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4].map(i => (
+                      <div key={i} className={cn("h-1 flex-1 rounded-full transition-all", i <= strength.score ? strength.color : "bg-border")} />
+                    ))}
+                  </div>
+                  <p className={cn("text-xs", strength.score <= 1 ? "text-red-400" : strength.score <= 2 ? "text-amber-400" : "text-emerald-400")}>
+                    {strength.label}
+                  </p>
+                </div>
+              )}
+              {form.formState.errors.new_password && (
+                <p className="text-xs text-destructive">{form.formState.errors.new_password.message}</p>
+              )}
+            </div>
+
+            {/* Confirm password */}
+            <div className="space-y-1.5">
+              <Label>Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="Re-enter password"
+                  className="bg-secondary/50 pr-10"
+                  {...form.register("confirm_password")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {form.formState.errors.confirm_password && (
+                <p className="text-xs text-destructive">{form.formState.errors.confirm_password.message}</p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+            >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+              Set Password & Continue
+            </Button>
+          </form>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
 export default function OnboardingPage() {
   const router = useRouter()
   const { user, token, updateUser } = useAuthStore()
@@ -112,7 +233,12 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (!token || !user) { router.replace("/login"); return }
-    if (!user.first_login) router.replace("/dashboard")
+    if (!user.first_login) router.replace(
+      user.role === "super_admin" ? "/super-admin"
+      : user.role === "college_admin" ? "/admin"
+      : user.role === "branch_admin" ? "/branch-admin"
+      : "/dashboard"
+    )
   }, [token, user, router])
 
   const form1 = useForm<Step1>({
@@ -141,7 +267,9 @@ export default function OnboardingPage() {
       toast.success("Setup complete! Welcome to CareerEzi 🎉")
       setDone(true)
       fireSchoolPride()
-      setTimeout(() => router.replace("/dashboard"), 2500)
+      const dest = user?.role === "branch_admin" ? "/branch-admin"
+        : user?.role === "college_admin" ? "/admin" : "/dashboard"
+      setTimeout(() => router.replace(dest), 2500)
     } catch (err: any) {
       toast.error("Setup failed", {
         description: err?.response?.data?.message || "Please try again",
@@ -155,6 +283,11 @@ export default function OnboardingPage() {
   const initials = user?.name
     ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
     : "??"
+
+  // Branch admin and college admin only need to set a password — after all hooks
+  if (user?.role === "branch_admin" || user?.role === "college_admin") {
+    return <SetPasswordOnboarding user={user} />
+  }
 
   return (
     <>

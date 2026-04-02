@@ -66,10 +66,18 @@ const collegeAdminNavItems = [
   { href: "/feed", label: "College Feed", icon: Newspaper },
 ]
 
+const branchAdminNavItems = [
+  { href: "/branch-admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/branch-admin/students", label: "Students", icon: Users },
+  { href: "/branch-admin/jobs", label: "Job Postings", icon: BriefcaseBusiness },
+  { href: "/feed", label: "College Feed", icon: Newspaper },
+]
+
 const superAdminNavItems = [
   { href: "/super-admin", label: "Overview", icon: Globe },
   { href: "/super-admin/colleges", label: "Colleges", icon: Building2 },
   { href: "/super-admin/students", label: "Students", icon: Users },
+  { href: "/super-admin/branch-admins", label: "Branch Admins", icon: BarChart3 },
   { href: "/super-admin/packages", label: "Packages", icon: Package },
   { href: "/super-admin/jobs", label: "Job Postings", icon: BriefcaseBusiness },
   { href: "/super-admin/feedback", label: "Feedback", icon: MessageSquare },
@@ -83,9 +91,10 @@ function resolveLogoUrl(url: string | null | undefined): string | null {
   return `${BACKEND}${url}`
 }
 
-const roleBadgeConfig = {
+const roleBadgeConfig: Record<string, { label: string; className: string }> = {
   student: { label: "Student", className: "bg-primary/20 text-primary border-primary/30" },
   college_admin: { label: "Admin", className: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
+  branch_admin: { label: "Branch Admin", className: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
   super_admin: { label: "Super Admin", className: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
 }
 
@@ -102,6 +111,8 @@ export function Sidebar() {
       ? superAdminNavItems
       : role === "college_admin"
       ? collegeAdminNavItems
+      : role === "branch_admin"
+      ? branchAdminNavItems
       : studentNavItems
 
   const initials = user?.name
@@ -179,6 +190,7 @@ export function Sidebar() {
                 pathname === item.href ||
                 (item.href !== "/dashboard" &&
                   item.href !== "/admin" &&
+                  item.href !== "/branch-admin" &&
                   item.href !== "/super-admin" &&
                   pathname.startsWith(item.href + "/"))
               return (
