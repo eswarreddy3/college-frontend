@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   PenLine, BookOpen, Clock, ChevronLeft, ChevronRight,
   Send, Loader2, Trash2, ImagePlus, Tag, Newspaper,
-  Share2, X, Sparkles, Globe, MessageCircle, ExternalLink,
+  Share2, X, Sparkles, Globe, MessageCircle, ExternalLink, Bell,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -162,13 +162,16 @@ function ReactionPickerButton({
 
 // ── Create Post Panel ─────────────────────────────────────────────────────────
 function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) => void }) {
-  const [tab,        setTab]        = useState<"post" | "blog">("post")
-  const [open,       setOpen]       = useState(false)
-  const [content,    setContent]    = useState("")
-  const [title,      setTitle]      = useState("")
-  const [tags,       setTags]       = useState("")
-  const [coverUrl,   setCoverUrl]   = useState("")
-  const [submitting, setSubmitting] = useState(false)
+  const [tab,             setTab]             = useState<"post" | "blog">("post")
+  const [open,            setOpen]            = useState(false)
+  const [content,         setContent]         = useState("")
+  const [title,           setTitle]           = useState("")
+  const [tags,            setTags]            = useState("")
+  const [coverUrl,        setCoverUrl]        = useState("")
+  const [notifyStudents,  setNotifyStudents]  = useState(false)
+  const [submitting,      setSubmitting]      = useState(false)
+
+  const isAdmin = user?.role === "college_admin"
 
   const submit = async (publish: boolean) => {
     if (!content.trim()) { toast.error("Content is required"); return }
@@ -182,9 +185,10 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
         cover_image_url: tab === "blog" && coverUrl.trim() ? coverUrl.trim() : undefined,
         tags: tags.split(",").map(t => t.trim()).filter(Boolean),
         is_published: publish,
+        notify_students: publish && isAdmin ? notifyStudents : false,
       })
       onCreated(res.data)
-      setContent(""); setTitle(""); setTags(""); setCoverUrl(""); setOpen(false)
+      setContent(""); setTitle(""); setTags(""); setCoverUrl(""); setNotifyStudents(false); setOpen(false)
       richToast(
         publish ? "✨" : "📝",
         publish ? "Your post is live!" : "Draft saved",
@@ -303,6 +307,34 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
               className="bg-transparent border-0 p-0 text-sm placeholder:text-muted-foreground/50 focus-visible:ring-0 h-auto"
             />
           </div>
+
+          {/* Notify students toggle — college admin only */}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setNotifyStudents(v => !v)}
+              className={cn(
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border text-sm font-medium transition-all",
+                notifyStudents
+                  ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
+                  : "border-border text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+              )}
+            >
+              <Bell className={cn("h-4 w-4 flex-shrink-0", notifyStudents && "fill-amber-400")} />
+              <span className="flex-1 text-left">
+                {notifyStudents ? "Email notification ON — all students will be notified" : "Notify all students via email"}
+              </span>
+              <span className={cn(
+                "ml-auto w-9 h-5 rounded-full border-2 transition-colors flex items-center px-0.5",
+                notifyStudents ? "bg-amber-500 border-amber-500" : "bg-transparent border-border"
+              )}>
+                <span className={cn(
+                  "w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200",
+                  notifyStudents ? "translate-x-4" : "translate-x-0"
+                )} />
+              </span>
+            </button>
+          )}
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 pt-1">
