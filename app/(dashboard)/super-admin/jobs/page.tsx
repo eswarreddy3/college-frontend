@@ -16,7 +16,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Briefcase, Building2, Calendar, ExternalLink, Loader2,
-  Pencil, Plus, Trash2, Clock,
+  Pencil, Plus, Trash2, Clock, Bell,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -64,7 +64,8 @@ function JobFormDialog({
   onSaved: (job: Job) => void
   editing: Job | null
 }) {
-  const [saving, setSaving] = useState(false)
+  const [saving,          setSaving]          = useState(false)
+  const [notifyStudents,  setNotifyStudents]  = useState(false)
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { type: "full-time" },
@@ -72,6 +73,7 @@ function JobFormDialog({
 
   useEffect(() => {
     if (open) {
+      setNotifyStudents(false)
       if (editing) {
         reset({
           title: editing.title,
@@ -96,6 +98,7 @@ function JobFormDialog({
         deadline: data.deadline || null,
         experience: data.experience || null,
         description: data.description || null,
+        notify_students: !editing && notifyStudents,
       }
       const res = editing
         ? await api.patch(`/jobs/${editing.id}`, payload)
@@ -172,6 +175,34 @@ function JobFormDialog({
               {...register("description")}
             />
           </div>
+
+          {/* Notify toggle — only on create */}
+          {!editing && (
+            <button
+              type="button"
+              onClick={() => setNotifyStudents(v => !v)}
+              className={cn(
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border text-sm font-medium transition-all",
+                notifyStudents
+                  ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
+                  : "border-border text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+              )}
+            >
+              <Bell className={cn("h-4 w-4 flex-shrink-0", notifyStudents && "fill-amber-400")} />
+              <span className="flex-1 text-left">
+                {notifyStudents ? "Email notification ON — all students will be notified" : "Notify all students via email"}
+              </span>
+              <span className={cn(
+                "ml-auto w-9 h-5 rounded-full border-2 transition-colors flex items-center px-0.5",
+                notifyStudents ? "bg-amber-500 border-amber-500" : "bg-transparent border-border"
+              )}>
+                <span className={cn(
+                  "w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200",
+                  notifyStudents ? "translate-x-4" : "translate-x-0"
+                )} />
+              </span>
+            </button>
+          )}
 
           <DialogFooter className="gap-2 flex-row justify-end pt-2">
             <Button type="button" variant="outline" onClick={onClose} className="border-white/10">
