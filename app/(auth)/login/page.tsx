@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuthStore, type User } from "@/store/authStore"
+import Link from "next/link"
 import api from "@/lib/api"
 
 const loginSchema = z.object({
@@ -155,7 +156,15 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm text-foreground">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-sm text-foreground">Password</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <Input
                   id="password"
