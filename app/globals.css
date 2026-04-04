@@ -96,7 +96,7 @@
 /* ── Tailwind theme wiring ────────────────────────────────────────────────── */
 @theme inline {
   --font-sans:  'Plus Jakarta Sans', sans-serif;
-  --font-serif: 'Space Grotesk', sans-serif;
+  --font-serif: 'Outfit', sans-serif;
   --font-mono:  'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
 
   --color-background:             var(--background);
@@ -144,6 +144,19 @@
   }
   body {
     @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.02em;
+    font-feature-settings: 'kern' 1;
+  }
+  code, kbd, pre, samp {
+    font-family: 'JetBrains Mono', monospace;
+    font-feature-settings: 'liga' 0;
   }
 }
 
@@ -344,11 +357,98 @@
   animation: tab-fill 5s linear forwards;
 }
 
-/* ── Space Grotesk headings — tighter tracking ────────────────────────────── */
+/* ── Outfit headings — tighter tracking ───────────────────────────────────── */
 .font-serif {
-  font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: -0.02em;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.025em;
   font-feature-settings: 'kern' 1;
+}
+
+/* ── Structured type scale ────────────────────────────────────────────────── */
+
+/* Display — hero section titles, landing banners */
+.type-display {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  font-feature-settings: 'kern' 1;
+}
+
+/* H1 — page-level headings */
+.type-h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  font-feature-settings: 'kern' 1;
+}
+
+/* H2 — section headings inside a page */
+.type-h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+/* H3 — card titles, sub-section labels */
+.type-h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+}
+
+/* Body — default readable prose */
+.type-body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0;
+}
+
+/* Body Small — compact readable text */
+.type-body-sm {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+/* Label — form labels, table headers, category tags */
+.type-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Number — stat cards, counters, metrics */
+.type-number {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Caption — helper text, timestamps, footnotes */
+.type-caption {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: var(--muted-foreground);
 }
 
 /* ── 3D card transform preserve ───────────────────────────────────────────── */
