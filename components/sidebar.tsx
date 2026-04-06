@@ -79,6 +79,7 @@ const superAdminNavItems = [
   { href: "/super-admin/students", label: "Students", icon: Users },
   { href: "/super-admin/branch-admins", label: "Branch Admins", icon: BarChart3 },
   { href: "/super-admin/packages", label: "Packages", icon: Package },
+  { href: "/super-admin/courses", label: "Courses", icon: BookOpen },
   { href: "/super-admin/jobs", label: "Job Postings", icon: BriefcaseBusiness },
   { href: "/super-admin/feedback", label: "Feedback", icon: MessageSquare },
 ]
