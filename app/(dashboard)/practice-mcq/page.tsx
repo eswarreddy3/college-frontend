@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState, useEffect, useCallback, useRef } from "react"
+import { Suspense, useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
@@ -12,14 +12,12 @@ import {
   ChevronRight,
   CheckCircle,
   XCircle,
-  Flag,
   ArrowLeft,
   ArrowRight,
   Loader2,
   Code2,
   Brain,
   RotateCcw,
-  Star,
   Database,
   GitBranch,
   Table2,
@@ -61,7 +59,12 @@ interface Question {
   is_correct?: boolean
   correct_answer?: number
 }
-type QuestionStatus = "unattempted" | "answered" | "marked"
+interface ProgQState {
+  selected: number | null
+  submitting: boolean
+  result: { correct: boolean; correct_answer: number; explanation: string | null; points_earned: number; total_points: number } | null
+  locked: boolean
+}
 
 const difficultyColors = {
   Easy: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
@@ -124,15 +127,9 @@ function PracticeMCQContent() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [loadingTopics, setLoadingTopics] = useState(false)
   const [loadingQuestions, setLoadingQuestions] = useState(false)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [questionStatuses, setQuestionStatuses] = useState<QuestionStatus[]>([])
-  const [serverResult, setServerResult] = useState<{
-    correct: boolean; correct_answer: number; explanation: string | null; points_earned: number; total_points: number
-  } | null>(null)
-  const tryingAgainRef = useRef(false)
+  const [progPage, setProgPage] = useState(1)
+  const PROG_PAGE_SIZE = 5
+  const [progStates, setProgStates] = useState<ProgQState[]>([])
   const [answerFeedback, setAnswerFeedback] = useState<"correct" | "wrong" | null>(null)
 
   // ── Aptitude state ─────────────────────────────────────────────────────────
@@ -178,10 +175,8 @@ function PracticeMCQContent() {
   const loadSubtopic = useCallback((topic: string, subtopic: string) => {
     setSelectedSubtopic({ topic, subtopic })
     setLoadingQuestions(true)
-    setCurrentIndex(0)
-    setSelectedAnswer(null)
-    setIsSubmitted(false)
-    setServerResult(null)
+    setProgPage(1)
+    setProgStates([])
     api.get(`/mcq/questions?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}`)
       .then((res) => {
         const OPT_LETTERS = ["A", "B", "C", "D", "E"]
@@ -192,11 +187,18 @@ function PracticeMCQContent() {
           correct_answer: q.correct_option != null ? OPT_LETTERS.indexOf(q.correct_option) : undefined,
         }))
         setQuestions(qs)
-        setQuestionStatuses(qs.map((q) => (q.attempted ? "answered" : "unattempted")))
-        if (qs[0]?.attempted) {
-          setSelectedAnswer(qs[0].selected_answer ?? null)
-          setIsSubmitted(true)
-        }
+        setProgStates(qs.map((q) => ({
+          selected: q.attempted ? (q.selected_answer ?? null) : null,
+          submitting: false,
+          result: q.attempted ? {
+            correct: q.is_correct ?? false,
+            correct_answer: q.correct_answer ?? -1,
+            explanation: q.explanation ?? null,
+            points_earned: 0,
+            total_points: 0,
+          } : null,
+          locked: q.attempted && (q.is_correct ?? false),
+        })))
       })
       .catch(() => toast.error("Failed to load questions"))
       .finally(() => setLoadingQuestions(false))
@@ -208,65 +210,50 @@ function PracticeMCQContent() {
     )
   }
 
-  function navigateTo(index: number) {
-    setCurrentIndex(index)
-    setServerResult(null)
-    const q = questions[index]
-    if (q?.attempted) {
-      setSelectedAnswer(q.selected_answer ?? null)
-      setIsSubmitted(true)
-    } else {
-      setSelectedAnswer(null)
-      setIsSubmitted(false)
-    }
+  function updateProgState(index: number, patch: Partial<ProgQState>) {
+    setProgStates((prev) => prev.map((s, i) => (i === index ? { ...s, ...patch } : s)))
   }
 
-  async function handleSubmit() {
-    if (selectedAnswer === null) { toast.error("Please select an answer"); return }
-    const q = questions[currentIndex]
-    setSubmitting(true)
-    tryingAgainRef.current = false
+  async function handleProgAnswer(qIndex: number, optionIndex: number) {
+    const state = progStates[qIndex]
+    if (!state || state.locked || state.submitting) return
+    updateProgState(qIndex, { selected: optionIndex, submitting: true })
+    const q = questions[qIndex]
+    const OPT_LETTERS = ["A", "B", "C", "D", "E"]
     try {
-      const OPT_LETTERS = ["A", "B", "C", "D", "E"]
-      const res = await api.post("/mcq/answer", { question_id: q.id, selected_answer: OPT_LETTERS[selectedAnswer] })
+      const res = await api.post("/mcq/answer", {
+        question_id: q.id,
+        selected_answer: OPT_LETTERS[optionIndex],
+      })
       const result = res.data
       const correctIndex = OPT_LETTERS.indexOf(result.correct_option)
-      setServerResult({ ...result, correct_answer: correctIndex })
-      setIsSubmitted(true)
-      const newStatuses = [...questionStatuses]
-      newStatuses[currentIndex] = "answered"
-      setQuestionStatuses(newStatuses)
-      const updatedQuestions = [...questions]
-      updatedQuestions[currentIndex] = {
-        ...q, attempted: true, selected_answer: selectedAnswer,
-        is_correct: result.correct, correct_answer: correctIndex,
-      }
-      setQuestions(updatedQuestions)
+      updateProgState(qIndex, {
+        submitting: false,
+        result: { ...result, correct_answer: correctIndex },
+        locked: result.correct,
+      })
+      setQuestions((prev) => prev.map((qq, i) =>
+        i === qIndex ? { ...qq, attempted: true, selected_answer: optionIndex, is_correct: result.correct, correct_answer: correctIndex } : qq
+      ))
       updateUser({ points: result.total_points })
       if (result.correct) {
         setAnswerFeedback("correct")
         fireStars()
+        toast.success(`Correct!${result.points_earned > 0 ? ` +${result.points_earned} pts` : ""}`)
       } else {
         setAnswerFeedback("wrong")
+        toast.error("Incorrect — check the explanation below")
       }
-      setTimeout(() => setAnswerFeedback(null), 900)
-      if (result.correct) toast.success(`Correct!${result.points_earned > 0 ? ` +${result.points_earned} pts` : ""}`)
-      else toast.error("Incorrect — check the explanation below")
+      setTimeout(() => setAnswerFeedback(null), 700)
       api.get("/mcq/topics").then((res) => setTopics(res.data)).catch(() => {})
     } catch {
+      updateProgState(qIndex, { submitting: false, selected: null })
       toast.error("Failed to submit answer")
-    } finally {
-      setSubmitting(false)
     }
   }
 
-  function getStatusColor(status: QuestionStatus, index: number) {
-    if (index === currentIndex) return "bg-primary text-primary-foreground"
-    switch (status) {
-      case "answered": return "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-      case "marked": return "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-      default: return "bg-secondary/50 text-muted-foreground border border-border"
-    }
+  function progTryAgain(qIndex: number) {
+    updateProgState(qIndex, { selected: null, result: null, locked: false })
   }
 
   // ── Aptitude helpers ───────────────────────────────────────────────────────
@@ -473,22 +460,6 @@ function PracticeMCQContent() {
 
   // ── Render: Programming MCQ ────────────────────────────────────────────────
   if (view === "programming") {
-    const currentQuestion = questions[currentIndex]
-    const isWrongAnswer = (index: number) =>
-      isSubmitted &&
-      displayResult !== null &&
-      index === selectedAnswer &&
-      index !== displayResult.correct_answer
-    const displayResult = isSubmitted
-      ? (serverResult ?? (currentQuestion?.attempted ? {
-          correct: currentQuestion.is_correct ?? false,
-          correct_answer: currentQuestion.correct_answer ?? -1,
-          explanation: currentQuestion.explanation ?? null,
-          points_earned: 0,
-          total_points: 0,
-        } : null))
-      : null
-
     const totalAttempted = topics.reduce(
       (acc, t) => acc + t.subtopics.reduce((a, s) => a + s.attempted, 0),
       0
@@ -701,204 +672,186 @@ function PracticeMCQContent() {
             ) : (
               <>
                 {/* Top strip */}
-                <div className="flex items-center justify-between gap-3 flex-shrink-0">
-                  <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center justify-between gap-3 flex-shrink-0 flex-wrap">
+                  <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm text-muted-foreground truncate">
                       <span className="text-foreground font-medium">{selectedSubtopic.topic}</span>
                       {" › "}
                       <span className="text-foreground">{selectedSubtopic.subtopic}</span>
                     </span>
-                    <Progress value={((currentIndex + 1) / questions.length) * 100} className="w-40 h-1.5" />
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      Q {currentIndex + 1}/{questions.length}
+                      — Page {progPage}/{Math.ceil(questions.length / PROG_PAGE_SIZE)} ({questions.length} Qs)
                     </span>
                   </div>
-                  <Badge
-                    variant="outline"
-                    className={cn("text-xs flex-shrink-0", currentQuestion && difficultyColors[currentQuestion.difficulty])}
-                  >
-                    {currentQuestion?.difficulty}
-                  </Badge>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span className="text-emerald-400">Correct</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-red-500/20 bg-red-500/5">
+                      <div className="w-2 h-2 rounded-full bg-red-500" />
+                      <span className="text-red-400">Wrong</span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Question card */}
-                <GlassCard className="flex-1 flex flex-col overflow-y-auto min-h-0">
-                  <div className="flex-1 flex flex-col">
-                    {/* Question header */}
-                    <div className="flex items-start gap-3 mb-6">
-                      <span className="flex-shrink-0 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold border border-primary/20">
-                        Q{currentIndex + 1}
-                      </span>
-                      <p className="text-base font-medium text-foreground leading-relaxed flex-1">
-                        {currentQuestion?.question}
-                      </p>
-                      <Badge variant="outline" className="flex-shrink-0 text-xs text-primary border-primary/30 bg-primary/5">
-                        {currentQuestion?.points} pts
-                      </Badge>
-                    </div>
+                {/* 5 question cards */}
+                <div className="space-y-4">
+                  {questions.slice((progPage - 1) * PROG_PAGE_SIZE, progPage * PROG_PAGE_SIZE).map((q, localIdx) => {
+                    const qIndex = (progPage - 1) * PROG_PAGE_SIZE + localIdx
+                    const state = progStates[qIndex]
+                    if (!state) return null
+                    const result = state.result
+                    const isLocked = state.locked
 
-                    {/* Options */}
-                    <div className="space-y-3">
-                      {currentQuestion?.options.map((option, index) => {
-                        const isSelected = index === selectedAnswer
-                        const isCorrect = displayResult ? index === displayResult.correct_answer : false
-                        const wasSelected = displayResult ? index === selectedAnswer : false
-                        const isWrong = isWrongAnswer(index)
-                        return (
-                          <motion.button
-                            key={index}
-                            onClick={() => !isSubmitted && setSelectedAnswer(index)}
-                            disabled={isSubmitted}
-                            animate={isWrong ? { x: [0, -8, 8, -6, 6, 0] } : {}}
-                            transition={{ duration: 0.4 }}
-                            className={cn(
-                              "w-full p-4 rounded-xl text-left transition-all duration-200 border",
-                              !isSubmitted && isSelected && "border-primary bg-primary/10 text-foreground",
-                              !isSubmitted && !isSelected && "border-border hover:border-primary/50 hover:bg-primary/5 text-foreground",
-                              isSubmitted && isCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
-                              isSubmitted && wasSelected && !isCorrect && "border-red-500 bg-red-500/10 text-red-400",
-                              isSubmitted && !wasSelected && !isCorrect && "border-border text-muted-foreground opacity-50"
-                            )}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className={cn(
-                                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border flex-shrink-0",
-                                !isSubmitted && isSelected && "border-primary bg-primary text-primary-foreground",
-                                !isSubmitted && !isSelected && "border-border text-muted-foreground",
-                                isSubmitted && isCorrect && "border-emerald-500 bg-emerald-500 text-white",
-                                isSubmitted && wasSelected && !isCorrect && "border-red-500 bg-red-500 text-white",
-                                isSubmitted && !wasSelected && !isCorrect && "border-border text-muted-foreground"
-                              )}>
-                                {String.fromCharCode(65 + index)}
-                              </div>
-                              <span className="flex-1">{option}</span>
-                              {isSubmitted && isCorrect && <CheckCircle className="h-5 w-5 ml-auto text-emerald-400 flex-shrink-0" />}
-                              {isSubmitted && wasSelected && !isCorrect && <XCircle className="h-5 w-5 ml-auto text-red-400 flex-shrink-0" />}
+                    return (
+                      <GlassCard
+                        key={q.id}
+                        className={cn(
+                          "transition-all duration-200",
+                          isLocked && "border-emerald-500/30 bg-emerald-500/5"
+                        )}
+                      >
+                        {/* Question header */}
+                        <div className="flex items-start gap-3 mb-4">
+                          <span className={cn(
+                            "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border",
+                            isLocked
+                              ? "bg-emerald-500 border-emerald-500 text-white"
+                              : result && !result.correct
+                              ? "bg-red-500/20 border-red-500/50 text-red-400"
+                              : "bg-secondary border-border text-muted-foreground"
+                          )}>
+                            {qIndex + 1}
+                          </span>
+                          <p className="text-sm font-medium text-foreground leading-relaxed flex-1">{q.question}</p>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <Badge variant="outline" className={cn("text-xs", difficultyColors[q.difficulty])}>
+                              {q.difficulty}
+                            </Badge>
+                            <span className="text-xs text-primary whitespace-nowrap">{q.points} pts</span>
+                          </div>
+                        </div>
+
+                        {/* Options */}
+                        <div className="space-y-2">
+                          {q.options.map((opt, idx) => {
+                            const isSelected = state.selected === idx
+                            const correctAnswer = result?.correct_answer ?? -1
+                            const isCorrectOpt = result ? idx === correctAnswer : false
+                            const wasSelectedWrong = !!(result && isSelected && !isCorrectOpt)
+                            const isLockCorrect = isLocked && idx === correctAnswer
+
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() => !isLocked && !result && !state.submitting && handleProgAnswer(qIndex, idx)}
+                                disabled={isLocked || !!result || state.submitting}
+                                className={cn(
+                                  "w-full p-3 rounded-xl text-left transition-all duration-150 border text-sm",
+                                  !result && !isLocked && isSelected && "border-primary bg-primary/10 text-foreground",
+                                  !result && !isLocked && !isSelected && "border-border hover:border-primary/40 hover:bg-primary/5 text-foreground",
+                                  isLockCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
+                                  result && isCorrectOpt && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
+                                  result && wasSelectedWrong && "border-red-500 bg-red-500/10 text-red-400",
+                                  result && !isCorrectOpt && !wasSelectedWrong && "border-border text-muted-foreground opacity-40",
+                                  isLocked && !isLockCorrect && "border-border text-muted-foreground opacity-40",
+                                )}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className={cn(
+                                    "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border flex-shrink-0",
+                                    (result && isCorrectOpt) || isLockCorrect ? "bg-emerald-500 border-emerald-500 text-white"
+                                    : result && wasSelectedWrong ? "bg-red-500 border-red-500 text-white"
+                                    : "border-border text-muted-foreground"
+                                  )}>
+                                    {String.fromCharCode(65 + idx)}
+                                  </span>
+                                  <span className="flex-1">{opt}</span>
+                                  {state.submitting && isSelected && <Loader2 className="h-4 w-4 animate-spin ml-auto flex-shrink-0" />}
+                                  {((result && isCorrectOpt) || isLockCorrect) && <CheckCircle className="h-4 w-4 ml-auto text-emerald-400 flex-shrink-0" />}
+                                  {result && wasSelectedWrong && <XCircle className="h-4 w-4 ml-auto text-red-400 flex-shrink-0" />}
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+
+                        {/* Feedback strip */}
+                        {(result || isLocked) && (
+                          <div className="mt-3 flex items-start justify-between gap-3">
+                            <div className={cn(
+                              "flex-1 p-3 rounded-lg text-xs leading-relaxed",
+                              isLocked || result?.correct
+                                ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+                                : "bg-red-500/10 border border-red-500/20 text-red-400"
+                            )}>
+                              {isLocked && !result && <p className="font-medium mb-1">Already answered correctly!</p>}
+                              {result && (
+                                <p className="font-medium mb-1">
+                                  {result.correct
+                                    ? `Correct!${result.points_earned > 0 ? ` +${result.points_earned} pts` : ""}`
+                                    : `Wrong — correct answer is ${String.fromCharCode(65 + result.correct_answer)}`}
+                                </p>
+                              )}
+                              {result?.explanation && <p className="text-muted-foreground mt-1">{result.explanation}</p>}
                             </div>
-                          </motion.button>
-                        )
-                      })}
-                    </div>
+                            {result && !result.correct && (
+                              <Button
+                                size="sm" variant="outline"
+                                onClick={() => progTryAgain(qIndex)}
+                                className="border-primary/30 text-primary hover:bg-primary/10 flex-shrink-0"
+                              >
+                                <RotateCcw className="h-3 w-3 mr-1" />
+                                Try Again
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </GlassCard>
+                    )
+                  })}
+                </div>
 
-                    {/* Explanation */}
-                    {isSubmitted && (displayResult?.explanation || currentQuestion?.explanation) && (
-                      <div className="mt-6 p-4 rounded-xl border-l-4 border-primary bg-primary/5 border border-primary/20">
-                        <h4 className="font-medium mb-2 text-foreground flex items-center gap-2 text-sm">
-                          <CheckCircle className="h-4 w-4 text-primary" />
-                          Explanation
-                        </h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {displayResult?.explanation ?? currentQuestion?.explanation}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Bottom action bar */}
-                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-border flex-shrink-0">
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline" size="sm"
-                        onClick={() => {
-                          const s = [...questionStatuses]
-                          s[currentIndex] = "marked"
-                          setQuestionStatuses(s)
-                          toast.info("Marked for review")
-                        }}
-                        className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
-                        disabled={isSubmitted}
-                      >
-                        <Flag className="h-4 w-4 mr-1.5" />
-                        Mark
-                      </Button>
-                      {isSubmitted && (
-                        <Button
-                          variant="outline" size="sm"
-                          onClick={() => { tryingAgainRef.current = true; setIsSubmitted(false); setSelectedAnswer(null); setServerResult(null) }}
-                          className="border-primary/30 text-primary hover:bg-primary/10"
-                        >
-                          <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
-                          Try Again
-                        </Button>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline" size="sm"
-                        onClick={() => navigateTo(currentIndex - 1)}
-                        disabled={currentIndex === 0}
-                        className="text-foreground"
-                      >
-                        <ArrowLeft className="h-4 w-4 mr-1" />
-                        Prev
-                      </Button>
-                      {!isSubmitted ? (
-                        <Button
-                          size="sm"
-                          onClick={handleSubmit}
-                          disabled={selectedAnswer === null || submitting}
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                        >
-                          {submitting && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
-                          Submit
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          onClick={() => navigateTo(currentIndex + 1)}
-                          disabled={currentIndex === questions.length - 1}
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                        >
-                          Next
-                          <ArrowRight className="h-4 w-4 ml-1" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </GlassCard>
-
-                {/* Question palette */}
-                <div className="flex-shrink-0">
-                  <GlassCard className="p-4">
-                    {/* Legend */}
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-semibold text-foreground">Question Palette</h4>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-3 h-3 rounded bg-primary/80" />
-                          <span>Current</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-3 h-3 rounded bg-emerald-500/20 border border-emerald-500/30" />
-                          <span>Answered</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-3 h-3 rounded bg-amber-500/20 border border-amber-500/30" />
-                          <span>Marked</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-3 h-3 rounded bg-secondary/50 border border-border" />
-                          <span>Unattempted</span>
-                        </div>
-                      </div>
-                    </div>
-                    {/* Grid */}
-                    <div className="flex flex-wrap gap-2">
-                      {questionStatuses.map((status, index) => (
+                {/* Pagination */}
+                {Math.ceil(questions.length / PROG_PAGE_SIZE) > 1 && (
+                  <div className="flex items-center justify-between pt-2 flex-shrink-0">
+                    <Button
+                      variant="outline" size="sm"
+                      onClick={() => setProgPage((p) => Math.max(1, p - 1))}
+                      disabled={progPage <= 1}
+                      className="text-foreground"
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-1" />
+                      Previous
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.ceil(questions.length / PROG_PAGE_SIZE) }, (_, i) => i + 1).map((p) => (
                         <button
-                          key={index}
-                          onClick={() => navigateTo(index)}
+                          key={p}
+                          onClick={() => setProgPage(p)}
                           className={cn(
-                            "w-9 h-9 rounded-lg text-xs font-medium transition-all",
-                            getStatusColor(status, index)
+                            "w-8 h-8 rounded-lg text-xs font-medium transition-all",
+                            p === progPage
+                              ? "bg-primary/20 text-primary border border-primary/30"
+                              : "bg-secondary/50 text-muted-foreground border border-border hover:border-primary/30 hover:text-primary"
                           )}
                         >
-                          {index + 1}
+                          {p}
                         </button>
                       ))}
                     </div>
-                  </GlassCard>
-                </div>
+                    <Button
+                      variant="outline" size="sm"
+                      onClick={() => setProgPage((p) => Math.min(Math.ceil(questions.length / PROG_PAGE_SIZE), p + 1))}
+                      disabled={progPage >= Math.ceil(questions.length / PROG_PAGE_SIZE)}
+                      className="text-foreground"
+                    >
+                      Next
+                      <ArrowRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                )}
               </>
             )}
           </div>
