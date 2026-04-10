@@ -1,7 +1,5 @@
 "use client"
 
-import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 
 interface LogoProps {
@@ -13,37 +11,13 @@ interface LogoProps {
 }
 
 export function Logo({ size = 36, showText = true, className }: LogoProps) {
-  const { resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => { setMounted(true) }, [])
-
-  if (!showText) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src="/careerezi-icon-96.jpg"
-        alt="CareerEzi"
-        width={size}
-        height={size}
-        className={cn("flex-shrink-0 object-contain", className)}
-      />
-    )
-  }
-
-  // Before mount (SSR), default to dark to avoid flash
-  const isLight = mounted && resolvedTheme === "light"
-  const src = isLight
-    ? "/careerezi-primary-light.jpg"
-    : "/careerezi-primary-dark.jpg"
-
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src="/careerezi_logo.png"
       alt="CareerEzi"
-      style={{ height: size }}
-      className={cn("flex-shrink-0 object-contain w-auto", className)}
+      style={showText ? { height: size } : { width: size, height: size }}
+      className={cn("flex-shrink-0 object-contain", showText && "w-auto", className)}
     />
   )
 }

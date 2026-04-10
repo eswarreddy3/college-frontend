@@ -33,6 +33,7 @@ import {
   Calculator,
 } from "lucide-react"
 import { useState } from "react"
+import { motion } from "framer-motion"
 import { UserAvatar } from "@/components/user-avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -207,12 +208,18 @@ export function Sidebar() {
         {/* Logo */}
         <div
           className={cn(
-            "flex items-center h-16 px-4 border-b border-sidebar-border",
+            "flex items-center h-20 px-4 border-b border-sidebar-border",
             isCollapsed ? "justify-center" : "justify-between"
           )}
         >
           <Link href="/dashboard" className="flex items-center">
-            <Logo size={36} showText={!isCollapsed} />
+            <motion.div
+              whileHover={{ scale: 1.07, rotate: -2 }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: "spring", stiffness: 400, damping: 18 }}
+            >
+              <Logo size={60} showText={!isCollapsed} />
+            </motion.div>
           </Link>
           <Button
             variant="ghost"

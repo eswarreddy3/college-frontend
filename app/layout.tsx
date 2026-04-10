@@ -34,10 +34,9 @@ export const metadata: Metadata = {
   generator: 'v0.app',
   icons: {
     icon: [
-      { url: '/careerezi-icon-32-favicon.svg', type: 'image/svg+xml' },
-      { url: '/icon-dark-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/careerezi_logo.png', type: 'image/png' },
     ],
-    apple: '/apple-icon.png',
+    apple: '/careerezi_logo.png',
   },
 }
 
