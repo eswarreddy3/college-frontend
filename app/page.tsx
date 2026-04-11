@@ -552,55 +552,18 @@ export default function LandingPage() {
             In One Platform.
           </motion.h1>
 
+          {/* Tagline */}
+          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38, duration: 0.6 }}
+            className="text-sm sm:text-base font-semibold tracking-wide text-muted-foreground/70 uppercase mb-3">
+            Built for India's 40 Million Engineering Students
+          </motion.p>
+
           {/* Subtext */}
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.7 }}
             className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-9 leading-relaxed">
             persistence. <strong className="text-foreground/80">Learn.</strong> Practice. Code. Get Placed — everything your college needs to turn every student into a hire.
           </motion.p>
 
-          {/* CTAs */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.6 }}
-            className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-10">
-            <MagneticWrap>
-              <Link href="/login"
-                className="group inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 rounded-xl gradient-bg text-white font-bold hover:brightness-110 transition-all primary-glow text-sm sm:text-base shadow-xl">
-                Book College Demo
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </MagneticWrap>
-            <Link href="/login"
-              className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-8 py-4 rounded-xl border border-border bg-secondary/40 hover:bg-secondary/70 transition-all text-sm sm:text-base font-semibold backdrop-blur-sm">
-              Start College Free
-              <ChevronRight className="w-4 h-4" />
-            </Link>
-          </motion.div>
-
-          {/* Social proof */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
-            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground mb-4">
-            {[
-              { icon: Check, text: "Free to start" },
-              { icon: Shield, text: "No credit card" },
-              { icon: Zap, text: "Live in 24 hours" },
-              { icon: GraduationCap, text: "2,400+ students active" },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5">
-                <Icon className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                <span>{text}</span>
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Star ratings */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-            className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <div className="flex gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              ))}
-            </div>
-            <span>4.9/5 from 200+ reviews</span>
-          </motion.div>
         </motion.div>
 
         <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 2, repeat: Infinity }}
@@ -609,30 +572,6 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* ── Stats Bar ─────────────────────────────────────────────────────────── */}
-      <section className="px-4 sm:px-6 pb-20">
-        <FadeIn>
-          <div className="max-w-5xl mx-auto glass-card rounded-2xl border border-border p-6 sm:p-8">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8">
-              {heroStats.map((s, i) => (
-                <motion.div
-                  key={s.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  className="text-center"
-                >
-                  <div className={`text-3xl sm:text-4xl font-bold font-serif mb-1 ${s.color}`}>
-                    <Counter to={s.value} suffix={s.suffix} />
-                  </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">{s.label}</div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </FadeIn>
-      </section>
 
       {/* ── Problem ───────────────────────────────────────────────────────────── */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 relative overflow-hidden">
@@ -768,8 +707,18 @@ export default function LandingPage() {
           </FadeIn>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 relative">
-            {/* Connector line */}
-            <div className="hidden lg:block absolute top-10 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-violet-500/20 via-cyan-500/20 via-pink-500/20 to-amber-500/20" />
+            {/* Animated chevron arrows — appear between columns, not through icons */}
+            {[25, 50, 75].map((pct, i) => (
+              <motion.div
+                key={pct}
+                className="hidden lg:flex absolute items-center justify-center"
+                style={{ left: `${pct}%`, top: "40px", transform: "translate(-50%, -50%)" }}
+                animate={{ x: [0, 7, 0], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.6, repeat: Infinity, delay: i * 0.4, ease: "easeInOut" }}
+              >
+                <ChevronRight className="w-7 h-7 text-primary" />
+              </motion.div>
+            ))}
             {howItWorks.map((step, i) => (
               <FadeIn key={step.title} delay={i * 0.12}>
                 <motion.div
@@ -964,22 +913,8 @@ export default function LandingPage() {
                   <span className="gradient-text">today.</span>
                 </h2>
                 <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto mb-9">
-                  Join 50+ colleges already using CareerEzi. Set up takes less than a day — results last a career.
+                  Every great placement record started with one decision. Make yours today — your students are waiting.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                  <MagneticWrap>
-                    <Link href="/login"
-                      className="group inline-flex items-center gap-2 px-8 py-4 rounded-xl gradient-bg text-white font-bold hover:brightness-110 transition-all primary-glow text-sm sm:text-base shadow-xl w-full sm:w-auto justify-center">
-                      Book College Demo
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </MagneticWrap>
-                  <Link href="/login"
-                    className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-border hover:border-primary/40 bg-secondary/40 hover:bg-secondary/70 transition-all text-sm sm:text-base font-semibold w-full sm:w-auto justify-center">
-                    Start College Free
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
               </div>
             </motion.div>
           </FadeIn>

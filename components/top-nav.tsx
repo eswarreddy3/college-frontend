@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence, useScroll } from "framer-motion"
-import { Menu, X, ArrowRight } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { Logo } from "@/components/logo"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface TopNavProps {
   onScrollTo?: (id: string) => void
@@ -70,7 +71,7 @@ export function TopNav({ onScrollTo }: TopNavProps) {
         <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <Logo size={32} />
+            <Logo size={60} />
           </Link>
 
           {/* Desktop centre links */}
@@ -80,18 +81,12 @@ export function TopNav({ onScrollTo }: TopNavProps) {
 
           {/* Desktop right CTAs */}
           <div className="hidden md:flex items-center gap-2.5">
+            <ThemeToggle collapsed />
             <Link
               href="/login"
               className="px-4 py-2 rounded-lg border border-border hover:border-primary/40 text-sm font-medium transition-all hover:bg-secondary/40"
             >
               Log In
-            </Link>
-            <Link
-              href="/login"
-              className="group flex items-center gap-1.5 px-4 py-2 rounded-lg gradient-bg text-white text-sm font-semibold hover:brightness-110 transition-all primary-glow-hover"
-            >
-              Book Demo
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
 
@@ -132,14 +127,17 @@ export function TopNav({ onScrollTo }: TopNavProps) {
             >
               {/* Drawer header */}
               <div className="flex items-center justify-between px-5 h-16 border-b border-border flex-shrink-0">
-                <Logo size={28} />
-                <button
-                  onClick={() => setMenuOpen(false)}
-                  className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Close menu"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <Logo size={40} />
+                <div className="flex items-center gap-2">
+                  <ThemeToggle collapsed />
+                  <button
+                    onClick={() => setMenuOpen(false)}
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Close menu"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Nav links */}
@@ -166,13 +164,6 @@ export function TopNav({ onScrollTo }: TopNavProps) {
                   className="w-full py-3 rounded-xl border border-border text-sm font-medium text-center hover:border-primary/40 hover:bg-secondary/40 transition-all"
                 >
                   Log In
-                </Link>
-                <Link
-                  href="/login"
-                  onClick={() => setMenuOpen(false)}
-                  className="w-full py-3 rounded-xl gradient-bg text-white text-sm font-semibold text-center hover:brightness-110 transition-all primary-glow"
-                >
-                  Book Demo
                 </Link>
               </div>
             </motion.div>
