@@ -14,6 +14,10 @@ import {
   Code2,
   ClipboardList,
   UserPlus,
+  Globe,
+  Brain,
+  Layers,
+  FileQuestion,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -24,6 +28,14 @@ interface Stats {
   active_colleges: number
   total_students: number
   total_packages: number
+  content: {
+    courses: number
+    lessons: number
+    domains: number
+    mcq_questions: number
+    aptitude_questions: number
+    coding_problems: number
+  }
   top_colleges: { id: number; name: string; location: string; package: string | null; student_count: number }[]
   activity_week: {
     new_students: number
@@ -66,6 +78,15 @@ export default function SuperAdminPage() {
     { label: "Assignments Submitted", value: stats?.activity_week.assignment_submissions ?? "—", icon: ClipboardList, color: "text-amber-400" },
   ]
 
+  const contentItems = [
+    { label: "Courses", value: stats?.content.courses ?? "—", icon: BookOpen, color: "text-blue-400", bg: "bg-blue-500/20" },
+    { label: "Lessons", value: stats?.content.lessons ?? "—", icon: Layers, color: "text-indigo-400", bg: "bg-indigo-500/20" },
+    { label: "Domains", value: stats?.content.domains ?? "—", icon: Globe, color: "text-teal-400", bg: "bg-teal-500/20" },
+    { label: "MCQ Questions", value: stats?.content.mcq_questions ?? "—", icon: FileQuestion, color: "text-amber-400", bg: "bg-amber-500/20" },
+    { label: "Aptitude Questions", value: stats?.content.aptitude_questions ?? "—", icon: Brain, color: "text-pink-400", bg: "bg-pink-500/20" },
+    { label: "Coding Problems", value: stats?.content.coding_problems ?? "—", icon: Code2, color: "text-purple-400", bg: "bg-purple-500/20" },
+  ]
+
   return (
     <div className="space-y-8">
       <div>
@@ -93,6 +114,29 @@ export default function SuperAdminPage() {
           </GlassCard>
         ))}
       </div>
+
+      {/* Content Library */}
+      <GlassCard>
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen className="h-5 w-5 text-primary" />
+          <h3 className="font-semibold font-serif text-foreground">Content Library</h3>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {contentItems.map(({ label, value, icon: Icon, color, bg }) => (
+            <div key={label} className="flex flex-col items-center gap-2 p-4 rounded-xl bg-secondary/30 text-center">
+              <div className={cn("p-2 rounded-lg", bg)}>
+                <Icon className={cn("h-4 w-4", color)} />
+              </div>
+              {loading ? (
+                <div className="h-7 w-10 bg-secondary/50 rounded animate-pulse" />
+              ) : (
+                <p className="text-xl font-bold font-serif text-foreground">{typeof value === "number" ? value.toLocaleString() : value}</p>
+              )}
+              <p className="text-xs text-muted-foreground leading-tight">{label}</p>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Colleges by Students */}
