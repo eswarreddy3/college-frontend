@@ -80,29 +80,33 @@ interface AptSubtopic {
   answered: number
 }
 interface AptTopic {
-  topic_name: string
+  topic: string
   total: number
   answered: number
   subtopics: AptSubtopic[]
 }
 interface AptQuestion {
   id: number
-  topic_name: string
-  subtopic: string | null
+  topic: string
+  sub_topic: string | null
   image_url: string | null
   question: string
   option_a: string
   option_b: string
   option_c: string
   option_d: string
-  correct_answer?: string
+  option_e?: string | null
+  correct_option?: string   // 'A'|'B'|'C'|'D' — present when already_correct
+  correct_answer?: string   // answer text — present when already_correct
   explanation: string | null
+  difficulty?: string
+  points?: number
   already_correct: boolean
 }
 interface AptQState {
   selected: "A" | "B" | "C" | "D" | null
   submitting: boolean
-  result: { correct: boolean; correct_answer: string; explanation: string | null; points_earned: number } | null
+  result: { correct: boolean; correct_option: string; correct_answer: string; explanation: string | null; points_earned: number } | null
   locked: boolean
 }
 
@@ -143,6 +147,7 @@ function PracticeMCQContent() {
   const [aptQuestions, setAptQuestions] = useState<AptQuestion[]>([])
   const [aptStates, setAptStates] = useState<AptQState[]>([])
   const [loadingAptQ, setLoadingAptQ] = useState(false)
+  const [aptSidebarOpen, setAptSidebarOpen] = useState(true)
 
   const { updateUser } = useAuthStore()
 
@@ -280,7 +285,7 @@ function PracticeMCQContent() {
         setAptTotalPages(res.data.total_pages)
         setAptTotal(res.data.total)
         setAptStates(qs.map((q) => ({
-          selected: q.already_correct ? (q.correct_answer as "A"|"B"|"C"|"D" ?? null) : null,
+          selected: q.already_correct ? (q.correct_option as "A"|"B"|"C"|"D" ?? null) : null,
           submitting: false,
           result: null,
           locked: q.already_correct,
@@ -319,11 +324,17 @@ function PracticeMCQContent() {
       const result = res.data
       updateAptState(qIndex, { submitting: false, result, locked: result.correct })
       if (result.correct) {
+        fireStars()
+        setAnswerFeedback("correct")
+        setTimeout(() => setAnswerFeedback(null), 700)
         if (result.points_earned > 0) {
           updateUser({ points: result.total_points })
-          toast.success("+1 pt")
+          toast.success(`+${result.points_earned} pt`)
         }
         loadAptTopics()
+      } else {
+        setAnswerFeedback("wrong")
+        setTimeout(() => setAnswerFeedback(null), 700)
       }
     } catch {
       updateAptState(qIndex, { submitting: false, selected: null })
@@ -393,10 +404,7 @@ function PracticeMCQContent() {
                   Topic-based questions on DSA, Python, Java, DBMS, OS, Networks, and more. Perfect for technical interview prep.
                 </p>
               </div>
-              <div className="flex items-center justify-between">
-                <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 text-xs">
-                  5 pts per correct answer
-                </Badge>
+              <div className="flex items-center justify-end">
                 <span className="text-sm font-medium text-primary flex items-center gap-1.5">
                   Start Practice
                   <ArrowRight className="h-4 w-4" />
@@ -425,10 +433,7 @@ function PracticeMCQContent() {
                   Quantitative aptitude, logical reasoning, and data interpretation. Boost your placement test scores.
                 </p>
               </div>
-              <div className="flex items-center justify-between">
-                <Badge variant="outline" className="text-amber-400 border-amber-500/30 bg-amber-500/5 text-xs">
-                  1 pt per correct answer
-                </Badge>
+              <div className="flex items-center justify-end">
                 <span className="text-sm font-medium text-amber-400 flex items-center gap-1.5">
                   Start Practice
                   <ArrowRight className="h-4 w-4" />
@@ -864,6 +869,22 @@ function PracticeMCQContent() {
   // ── Render: Aptitude ───────────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-4">
+      {/* Answer feedback flash */}
+      <AnimatePresence>
+        {answerFeedback && (
+          <motion.div
+            className={cn(
+              "fixed inset-0 pointer-events-none z-40",
+              answerFeedback === "correct" ? "bg-emerald-500/10" : "bg-red-500/10"
+            )}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Back button + header */}
       <div className="flex items-center gap-3 flex-shrink-0">
         <button
@@ -879,73 +900,110 @@ function PracticeMCQContent() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6" style={{ minHeight: "calc(100vh - 10rem)" }}>
+      <div className="flex flex-col lg:flex-row gap-4 lg:items-start">
         {/* Left sidebar */}
-        <div className="w-full lg:w-64 flex-shrink-0">
-          <GlassCard className="h-full overflow-y-auto">
-            <div className="flex items-center gap-2 mb-4">
+        <div className="w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-4">
+          {/* Mobile collapse toggle */}
+          <button
+            onClick={() => setAptSidebarOpen((o) => !o)}
+            className="lg:hidden w-full flex items-center justify-between px-4 py-3 rounded-xl border border-border bg-card mb-2 transition-colors hover:border-amber-500/30"
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Brain className="h-4 w-4 text-amber-400" />
-              <span className="font-semibold font-serif text-foreground">Topics</span>
+              Topics
+              {selectedAptTopic && (
+                <span className="text-amber-400 text-xs font-normal truncate max-w-[120px]">· {selectedAptTopic}{selectedAptSubtopic ? ` › ${selectedAptSubtopic}` : ""}</span>
+              )}
             </div>
-            {loadingAptTopics ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-6 w-6 text-amber-400 animate-spin" />
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", aptSidebarOpen && "rotate-180")} />
+          </button>
+
+          {/* Panel — hidden on mobile when collapsed */}
+          <div className={cn("lg:block", aptSidebarOpen ? "block" : "hidden")}>
+            <GlassCard className="p-0 overflow-hidden">
+              {/* Desktop header */}
+              <div className="hidden lg:flex items-center gap-2 px-4 pt-4 pb-3 border-b border-border">
+                <Brain className="h-4 w-4 text-amber-400 flex-shrink-0" />
+                <span className="font-semibold font-serif text-foreground text-sm">Topics</span>
               </div>
-            ) : (
-              <div className="space-y-1">
-                {aptTopics.map((t) => {
-                  const isTopicSelected = selectedAptTopic === t.topic_name
-                  const pct = t.total > 0 ? (t.answered / t.total) * 100 : 0
-                  return (
-                    <div key={t.topic_name}>
-                      {/* Topic row */}
-                      <button
-                        onClick={() => {
-                          if (isTopicSelected) { setSelectedAptTopic(null); setSelectedAptSubtopic(null) }
-                          else { setSelectedAptTopic(t.topic_name); setSelectedAptSubtopic(null) }
-                        }}
-                        className={cn(
-                          "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors",
-                          isTopicSelected
-                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                            : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground border border-transparent"
-                        )}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold">{t.topic_name}</span>
-                          <span className="text-xs opacity-70">{t.answered}/{t.total}</span>
-                        </div>
-                        <Progress value={pct} className="h-1 opacity-50" />
-                      </button>
-                      {/* Subtopics */}
-                      {isTopicSelected && t.subtopics.map((sub) => {
-                        const isActiveSub = selectedAptSubtopic === sub.name
-                        const subPct = sub.total > 0 ? (sub.answered / sub.total) * 100 : 0
-                        return (
+
+              {/* Scrollable topic list */}
+              <div className="max-h-[45vh] lg:max-h-[calc(100vh-14rem)] overflow-y-auto p-2">
+                {loadingAptTopics ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-5 w-5 text-amber-400 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="space-y-0.5">
+                    {aptTopics.map((t) => {
+                      const isTopicSelected = selectedAptTopic === t.topic
+                      const pct = t.total > 0 ? Math.round((t.answered / t.total) * 100) : 0
+                      return (
+                        <div key={t.topic}>
+                          {/* Topic row */}
                           <button
-                            key={sub.name}
-                            onClick={() => selectAptSubtopic(t.topic_name, sub.name)}
+                            onClick={() => {
+                              if (isTopicSelected) { setSelectedAptTopic(null); setSelectedAptSubtopic(null) }
+                              else { setSelectedAptTopic(t.topic); setSelectedAptSubtopic(null) }
+                            }}
                             className={cn(
-                              "w-full text-left pl-6 pr-3 py-2 rounded-lg text-xs transition-colors mt-0.5",
-                              isActiveSub
-                                ? "bg-amber-500/15 text-amber-300 border border-amber-500/25"
-                                : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground border border-transparent"
+                              "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors",
+                              isTopicSelected
+                                ? "bg-amber-500/10 text-amber-400"
+                                : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                             )}
                           >
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="font-medium">{sub.name}</span>
-                              <span className="opacity-60">{sub.answered}/{sub.total}</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-medium truncate flex-1">{t.topic}</span>
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <span className="text-xs opacity-60 tabular-nums">{t.answered}/{t.total}</span>
+                                <ChevronDown className={cn(
+                                  "h-3.5 w-3.5 transition-transform duration-200",
+                                  isTopicSelected ? "rotate-180 text-amber-400" : "text-muted-foreground"
+                                )} />
+                              </div>
                             </div>
-                            <Progress value={subPct} className="h-0.5 opacity-40" />
+                            <Progress value={pct} className="h-0.5 mt-1.5 opacity-40" />
                           </button>
-                        )
-                      })}
-                    </div>
-                  )
-                })}
+
+                          {/* Subtopics (only when topic expanded) */}
+                          {isTopicSelected && (
+                            <div className="ml-3 mt-0.5 space-y-0.5 border-l border-border pl-2">
+                              {t.subtopics.map((sub) => {
+                                const isActiveSub = selectedAptSubtopic === sub.name
+                                const subPct = sub.total > 0 ? Math.round((sub.answered / sub.total) * 100) : 0
+                                return (
+                                  <button
+                                    key={sub.name}
+                                    onClick={() => {
+                                      selectAptSubtopic(t.topic, sub.name)
+                                      if (window.innerWidth < 1024) setAptSidebarOpen(false)
+                                    }}
+                                    className={cn(
+                                      "w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors",
+                                      isActiveSub
+                                        ? "bg-amber-500/15 text-amber-300"
+                                        : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                                    )}
+                                  >
+                                    <div className="flex items-center justify-between gap-1">
+                                      <span className="font-medium truncate flex-1">{sub.name}</span>
+                                      <span className="opacity-50 tabular-nums flex-shrink-0">{sub.answered}/{sub.total}</span>
+                                    </div>
+                                    <Progress value={subPct} className="h-0.5 mt-1 opacity-30" />
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
-            )}
-          </GlassCard>
+            </GlassCard>
+          </div>
         </div>
 
         {/* Right panel */}
@@ -996,126 +1054,128 @@ function PracticeMCQContent() {
                 </div>
               </div>
 
-              {/* 5 question cards */}
-              <div className="space-y-4">
+              {/* Question cards */}
+              <div className="space-y-3">
                 {aptQuestions.map((q, qIdx) => {
                   const state = aptStates[qIdx]
                   if (!state) return null
                   const result = state.result
+                  // Use correct_option (letter) — NOT correct_answer (text)
+                  const correctKey: string | undefined =
+                    result?.correct_option ?? (state.locked ? q.correct_option : undefined)
+                  const isAnswered = !!result || state.locked
+                  const qNum = (aptPage - 1) * 5 + qIdx + 1
 
                   return (
                     <GlassCard
                       key={q.id}
                       className={cn(
-                        "transition-all duration-200",
-                        state.locked && "border-emerald-500/30 bg-emerald-500/5"
+                        "transition-all duration-200 p-4 sm:p-5",
+                        state.locked && !result && "border-emerald-500/20",
+                        result?.correct && "border-emerald-500/20",
+                        result && !result.correct && "border-red-500/20",
                       )}
                     >
-                      {/* Question header */}
-                      <div className="flex items-start gap-3 mb-4">
+                      {/* Question row */}
+                      <div className="flex items-start gap-3 mb-3">
+                        {/* Number badge */}
                         <span className={cn(
-                          "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border",
-                          state.locked
-                            ? "bg-emerald-500 border-emerald-500 text-white"
-                            : result && !result.correct
-                            ? "bg-red-500/20 border-red-500/50 text-red-400"
+                          "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border mt-0.5",
+                          state.locked && !result ? "bg-emerald-500 border-emerald-500 text-white"
+                            : result?.correct ? "bg-emerald-500 border-emerald-500 text-white"
+                            : result && !result.correct ? "bg-red-500/20 border-red-500/40 text-red-400"
                             : "bg-secondary border-border text-muted-foreground"
                         )}>
-                          {(aptPage - 1) * 5 + qIdx + 1}
+                          {result?.correct || (state.locked && !result) ? <CheckCircle className="h-3.5 w-3.5" />
+                            : result && !result.correct ? <XCircle className="h-3.5 w-3.5" />
+                            : qNum}
                         </span>
-                        <p className="text-sm font-medium text-foreground leading-relaxed flex-1">
-                          {q.question}
-                        </p>
-                        <span className="text-xs text-amber-400 whitespace-nowrap flex-shrink-0">1 pt</span>
+                        <p className="text-sm font-medium text-foreground leading-relaxed flex-1">{q.question}</p>
                       </div>
 
                       {/* Image */}
                       {q.image_url && (
-                        <img
-                          src={q.image_url}
-                          alt="Question"
-                          className="mb-4 rounded-lg max-h-48 object-contain"
+                        <img src={q.image_url} alt="Question diagram"
+                          className="mb-3 rounded-lg max-h-44 object-contain border border-border"
                         />
                       )}
 
-                      {/* Options 2x2 grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {/* Options */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                         {APT_OPTIONS.map(({ key, field }) => {
                           const optText = q[field] as string
                           const isSelected = state.selected === key
-                          const correctAnswer = result?.correct_answer ?? q.correct_answer
-                          const isCorrect = correctAnswer ? key === correctAnswer : false
-                          const wasSelected = state.selected === key
-                          const isLocked = state.locked
+                          const isCorrectOpt = correctKey ? key === correctKey : false
+                          const isWrongSelected = isAnswered && isSelected && !isCorrectOpt
 
                           return (
                             <button
                               key={key}
-                              onClick={() => !isLocked && !result && handleAptAnswer(qIdx, key)}
-                              disabled={isLocked || !!result || state.submitting}
+                              onClick={() => !isAnswered && !state.submitting && handleAptAnswer(qIdx, key)}
+                              disabled={isAnswered || state.submitting}
                               className={cn(
-                                "p-3 rounded-xl text-left transition-all duration-150 border text-sm",
-                                !result && !isLocked && isSelected && "border-amber-500 bg-amber-500/10 text-foreground",
-                                !result && !isLocked && !isSelected && "border-border hover:border-amber-500/40 hover:bg-amber-500/5 text-foreground",
-                                isLocked && isCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
-                                result && isCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
-                                result && wasSelected && !isCorrect && "border-red-500 bg-red-500/10 text-red-400",
-                                result && !isCorrect && !wasSelected && "border-border text-muted-foreground opacity-40",
-                                isLocked && isCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
-                                isLocked && !isCorrect && "border-border text-muted-foreground opacity-40",
+                                "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-sm border transition-all duration-150",
+                                // Unanswered idle
+                                !isAnswered && !isSelected && "border-border text-foreground hover:border-amber-500/40 hover:bg-amber-500/5",
+                                // Unanswered selected (pre-submit highlight)
+                                !isAnswered && isSelected && "border-amber-500 bg-amber-500/10 text-foreground",
+                                // Correct option after answer
+                                isAnswered && isCorrectOpt && "border-emerald-500/60 bg-emerald-500/10 text-emerald-400",
+                                // Wrong selected
+                                isAnswered && isWrongSelected && "border-red-500/60 bg-red-500/10 text-red-400",
+                                // Neutral unchosen after answer
+                                isAnswered && !isCorrectOpt && !isWrongSelected && "border-border text-muted-foreground opacity-50",
                               )}
                             >
-                              <div className="flex items-center gap-2">
-                                <span className={cn(
-                                  "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border flex-shrink-0",
-                                  result && isCorrect && "bg-emerald-500 border-emerald-500 text-white",
-                                  result && wasSelected && !isCorrect && "bg-red-500 border-red-500 text-white",
-                                  isLocked && isCorrect && "bg-emerald-500 border-emerald-500 text-white",
-                                  !result && !isLocked && "border-border text-muted-foreground",
-                                )}>
-                                  {key}
-                                </span>
-                                <span className="flex-1">{optText}</span>
-                                {state.submitting && isSelected && <Loader2 className="h-4 w-4 animate-spin ml-auto flex-shrink-0" />}
-                                {result && isCorrect && <CheckCircle className="h-4 w-4 ml-auto text-emerald-400 flex-shrink-0" />}
-                                {result && wasSelected && !isCorrect && <XCircle className="h-4 w-4 ml-auto text-red-400 flex-shrink-0" />}
-                                {isLocked && isCorrect && <CheckCircle className="h-4 w-4 ml-auto text-emerald-400 flex-shrink-0" />}
-                              </div>
+                              {/* Letter badge */}
+                              <span className={cn(
+                                "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border flex-shrink-0",
+                                isAnswered && isCorrectOpt ? "bg-emerald-500 border-emerald-500 text-white"
+                                  : isAnswered && isWrongSelected ? "bg-red-500 border-red-500 text-white"
+                                  : !isAnswered && isSelected ? "border-amber-500 text-amber-500"
+                                  : "border-border text-muted-foreground"
+                              )}>
+                                {key}
+                              </span>
+                              <span className="flex-1 leading-snug">{optText}</span>
+                              {state.submitting && isSelected && <Loader2 className="h-3.5 w-3.5 animate-spin flex-shrink-0 text-amber-400" />}
+                              {isAnswered && isCorrectOpt && <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-emerald-400" />}
+                              {isAnswered && isWrongSelected && <XCircle className="h-3.5 w-3.5 flex-shrink-0 text-red-400" />}
                             </button>
                           )
                         })}
                       </div>
 
-                      {/* Feedback strip */}
-                      {(result || state.locked) && (
-                        <div className="mt-3 flex items-start justify-between gap-3">
-                          <div className={cn(
-                            "flex-1 p-3 rounded-lg text-xs leading-relaxed",
-                            state.locked || result?.correct
-                              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                              : "bg-red-500/10 border border-red-500/20 text-red-400"
-                          )}>
-                            {state.locked && !result && (
-                              <p className="font-medium mb-1">Already answered correctly!</p>
-                            )}
-                            {result && (
-                              <p className="font-medium mb-1">
-                                {result.correct ? "Correct!" : `Wrong — correct answer is ${result.correct_answer}`}
+                      {/* Feedback bar */}
+                      {isAnswered && (
+                        <div className={cn(
+                          "mt-3 rounded-lg px-3 py-2 text-xs border flex items-start justify-between gap-3",
+                          state.locked && !result ? "bg-emerald-500/8 border-emerald-500/20 text-emerald-400"
+                            : result?.correct ? "bg-emerald-500/8 border-emerald-500/20 text-emerald-400"
+                            : "bg-red-500/8 border-red-500/20 text-red-400"
+                        )}>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold mb-0.5">
+                              {state.locked && !result
+                                ? "Already answered correctly"
+                                : result?.correct
+                                ? `Correct!${result.points_earned > 0 ? ` +${result.points_earned} pt` : ""}`
+                                : `Incorrect — correct answer: ${result?.correct_option}`}
+                            </p>
+                            {(result?.explanation || (state.locked && q.explanation)) && (
+                              <p className="text-muted-foreground leading-relaxed">
+                                {result?.explanation ?? q.explanation}
                               </p>
-                            )}
-                            {result?.explanation && (
-                              <p className="text-muted-foreground">{result.explanation}</p>
                             )}
                           </div>
                           {result && !result.correct && (
-                            <Button
-                              size="sm" variant="outline"
+                            <button
                               onClick={() => handleAptTryAgain(qIdx)}
-                              className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 flex-shrink-0"
+                              className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 border border-amber-500/30 rounded-lg px-2 py-1 flex-shrink-0 transition-colors"
                             >
-                              <RotateCcw className="h-3 w-3 mr-1" />
-                              Try Again
-                            </Button>
+                              <RotateCcw className="h-3 w-3" />
+                              Retry
+                            </button>
                           )}
                         </div>
                       )}
@@ -1124,43 +1184,48 @@ function PracticeMCQContent() {
                 })}
               </div>
 
-              {/* Pagination */}
-              <div className="flex items-center justify-between pt-2">
-                <Button
-                  variant="outline" size="sm"
-                  onClick={() => aptChangePage(aptPage - 1)}
-                  disabled={aptPage <= 1}
-                  className="text-foreground"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-1" />
-                  Previous
-                </Button>
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: aptTotalPages }, (_, i) => i + 1).map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => aptChangePage(p)}
-                      className={cn(
-                        "w-8 h-8 rounded-lg text-xs font-medium transition-all",
-                        p === aptPage
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                          : "bg-secondary/50 text-muted-foreground border border-border hover:border-amber-500/30 hover:text-amber-400"
+              {/* Windowed pagination — safe for 2000+ pages */}
+              {aptTotalPages > 1 && (() => {
+                const delta = 2
+                const pages: (number | "…")[] = []
+                const addPage = (p: number) => { if (p >= 1 && p <= aptTotalPages) pages.push(p) }
+                addPage(1)
+                if (aptPage - delta > 2) pages.push("…")
+                for (let p = Math.max(2, aptPage - delta); p <= Math.min(aptTotalPages - 1, aptPage + delta); p++) pages.push(p)
+                if (aptPage + delta < aptTotalPages - 1) pages.push("…")
+                if (aptTotalPages > 1) addPage(aptTotalPages)
+
+                return (
+                  <div className="flex items-center justify-between gap-2 pt-1">
+                    <Button variant="outline" size="sm" onClick={() => aptChangePage(aptPage - 1)} disabled={aptPage <= 1} className="text-foreground">
+                      <ArrowLeft className="h-4 w-4 mr-1" /> Prev
+                    </Button>
+                    <div className="flex items-center gap-1 flex-wrap justify-center">
+                      {pages.map((p, i) =>
+                        p === "…" ? (
+                          <span key={`e${i}`} className="w-8 text-center text-xs text-muted-foreground">…</span>
+                        ) : (
+                          <button
+                            key={p}
+                            onClick={() => aptChangePage(p as number)}
+                            className={cn(
+                              "w-8 h-8 rounded-lg text-xs font-medium transition-all border",
+                              p === aptPage
+                                ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
+                                : "bg-secondary/50 text-muted-foreground border-border hover:border-amber-500/30 hover:text-amber-400"
+                            )}
+                          >
+                            {p}
+                          </button>
+                        )
                       )}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-                <Button
-                  variant="outline" size="sm"
-                  onClick={() => aptChangePage(aptPage + 1)}
-                  disabled={aptPage >= aptTotalPages}
-                  className="text-foreground"
-                >
-                  Next
-                  <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => aptChangePage(aptPage + 1)} disabled={aptPage >= aptTotalPages} className="text-foreground">
+                      Next <ArrowRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                )
+              })()}
             </>
           )}
         </div>
