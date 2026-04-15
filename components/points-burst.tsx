@@ -28,7 +28,7 @@ export function PointsBurst({ points, show, onDone }: Props) {
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="flex items-center gap-2 bg-amber-500/20 border border-amber-500/40 rounded-2xl px-6 py-4 backdrop-blur-sm"
+            className="flex items-center gap-2 bg-amber-500/20 border border-amber-500/40 rounded-2xl px-6 py-4"
             initial={{ scale: 0.4, y: 40 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.8, y: -40, opacity: 0 }}

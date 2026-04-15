@@ -5,14 +5,14 @@ export function fireConfetti(opts?: { origin?: { x: number; y: number }; scalar?
     particleCount: 120,
     spread: 80,
     origin: opts?.origin ?? { y: 0.6 },
-    colors: ["#6366F1", "#F59E0B", "#8B5CF6", "#EC4899", "#10B981"],
+    colors: ["#2BBDBD", "#E8836A", "#F59E0B", "#10B981", "#EC4899"],
     scalar: opts?.scalar ?? 1,
   })
 }
 
 export function fireSchoolPride() {
   const end = Date.now() + 1500
-  const colors = ["#6366F1", "#F59E0B"]
+  const colors = ["#2BBDBD", "#E8836A"]
   ;(function frame() {
     confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors })
     confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors })

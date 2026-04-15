@@ -798,7 +798,7 @@ export default function DomainProgramsPage() {
                 return (
                   <motion.div key={domain.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
                     <GlassCard className="relative opacity-50 select-none">
-                      <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl z-10 bg-background/40 backdrop-blur-[2px]">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl z-10 bg-background/80">
                         <Lock className="h-8 w-8 text-muted-foreground mb-2" />
                         <p className="text-xs text-muted-foreground font-medium">Not available in your plan</p>
                       </div>

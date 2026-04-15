@@ -116,7 +116,7 @@ function MobileBottomCTA() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: "spring", stiffness: 380, damping: 32 }}
-          className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-4 py-3 pb-safe bg-background/90 backdrop-blur-xl border-t border-border"
+          className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-4 py-3 pb-safe bg-background border-t border-border"
         >
           <Link href="/login"
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl gradient-bg text-white font-semibold text-sm primary-glow">
@@ -240,7 +240,7 @@ const features = [
     tag: "PDF Export",
   },
   {
-    icon: Trophy, color: "text-indigo-400", bg: "bg-indigo-500/10", border: "border-indigo-500/20",
+    icon: Trophy, color: "text-teal-500", bg: "bg-teal-500/10", border: "border-teal-500/20",
     title: "Gamification Engine",
     desc: "Daily streaks, XP points, leaderboards, and rewards that make students compete to learn more.",
     tag: "Streaks · Leaderboard",
@@ -311,7 +311,7 @@ const testimonials = [
   {
     name: "Dr. Meena Devi", role: "Principal · Kongu Engineering College", avatar: "M",
     text: "We saw a measurable jump in our placement percentage within one semester. The structured approach and admin controls are exactly what we needed.",
-    stars: 5, color: "from-indigo-500 to-violet-600",
+    stars: 5, color: "from-teal-600 to-teal-400",
   },
 ]
 
@@ -1127,7 +1127,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-border bg-background/60 pt-14 pb-8 px-4 sm:px-6">
+      <footer className="border-t border-border bg-background pt-14 pb-8 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
 
           {/* Top grid */}

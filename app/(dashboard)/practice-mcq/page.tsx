@@ -68,7 +68,7 @@ interface ProgQState {
 
 const difficultyColors = {
   Easy: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  Medium: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  Medium: "bg-amber-500/20 text-amber-600 border-amber-500/30",
   Hard: "bg-red-500/20 text-red-400 border-red-500/30",
 }
 
@@ -421,11 +421,11 @@ function PracticeMCQContent() {
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <div className="glass-card rounded-2xl p-8 h-full flex flex-col gap-5 cursor-pointer border border-border hover:border-amber-500/50 transition-all duration-200"
+            <div className="glass-card rounded-2xl p-8 h-full flex flex-col gap-5 cursor-pointer border border-border hover:border-primary/50 transition-all duration-200"
               style={{ boxShadow: "none" }}
             >
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                <Brain className="w-7 h-7 text-amber-400" />
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Brain className="w-7 h-7 text-primary" />
               </div>
               <div className="flex-1 space-y-2">
                 <h2 className="text-xl font-bold font-serif text-foreground">Aptitude &amp; Reasoning</h2>
@@ -434,7 +434,7 @@ function PracticeMCQContent() {
                 </p>
               </div>
               <div className="flex items-center justify-end">
-                <span className="text-sm font-medium text-amber-400 flex items-center gap-1.5">
+                <span className="text-sm font-medium text-primary flex items-center gap-1.5">
                   Start Practice
                   <ArrowRight className="h-4 w-4" />
                 </span>
@@ -839,7 +839,7 @@ function PracticeMCQContent() {
                             "w-8 h-8 rounded-lg text-xs font-medium transition-all",
                             p === progPage
                               ? "bg-primary/20 text-primary border border-primary/30"
-                              : "bg-secondary/50 text-muted-foreground border border-border hover:border-primary/30 hover:text-primary"
+                              : "bg-secondary/50 text-muted-foreground border border-border hover:border-primary/40 hover:text-primary"
                           )}
                         >
                           {p}
@@ -895,7 +895,7 @@ function PracticeMCQContent() {
           Back
         </button>
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <Brain className="h-4 w-4 text-amber-400" />
+          <Brain className="h-4 w-4 text-primary" />
           Aptitude &amp; Reasoning
         </div>
       </div>
@@ -906,13 +906,13 @@ function PracticeMCQContent() {
           {/* Mobile collapse toggle */}
           <button
             onClick={() => setAptSidebarOpen((o) => !o)}
-            className="lg:hidden w-full flex items-center justify-between px-4 py-3 rounded-xl border border-border bg-card mb-2 transition-colors hover:border-amber-500/30"
+            className="lg:hidden w-full flex items-center justify-between px-4 py-3 rounded-xl border border-border bg-card mb-2 transition-colors hover:border-primary/40"
           >
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Brain className="h-4 w-4 text-amber-400" />
+              <Brain className="h-4 w-4 text-primary" />
               Topics
               {selectedAptTopic && (
-                <span className="text-amber-400 text-xs font-normal truncate max-w-[120px]">· {selectedAptTopic}{selectedAptSubtopic ? ` › ${selectedAptSubtopic}` : ""}</span>
+                <span className="text-primary text-xs font-normal truncate max-w-[120px]">· {selectedAptTopic}{selectedAptSubtopic ? ` › ${selectedAptSubtopic}` : ""}</span>
               )}
             </div>
             <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", aptSidebarOpen && "rotate-180")} />
@@ -923,7 +923,7 @@ function PracticeMCQContent() {
             <GlassCard className="p-0 overflow-hidden">
               {/* Desktop header */}
               <div className="hidden lg:flex items-center gap-2 px-4 pt-4 pb-3 border-b border-border">
-                <Brain className="h-4 w-4 text-amber-400 flex-shrink-0" />
+                <Brain className="h-4 w-4 text-primary flex-shrink-0" />
                 <span className="font-semibold font-serif text-foreground text-sm">Topics</span>
               </div>
 
@@ -931,7 +931,7 @@ function PracticeMCQContent() {
               <div className="max-h-[45vh] lg:max-h-[calc(100vh-14rem)] overflow-y-auto p-2">
                 {loadingAptTopics ? (
                   <div className="flex justify-center py-8">
-                    <Loader2 className="h-5 w-5 text-amber-400 animate-spin" />
+                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
                   </div>
                 ) : (
                   <div className="space-y-0.5">
@@ -949,7 +949,7 @@ function PracticeMCQContent() {
                             className={cn(
                               "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors",
                               isTopicSelected
-                                ? "bg-amber-500/10 text-amber-400"
+                                ? "bg-primary/10 text-primary"
                                 : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                             )}
                           >
@@ -959,7 +959,7 @@ function PracticeMCQContent() {
                                 <span className="text-xs opacity-60 tabular-nums">{t.answered}/{t.total}</span>
                                 <ChevronDown className={cn(
                                   "h-3.5 w-3.5 transition-transform duration-200",
-                                  isTopicSelected ? "rotate-180 text-amber-400" : "text-muted-foreground"
+                                  isTopicSelected ? "rotate-180 text-primary" : "text-muted-foreground"
                                 )} />
                               </div>
                             </div>
@@ -982,7 +982,7 @@ function PracticeMCQContent() {
                                     className={cn(
                                       "w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors",
                                       isActiveSub
-                                        ? "bg-amber-500/15 text-amber-300"
+                                        ? "bg-primary/15 text-primary"
                                         : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
                                     )}
                                   >
@@ -1011,7 +1011,7 @@ function PracticeMCQContent() {
           {!selectedAptSubtopic ? (
             <div className="flex-1 flex items-center justify-center">
               <GlassCard className="text-center max-w-sm">
-                <Brain className="h-12 w-12 text-amber-400/30 mx-auto mb-4" />
+                <Brain className="h-12 w-12 text-primary/30 mx-auto mb-4" />
                 <h3 className="font-semibold font-serif text-foreground mb-2">
                   {selectedAptTopic ? "Select a Subtopic" : "Select a Topic"}
                 </h3>
@@ -1022,7 +1022,7 @@ function PracticeMCQContent() {
             </div>
           ) : loadingAptQ ? (
             <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="h-8 w-8 text-amber-400 animate-spin" />
+              <Loader2 className="h-8 w-8 text-primary animate-spin" />
             </div>
           ) : (
             <>
@@ -1116,9 +1116,9 @@ function PracticeMCQContent() {
                               className={cn(
                                 "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-sm border transition-all duration-150",
                                 // Unanswered idle
-                                !isAnswered && !isSelected && "border-border text-foreground hover:border-amber-500/40 hover:bg-amber-500/5",
+                                !isAnswered && !isSelected && "border-border text-foreground hover:border-primary/40 hover:bg-primary/5",
                                 // Unanswered selected (pre-submit highlight)
-                                !isAnswered && isSelected && "border-amber-500 bg-amber-500/10 text-foreground",
+                                !isAnswered && isSelected && "border-primary bg-primary/10 text-foreground",
                                 // Correct option after answer
                                 isAnswered && isCorrectOpt && "border-emerald-500/60 bg-emerald-500/10 text-emerald-400",
                                 // Wrong selected
@@ -1132,13 +1132,13 @@ function PracticeMCQContent() {
                                 "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border flex-shrink-0",
                                 isAnswered && isCorrectOpt ? "bg-emerald-500 border-emerald-500 text-white"
                                   : isAnswered && isWrongSelected ? "bg-red-500 border-red-500 text-white"
-                                  : !isAnswered && isSelected ? "border-amber-500 text-amber-500"
+                                  : !isAnswered && isSelected ? "border-primary text-primary"
                                   : "border-border text-muted-foreground"
                               )}>
                                 {key}
                               </span>
                               <span className="flex-1 leading-snug">{optText}</span>
-                              {state.submitting && isSelected && <Loader2 className="h-3.5 w-3.5 animate-spin flex-shrink-0 text-amber-400" />}
+                              {state.submitting && isSelected && <Loader2 className="h-3.5 w-3.5 animate-spin flex-shrink-0 text-primary" />}
                               {isAnswered && isCorrectOpt && <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-emerald-400" />}
                               {isAnswered && isWrongSelected && <XCircle className="h-3.5 w-3.5 flex-shrink-0 text-red-400" />}
                             </button>
@@ -1171,7 +1171,7 @@ function PracticeMCQContent() {
                           {result && !result.correct && (
                             <button
                               onClick={() => handleAptTryAgain(qIdx)}
-                              className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 border border-amber-500/30 rounded-lg px-2 py-1 flex-shrink-0 transition-colors"
+                              className="flex items-center gap-1 text-xs text-primary hover:text-primary border border-primary/30 rounded-lg px-2 py-1 flex-shrink-0 transition-colors"
                             >
                               <RotateCcw className="h-3 w-3" />
                               Retry
@@ -1211,8 +1211,8 @@ function PracticeMCQContent() {
                             className={cn(
                               "w-8 h-8 rounded-lg text-xs font-medium transition-all border",
                               p === aptPage
-                                ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
-                                : "bg-secondary/50 text-muted-foreground border-border hover:border-amber-500/30 hover:text-amber-400"
+                                ? "bg-primary/20 text-primary border-primary/30"
+                                : "bg-secondary/50 text-muted-foreground border-border hover:border-primary/40 hover:text-primary"
                             )}
                           >
                             {p}

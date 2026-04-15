@@ -636,7 +636,7 @@ export default function PostDetailPage() {
       )}
 
       {/* ── Sticky comment input bar (Instagram-style) ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/50 bg-background/95 backdrop-blur-xl px-4 py-3">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
           <Avatar className="h-8 w-8 flex-shrink-0 ring-1 ring-border">
             <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">

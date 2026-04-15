@@ -64,7 +64,7 @@ export function TopNav({ onScrollTo }: TopNavProps) {
         transition={{ duration: 0.5 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "border-b border-border bg-background/90 backdrop-blur-xl shadow-sm"
+            ? "border-b border-border bg-background shadow-sm"
             : "bg-transparent"
         }`}
       >
@@ -112,7 +112,7 @@ export function TopNav({ onScrollTo }: TopNavProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-[60] bg-black/60 md:hidden"
               onClick={() => setMenuOpen(false)}
             />
 

@@ -68,14 +68,7 @@ function ActivateContent() {
 
   return (
     <div className="w-full max-w-md">
-      <div
-        className="rounded-2xl p-8"
-        style={{
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          backdropFilter: "blur(10px)",
-        }}
-      >
+      <div className="rounded-2xl p-8 bg-card border border-border">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center primary-glow-sm mb-4">

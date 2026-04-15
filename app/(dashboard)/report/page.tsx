@@ -462,7 +462,7 @@ export default function MyReportPage() {
               <div className="space-y-6 max-h-[600px] overflow-y-auto pr-1">
                 {activity.map((day) => (
                   <div key={day.date}>
-                    <div className="flex items-center gap-3 mb-2 sticky top-0 bg-card/80 backdrop-blur-sm py-1 z-10">
+                    <div className="flex items-center gap-3 mb-2 sticky top-0 bg-card py-1 z-10">
                       <div className="h-px flex-1 bg-border/50" />
                       <span className="text-xs font-semibold text-muted-foreground px-2 py-0.5 rounded-full bg-secondary/70 whitespace-nowrap">
                         {fmtDayHeader(day.date)}

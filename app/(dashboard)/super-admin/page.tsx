@@ -80,7 +80,7 @@ export default function SuperAdminPage() {
 
   const contentItems = [
     { label: "Courses", value: stats?.content.courses ?? "—", icon: BookOpen, color: "text-blue-400", bg: "bg-blue-500/20" },
-    { label: "Lessons", value: stats?.content.lessons ?? "—", icon: Layers, color: "text-indigo-400", bg: "bg-indigo-500/20" },
+    { label: "Lessons", value: stats?.content.lessons ?? "—", icon: Layers, color: "text-teal-400", bg: "bg-teal-500/20" },
     { label: "Domains", value: stats?.content.domains ?? "—", icon: Globe, color: "text-teal-400", bg: "bg-teal-500/20" },
     { label: "MCQ Questions", value: stats?.content.mcq_questions ?? "—", icon: FileQuestion, color: "text-amber-400", bg: "bg-amber-500/20" },
     { label: "Aptitude Questions", value: stats?.content.aptitude_questions ?? "—", icon: Brain, color: "text-pink-400", bg: "bg-pink-500/20" },

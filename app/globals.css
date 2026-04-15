@@ -11,7 +11,7 @@
   --card-foreground:         #09090B;
   --popover:                 #FFFFFF;
   --popover-foreground:      #09090B;
-  --primary:                 #4F46E5;
+  --primary:                 #0E7070;
   --primary-foreground:      #FFFFFF;
   --secondary:               #F4F4F5;
   --secondary-foreground:    #71717A;
@@ -23,24 +23,24 @@
   --destructive-foreground:  #FFFFFF;
   --border:                  #E4E4E7;
   --input:                   #E4E4E7;
-  --ring:                    #4F46E5;
+  --ring:                    #0E7070;
 
-  --chart-1:                 #6366F1;
+  --chart-1:                 #0E7070;
   --chart-2:                 #22C55E;
   --chart-3:                 #F59E0B;
-  --chart-4:                 #EC4899;
+  --chart-4:                 #C0502E;
   --chart-5:                 #3B82F6;
 
   --radius:                  0.625rem;
 
   --sidebar:                 #FAFAFA;
   --sidebar-foreground:      #09090B;
-  --sidebar-primary:         #4F46E5;
+  --sidebar-primary:         #0E7070;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent:          #F0F0F1;
   --sidebar-accent-foreground: #18181B;
   --sidebar-border:          #E4E4E7;
-  --sidebar-ring:            #4F46E5;
+  --sidebar-ring:            #0E7070;
 
   --scrollbar-track:         #F4F4F5;
   --scrollbar-thumb:         #D4D4D8;
@@ -57,8 +57,8 @@
   --card-foreground:         #EDEDED;
   --popover:                 #1C1C1C;
   --popover-foreground:      #EDEDED;
-  --primary:                 #6366F1;
-  --primary-foreground:      #FFFFFF;
+  --primary:                 #2BBDBD;
+  --primary-foreground:      #0C0C0C;
   --secondary:               #1C1C1C;
   --secondary-foreground:    #A1A1AA;
   --muted:                   #1A1A1A;
@@ -69,22 +69,22 @@
   --destructive-foreground:  #FFFFFF;
   --border:                  #2A2A2A;
   --input:                   #2A2A2A;
-  --ring:                    #6366F1;
+  --ring:                    #2BBDBD;
 
-  --chart-1:                 #818CF8;
+  --chart-1:                 #2BBDBD;
   --chart-2:                 #4ADE80;
   --chart-3:                 #FBBF24;
-  --chart-4:                 #F472B6;
+  --chart-4:                 #E8836A;
   --chart-5:                 #60A5FA;
 
   --sidebar:                 #111111;
   --sidebar-foreground:      #EDEDED;
-  --sidebar-primary:         #6366F1;
-  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-primary:         #2BBDBD;
+  --sidebar-primary-foreground: #0C0C0C;
   --sidebar-accent:          #1E1E1E;
   --sidebar-accent-foreground: #EDEDED;
   --sidebar-border:          #1E1E1E;
-  --sidebar-ring:            #6366F1;
+  --sidebar-ring:            #2BBDBD;
 
   --scrollbar-track:         #161616;
   --scrollbar-thumb:         #3F3F46;
@@ -198,9 +198,9 @@
 .accent-glow          { box-shadow: 0 0 0 1px var(--primary); }
 .accent-glow-hover:hover { border-color: color-mix(in srgb, var(--primary) 60%, var(--border)) !important; }
 
-/* ── Gradient text (primary → lighter shade) ─────────────────────────────── */
+/* ── Gradient text (teal → coral, logo colours) ─────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, var(--primary) 0%, #818CF8 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #E8836A 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -241,7 +241,7 @@
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, var(--primary), #818CF8);
+  background: linear-gradient(135deg, var(--primary), #E8836A);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -251,7 +251,6 @@
 /* ── Locked overlay ───────────────────────────────────────────────────────── */
 .locked-overlay {
   background: var(--locked-overlay-bg);
-  backdrop-filter: blur(4px);
 }
 
 /* ── Flame pulse ──────────────────────────────────────────────────────────── */

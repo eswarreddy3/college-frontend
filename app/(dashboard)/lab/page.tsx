@@ -372,7 +372,7 @@ export default function LabPage() {
       style={{ height: "calc(100vh - 8rem)", margin: "-1rem", marginTop: "-0.5rem" }}
     >
       {/* ─── Header row ──────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-background/90 backdrop-blur-xl flex-shrink-0 gap-3">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background flex-shrink-0 gap-3">
 
         {/* Brand */}
         <div className="flex items-center gap-2.5 flex-shrink-0">
@@ -420,7 +420,7 @@ export default function LabPage() {
       </div>
 
       {/* ─── Language nav bar (full-width, tab style) ─────────────────────────── */}
-      <div className="flex items-stretch border-b border-border/60 bg-background/70 backdrop-blur overflow-x-auto flex-shrink-0 scrollbar-hide">
+      <div className="flex items-stretch border-b border-border bg-background overflow-x-auto flex-shrink-0 scrollbar-hide">
         {LANGS.map(l => {
           const isActive = langId === l.id
           return (

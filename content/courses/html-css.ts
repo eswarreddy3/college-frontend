@@ -2580,7 +2580,7 @@ html { scroll-behavior: smooth; }
 \`\`\`
 
 :::insight
-The combination of \`backdrop-filter: blur()\`, semi-transparent background, and subtle border is called **glassmorphism** — it's the core visual language of CareerEzi's UI. It works best on dark backgrounds with colorful content behind the glass layer.
+The combination of \`backdrop-filter: blur()\`, semi-transparent background, and subtle border is called **glassmorphism** — a popular UI pattern. It works best on dark backgrounds with colorful content behind the glass layer.
 :::
 
 :::challenge

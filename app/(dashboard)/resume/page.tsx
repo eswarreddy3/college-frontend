@@ -148,7 +148,7 @@ function buildDemo(name: string, email: string, phone: string, linkedin: string,
 }
 
 const TEMPLATES: { id: TemplateId; label: string; accent: string }[] = [
-  { id: "modern",  label: "Modern",  accent: "#6366F1" },
+  { id: "modern",  label: "Modern",  accent: "#0E7070" },
   { id: "classic", label: "Classic", accent: "#1a1a1a" },
   { id: "minimal", label: "Minimal", accent: "#6366f1" },
   { id: "sharp",   label: "Sharp",   accent: "#059669" },
@@ -186,14 +186,14 @@ function ModernTemplate({ data }: { data: ResumeData }) {
       {/* Sidebar */}
       <div style={{ width: 230, background: "#18181b", color: "white", padding: "36px 18px", display: "flex", flexDirection: "column", gap: 20, flexShrink: 0 }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#6366F1", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 700, color: "#18181b" }}>
+          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#0E7070", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 700, color: "#18181b" }}>
             {initials}
           </div>
-          <div style={{ marginTop: 10, fontSize: 15, fontWeight: 700, color: "#6366F1", lineHeight: 1.3 }}>{personal.name || "Your Name"}</div>
+          <div style={{ marginTop: 10, fontSize: 15, fontWeight: 700, color: "#0E7070", lineHeight: 1.3 }}>{personal.name || "Your Name"}</div>
           {experience[0]?.role && <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 3 }}>{experience[0].role}</div>}
         </div>
 
-        <SideSection title="Contact" color="#6366F1">
+        <SideSection title="Contact" color="#0E7070">
           {personal.email    && <SideRow icon="✉"  text={personal.email} />}
           {personal.phone    && <SideRow icon="📱" text={personal.phone} />}
           {personal.location && <SideRow icon="📍" text={personal.location} />}
@@ -203,10 +203,10 @@ function ModernTemplate({ data }: { data: ResumeData }) {
         </SideSection>
 
         {skillList.length > 0 && (
-          <SideSection title="Skills" color="#6366F1">
+          <SideSection title="Skills" color="#0E7070">
             {skillList.map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#6366F1", flexShrink: 0 }} />
+                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#0E7070", flexShrink: 0 }} />
                 <span style={{ fontSize: 11, color: "#cbd5e1" }}>{s}</span>
               </div>
             ))}
@@ -214,7 +214,7 @@ function ModernTemplate({ data }: { data: ResumeData }) {
         )}
 
         {certifications.length > 0 && (
-          <SideSection title="Certifications" color="#6366F1">
+          <SideSection title="Certifications" color="#0E7070">
             {certifications.map(c => c.name ? (
               <div key={c.id} style={{ marginBottom: 7 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: "#e2e8f0" }}>{c.name}</div>
@@ -225,19 +225,19 @@ function ModernTemplate({ data }: { data: ResumeData }) {
         )}
 
         {strengthList.length > 0 && (
-          <SideSection title="Strengths" color="#6366F1">
+          <SideSection title="Strengths" color="#0E7070">
             {strengthList.map((s, i) => <div key={i} style={{ fontSize: 11, color: "#cbd5e1", marginBottom: 3 }}>· {s}</div>)}
           </SideSection>
         )}
 
         {languageList.length > 0 && (
-          <SideSection title="Languages" color="#6366F1">
+          <SideSection title="Languages" color="#0E7070">
             {languageList.map((l, i) => <div key={i} style={{ fontSize: 11, color: "#cbd5e1", marginBottom: 3 }}>· {l}</div>)}
           </SideSection>
         )}
 
         {hobbyList.length > 0 && (
-          <SideSection title="Interests" color="#6366F1">
+          <SideSection title="Interests" color="#0E7070">
             <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.7 }}>{hobbyList.join(" · ")}</div>
           </SideSection>
         )}
@@ -246,24 +246,24 @@ function ModernTemplate({ data }: { data: ResumeData }) {
       {/* Body */}
       <div style={{ flex: 1, padding: "36px 28px", background: "white", color: "#1e293b" }}>
         {objective && (
-          <BodySection title="Objective" borderColor="#6366F1">
+          <BodySection title="Objective" borderColor="#0E7070">
             <p style={{ fontSize: 12, lineHeight: 1.75, color: "#475569" }}>{objective}</p>
           </BodySection>
         )}
         {summary && (
-          <BodySection title="Profile" borderColor="#6366F1">
+          <BodySection title="Profile" borderColor="#0E7070">
             <p style={{ fontSize: 12, lineHeight: 1.75, color: "#475569" }}>{summary}</p>
           </BodySection>
         )}
 
         {experience.length > 0 && (
-          <BodySection title="Experience" borderColor="#6366F1">
+          <BodySection title="Experience" borderColor="#0E7070">
             {experience.map(exp => !exp.company && !exp.role ? null : (
               <div key={exp.id} style={{ marginBottom: 14 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 13 }}>{exp.role || "Role"}</div>
-                    <div style={{ fontSize: 11, color: "#6366F1", fontWeight: 600 }}>{exp.company}</div>
+                    <div style={{ fontSize: 11, color: "#0E7070", fontWeight: 600 }}>{exp.company}</div>
                   </div>
                   <div style={{ fontSize: 10, color: "#64748b", flexShrink: 0, marginLeft: 8 }}>
                     {exp.start}{(exp.start && (exp.end || exp.current)) ? " – " : ""}{exp.current ? "Present" : exp.end}
@@ -276,7 +276,7 @@ function ModernTemplate({ data }: { data: ResumeData }) {
         )}
 
         {education.length > 0 && (
-          <BodySection title="Education" borderColor="#6366F1">
+          <BodySection title="Education" borderColor="#0E7070">
             {education.map(edu => !edu.school ? null : (
               <div key={edu.id} style={{ marginBottom: 10 }}>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -292,14 +292,14 @@ function ModernTemplate({ data }: { data: ResumeData }) {
         )}
 
         {projects.length > 0 && (
-          <BodySection title="Projects" borderColor="#6366F1">
+          <BodySection title="Projects" borderColor="#0E7070">
             {projects.map(proj => !proj.name ? null : (
               <div key={proj.id} style={{ marginBottom: 12 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                   <div style={{ fontWeight: 700, fontSize: 13 }}>{proj.name}</div>
-                  {proj.link && <div style={{ fontSize: 9, color: "#6366F1", wordBreak: "break-all", maxWidth: 180 }}>{proj.link}</div>}
+                  {proj.link && <div style={{ fontSize: 9, color: "#0E7070", wordBreak: "break-all", maxWidth: 180 }}>{proj.link}</div>}
                 </div>
-                {proj.tech && <div style={{ fontSize: 10, color: "#6366F1", fontWeight: 600, marginBottom: 2 }}>{proj.tech}</div>}
+                {proj.tech && <div style={{ fontSize: 10, color: "#0E7070", fontWeight: 600, marginBottom: 2 }}>{proj.tech}</div>}
                 {proj.description && <div style={{ fontSize: 11, color: "#475569", lineHeight: 1.65 }}>{proj.description}</div>}
               </div>
             ))}
@@ -1088,7 +1088,7 @@ export default function ResumePage() {
       <div className="resume-editor flex flex-col" style={{ height: "calc(100vh - 4rem)", margin: "-1.5rem", marginTop: "-0.5rem" }}>
 
         {/* Top bar */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-background/90 backdrop-blur-sm flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-background flex-shrink-0">
           <div>
             <h1 className="text-xl font-bold font-serif text-foreground">Resume Builder</h1>
             <div className="flex items-center gap-1.5 mt-0.5">

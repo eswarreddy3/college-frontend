@@ -178,7 +178,7 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
       >
         <img src={src} alt={alt} className="w-full object-cover transition-transform duration-300 group-hover/img:scale-[1.02]" loading="lazy" />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity bg-black/20">
-          <div className="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur-sm">
+          <div className="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5">
             <ZoomIn className="h-3 w-3" /> Click to zoom
           </div>
         </div>
@@ -190,7 +190,7 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
       </div>
       {zoomed && (
         <div
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out backdrop-blur-sm"
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
           onClick={() => setZoomed(false)}
         >
           <img src={src} alt={alt} className="max-w-full max-h-full rounded-2xl shadow-2xl object-contain" />
@@ -910,7 +910,7 @@ export default function CourseDetailPage() {
       <AnimatePresence>
         {lessonCompleteAnim && (
           <motion.div
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl px-6 py-3 backdrop-blur-sm"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl px-6 py-3"
             initial={{ opacity: 0, y: 40, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}

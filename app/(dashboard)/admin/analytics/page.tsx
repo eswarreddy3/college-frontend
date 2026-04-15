@@ -51,7 +51,7 @@ interface Analytics {
 
 /* ─── helpers ────────────────────────────────────────────────────────────── */
 const MEDALS = ["🥇", "🥈", "🥉"]
-const BRANCH_COLORS = ["#6366F1", "#8B5CF6", "#3B82F6", "#06B6D4", "#10B981", "#F59E0B"]
+const BRANCH_COLORS = ["#0E8080", "#8B5CF6", "#3B82F6", "#06B6D4", "#10B981", "#F59E0B"]
 
 function daysSince(iso: string | null) {
   if (!iso) return null
@@ -59,7 +59,7 @@ function daysSince(iso: string | null) {
 }
 function accuracyColor(p: number) { return p >= 70 ? "#10B981" : p >= 40 ? "#F59E0B" : "#EF4444" }
 function passColor(p: number)     { return p >= 70 ? "#10B981" : p >= 40 ? "#F59E0B" : "#EF4444" }
-function readinessColor(i: number){ return ["#EF4444","#F59E0B","#6366F1","#10B981"][i] }
+function readinessColor(i: number){ return ["#EF4444","#F59E0B","#0E8080","#10B981"][i] }
 function diffColor(d: string)     { return d === "Easy" ? "#10B981" : d === "Medium" ? "#F59E0B" : "#EF4444" }
 
 /* ─── count-up hook ──────────────────────────────────────────────────────── */
@@ -248,26 +248,26 @@ export default function AdminAnalyticsPage() {
             </div>
             <p className="text-xs text-muted-foreground mb-4">Distinct active students per week · last 8 weeks</p>
             {a.weekly_trend.length > 0 ? (
-              <ChartContainer config={{ active: { label: "Active Students", color: "#6366F1" } }} className="h-[210px] w-full">
+              <ChartContainer config={{ active: { label: "Active Students", color: "#0E8080" } }} className="h-[210px] w-full">
                 <AreaChart data={a.weekly_trend} margin={{ top: 4, right: 4, left: -8, bottom: 0 }}>
                   <defs>
                     <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#6366F1" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#6366F1" stopOpacity={0}    />
+                      <stop offset="0%"   stopColor="#0E8080" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#0E8080" stopOpacity={0}    />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                   <XAxis dataKey="week" stroke="var(--muted-foreground)" fontSize={11} tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} />
                   <YAxis stroke="var(--muted-foreground)" fontSize={11} tick={{ fill: "var(--muted-foreground)" }} allowDecimals={false} tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} cursor={{ stroke: "#6366F1", strokeWidth: 1, strokeDasharray: "4 2" }} />
+                  <ChartTooltip content={<ChartTooltipContent />} cursor={{ stroke: "#0E8080", strokeWidth: 1, strokeDasharray: "4 2" }} />
                   <Area
                     type="monotone"
                     dataKey="active"
-                    stroke="#6366F1"
+                    stroke="#0E8080"
                     strokeWidth={2.5}
                     fill="url(#areaGrad)"
-                    dot={{ r: 3.5, fill: "#6366F1", strokeWidth: 0 }}
-                    activeDot={{ r: 5.5, fill: "#6366F1", stroke: "var(--background)", strokeWidth: 2 }}
+                    dot={{ r: 3.5, fill: "#0E8080", strokeWidth: 0 }}
+                    activeDot={{ r: 5.5, fill: "#0E8080", stroke: "var(--background)", strokeWidth: 2 }}
                     animationDuration={1200}
                     animationEasing="ease-out"
                   />
@@ -420,7 +420,7 @@ export default function AdminAnalyticsPage() {
               <h3 className="font-semibold font-serif text-foreground">Branch Performance</h3>
             </div>
             <p className="text-xs text-muted-foreground mb-4">Average points per branch · highest first</p>
-            <ChartContainer config={{ avgPoints: { label: "Avg Points", color: "#6366F1" } }} className="h-[220px] w-full">
+            <ChartContainer config={{ avgPoints: { label: "Avg Points", color: "#0E8080" } }} className="h-[220px] w-full">
               <BarChart data={a.branch_stats} layout="vertical" margin={{ left: 8, right: 32, top: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                 <XAxis type="number" stroke="var(--muted-foreground)" fontSize={11} tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} />
@@ -458,7 +458,7 @@ export default function AdminAnalyticsPage() {
               <ChartContainer
                 config={{
                   pass_rate: { label: "Pass Rate %", color: "#10B981" },
-                  avg_score: { label: "Avg Score %", color: "#6366F1" },
+                  avg_score: { label: "Avg Score %", color: "#0E8080" },
                 }}
                 className="h-[260px] w-full"
               >
@@ -482,7 +482,7 @@ export default function AdminAnalyticsPage() {
                     ))}
                   </Bar>
                   <Bar dataKey="avg_score" name="Avg Score %" radius={[0, 4, 4, 0]} maxBarSize={14}
-                    fill="#6366F1" opacity={0.3} animationDuration={900} animationBegin={200} />
+                    fill="#0E8080" opacity={0.3} animationDuration={900} animationBegin={200} />
                 </BarChart>
               </ChartContainer>
             ) : (
@@ -610,7 +610,7 @@ export default function AdminAnalyticsPage() {
                       </div>
                       <span
                         className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-card"
-                        style={{ background: urgency === "high" ? "#EF4444" : urgency === "med" ? "#F59E0B" : "#6366F1" }}
+                        style={{ background: urgency === "high" ? "#EF4444" : urgency === "med" ? "#F59E0B" : "#0E8080" }}
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -622,7 +622,7 @@ export default function AdminAnalyticsPage() {
                     <div className="flex items-center gap-3 flex-shrink-0">
                       <div className="text-right hidden sm:block">
                         <p className="text-xs font-semibold text-foreground tabular-nums">{s.points} pts</p>
-                        <p className="text-xs" style={{ color: urgency === "high" ? "#EF4444" : urgency === "med" ? "#F59E0B" : "#6366F1" }}>
+                        <p className="text-xs" style={{ color: urgency === "high" ? "#EF4444" : urgency === "med" ? "#F59E0B" : "#0E8080" }}>
                           {days === null ? "Never active" : `${days}d ago`}
                         </p>
                       </div>
@@ -683,7 +683,7 @@ export default function AdminAnalyticsPage() {
                     />
                     <motion.div
                       className="absolute left-0 top-0 bottom-0 rounded-l-lg opacity-10"
-                      style={{ background: i < 3 ? ["#F59E0B","#94A3B8","#CD7F32"][i] : "#6366F1", width: `${pct}%` }}
+                      style={{ background: i < 3 ? ["#F59E0B","#94A3B8","#CD7F32"][i] : "#0E8080", width: `${pct}%` }}
                       initial={{ scaleX: 0, originX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       viewport={{ once: true }}

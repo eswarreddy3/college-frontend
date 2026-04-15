@@ -297,7 +297,7 @@ export default function OnboardingPage() {
       <AnimatePresence>
         {done && (
           <motion.div
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
@@ -361,7 +361,7 @@ export default function OnboardingPage() {
               {features.map(({ icon: Icon, label, desc }, i) => (
                 <motion.div
                   key={label}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-background/40 border border-border/60"
+                  className="flex items-start gap-3 p-3 rounded-xl bg-card border border-border"
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.2 + i * 0.06 }}
@@ -380,7 +380,7 @@ export default function OnboardingPage() {
 
           {/* Bottom student info pill */}
           <motion.div
-            className="relative z-10 flex items-center gap-3 px-4 py-3 rounded-2xl bg-background/50 border border-border w-fit"
+            className="relative z-10 flex items-center gap-3 px-4 py-3 rounded-2xl bg-card border border-border w-fit"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
           >
             <div className="w-9 h-9 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center flex-shrink-0">
