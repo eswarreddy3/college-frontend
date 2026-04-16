@@ -267,13 +267,13 @@ const ERROR_LABELS: Record<string, string> = {
 
 function StatusBadge({ ok, errorType }: { ok: boolean; errorType?: string }) {
   if (ok) return (
-    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide bg-green-500/15 text-green-400 px-2 py-0.5 rounded-full">
+    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide bg-success/15 text-success px-2 py-0.5 rounded-full">
       <CheckCircle2 className="h-3 w-3" /> Success
     </span>
   )
   const label = errorType ? (ERROR_LABELS[errorType] ?? errorType) : "Error"
   return (
-    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide bg-red-500/15 text-red-400 px-2 py-0.5 rounded-full">
+    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide bg-danger/15 text-danger px-2 py-0.5 rounded-full">
       <XCircle className="h-3 w-3" /> {label}
     </span>
   )
@@ -639,8 +639,8 @@ export default function LabPage() {
                 {/* Footer */}
                 <div className="border-t border-border/30 pt-3 mt-4 flex items-center gap-3 text-xs text-muted-foreground">
                   {result.ok
-                    ? <span className="flex items-center gap-1 text-green-400"><CheckCircle2 className="h-3.5 w-3.5" /> Executed successfully</span>
-                    : <span className="flex items-center gap-1 text-red-400"><XCircle className="h-3.5 w-3.5" /> {ERROR_LABELS[result.errorType ?? ""] ?? "Execution failed"}</span>
+                    ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3.5 w-3.5" /> Executed successfully</span>
+                    : <span className="flex items-center gap-1 text-danger"><XCircle className="h-3.5 w-3.5" /> {ERROR_LABELS[result.errorType ?? ""] ?? "Execution failed"}</span>
                   }
                   {result.runtime_ms > 0 && (
                     <span className="ml-auto font-mono">{result.runtime_ms}ms</span>

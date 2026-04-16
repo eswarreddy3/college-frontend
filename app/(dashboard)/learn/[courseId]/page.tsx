@@ -268,13 +268,13 @@ function QuizBlock({ content }: { content: string }) {
   const answered = selected !== null
   const isRight = selected === correctIdx
   return (
-    <div className="my-5 rounded-2xl overflow-hidden border border-violet-500/30 bg-gradient-to-br from-violet-500/8 to-transparent shadow-lg">
-      <div className="bg-violet-500/10 px-4 py-2.5 flex items-center gap-2 border-b border-violet-500/20">
+    <div className="my-5 rounded-2xl overflow-hidden border border-coding/30 bg-coding/5 shadow-lg">
+      <div className="bg-coding/10 px-4 py-2.5 flex items-center gap-2 border-b border-coding/20">
         <span className="text-base">🧩</span>
-        <span className="text-[11px] font-bold uppercase tracking-widest text-violet-400">Quick Check</span>
+        <span className="text-[11px] font-bold uppercase tracking-widest text-coding">Quick Check</span>
         {answered && (
           <span className={cn('ml-auto text-[10px] font-semibold px-2.5 py-0.5 rounded-full border',
-            isRight ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'
+            isRight ? 'bg-success/20 text-success border-success/30' : 'bg-danger/20 text-danger border-danger/30'
           )}>
             {isRight ? '✓ Correct!' : '✗ Not quite — see green'}
           </span>
@@ -288,8 +288,8 @@ function QuizBlock({ content }: { content: string }) {
             let rowCls = 'border border-border bg-secondary/30 hover:bg-secondary/60 hover:border-primary/40 cursor-pointer'
             let dotCls = 'border-border text-muted-foreground bg-transparent'
             if (answered) {
-              if (idx === correctIdx)  { rowCls = 'border border-emerald-500/60 bg-emerald-500/10 cursor-default'; dotCls = 'border-emerald-500 bg-emerald-500/30 text-emerald-300' }
-              else if (idx === selected){ rowCls = 'border border-red-500/60 bg-red-500/10 cursor-default';     dotCls = 'border-red-500 bg-red-500/30 text-red-300' }
+              if (idx === correctIdx)  { rowCls = 'border border-success/60 bg-success/10 cursor-default'; dotCls = 'border-success bg-success/30 text-success' }
+              else if (idx === selected){ rowCls = 'border border-danger/60 bg-danger/10 cursor-default';   dotCls = 'border-danger bg-danger/30 text-danger' }
               else                      { rowCls = 'border border-border bg-transparent opacity-35 cursor-default' }
             }
             return (
@@ -320,26 +320,26 @@ function CompareBlock({ content }: { content: string }) {
     <div className="my-5 rounded-2xl overflow-hidden border border-border shadow-lg">
       <div className="grid grid-cols-2 divide-x divide-border">
         <div>
-          <div className="bg-emerald-500/15 px-4 py-2.5 flex items-center gap-2 border-b border-emerald-500/20">
-            <span className="text-emerald-400 font-bold text-sm">✓</span>
-            <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-400">Do This</span>
+          <div className="bg-success/15 px-4 py-2.5 flex items-center gap-2 border-b border-success/20">
+            <span className="text-success font-bold text-sm">✓</span>
+            <span className="text-[11px] font-bold uppercase tracking-widest text-success">Do This</span>
           </div>
           <div className="p-3 space-y-1.5">
             {good.map((line, i) => (
-              <div key={i} className="font-mono text-xs bg-emerald-500/10 text-emerald-300 px-3 py-2 rounded-lg border border-emerald-500/20 break-all">
+              <div key={i} className="font-mono text-xs bg-success/10 text-success px-3 py-2 rounded-lg border border-success/20 break-all">
                 {line}
               </div>
             ))}
           </div>
         </div>
         <div>
-          <div className="bg-red-500/15 px-4 py-2.5 flex items-center gap-2 border-b border-red-500/20">
-            <span className="text-red-400 font-bold text-sm">✗</span>
-            <span className="text-[11px] font-bold uppercase tracking-widest text-red-400">Avoid This</span>
+          <div className="bg-danger/15 px-4 py-2.5 flex items-center gap-2 border-b border-danger/20">
+            <span className="text-danger font-bold text-sm">✗</span>
+            <span className="text-[11px] font-bold uppercase tracking-widest text-danger">Avoid This</span>
           </div>
           <div className="p-3 space-y-1.5">
             {bad.map((line, i) => (
-              <div key={i} className="font-mono text-xs bg-red-500/10 text-red-300 px-3 py-2 rounded-lg border border-red-500/20 break-all">
+              <div key={i} className="font-mono text-xs bg-danger/10 text-danger px-3 py-2 rounded-lg border border-danger/20 break-all">
                 {line}
               </div>
             ))}
@@ -353,10 +353,10 @@ function CompareBlock({ content }: { content: string }) {
 // ─── Fun Fact ─────────────────────────────────────────────────────────────────
 function FunFactBlock({ content }: { content: string }) {
   return (
-    <div className="my-5 rounded-2xl overflow-hidden border border-amber-400/30 bg-gradient-to-br from-amber-500/8 to-transparent shadow-lg">
-      <div className="bg-amber-500/10 px-4 py-2.5 flex items-center gap-2 border-b border-amber-500/20">
+    <div className="my-5 rounded-2xl overflow-hidden border border-warning/30 bg-warning/5 shadow-lg">
+      <div className="bg-warning/10 px-4 py-2.5 flex items-center gap-2 border-b border-warning/20">
         <span className="text-base">🎉</span>
-        <span className="text-[11px] font-bold uppercase tracking-widest text-amber-400">Did You Know?</span>
+        <span className="text-[11px] font-bold uppercase tracking-widest text-warning">Did You Know?</span>
       </div>
       <div className="px-4 py-3 space-y-1">
         {content.trim().split('\n').filter(l => l.trim()).map((line, i) => (
@@ -411,36 +411,36 @@ const BLOCK_CFG = {
     headerBg: 'bg-primary/10',
   },
   insight: {
-    bg: 'bg-gradient-to-br from-[rgba(245,158,11,0.08)] to-[rgba(245,158,11,0.03)]',
-    border: 'border border-amber-500/30 border-l-[4px] border-l-amber-500',
+    bg: 'bg-warning/5',
+    border: 'border border-warning/30 border-l-[4px] border-l-warning',
     icon: '💡',
     label: 'Real World Insight',
-    labelClass: 'text-amber-400',
-    headerBg: 'bg-amber-500/10',
+    labelClass: 'text-warning',
+    headerBg: 'bg-warning/10',
   },
   challenge: {
-    bg: 'bg-gradient-to-br from-[rgba(139,92,246,0.08)] to-[rgba(139,92,246,0.03)]',
-    border: 'border border-violet-500/30 border-l-[4px] border-l-violet-500',
+    bg: 'bg-coding/5',
+    border: 'border border-coding/30 border-l-[4px] border-l-coding',
     icon: '🚀',
     label: 'Challenge',
-    labelClass: 'text-violet-400',
-    headerBg: 'bg-violet-500/10',
+    labelClass: 'text-coding',
+    headerBg: 'bg-coding/10',
   },
   mistake: {
-    bg: 'bg-gradient-to-br from-[rgba(239,68,68,0.08)] to-[rgba(239,68,68,0.03)]',
-    border: 'border border-red-500/30 border-l-[4px] border-l-red-500',
+    bg: 'bg-danger/5',
+    border: 'border border-danger/30 border-l-[4px] border-l-danger',
     icon: '⚠️',
     label: 'Common Mistake',
-    labelClass: 'text-red-400',
-    headerBg: 'bg-red-500/10',
+    labelClass: 'text-danger',
+    headerBg: 'bg-danger/10',
   },
   tip: {
-    bg: 'bg-gradient-to-br from-[rgba(16,185,129,0.08)] to-[rgba(16,185,129,0.03)]',
-    border: 'border border-emerald-500/30 border-l-[4px] border-l-emerald-500',
+    bg: 'bg-success/5',
+    border: 'border border-success/30 border-l-[4px] border-l-success',
     icon: '✨',
     label: 'Pro Tip',
-    labelClass: 'text-emerald-400',
-    headerBg: 'bg-emerald-500/10',
+    labelClass: 'text-success',
+    headerBg: 'bg-success/10',
   },
 } as const
 
@@ -884,11 +884,11 @@ export default function CourseDetailPage() {
 
   // ── Module definitions derived from course levels (DB-driven) ────────────
   const MODULE_STYLES = [
-    { emoji: "🌱", bar: "bg-emerald-500" },
-    { emoji: "⚙️",  bar: "bg-amber-500"   },
-    { emoji: "🚀", bar: "bg-violet-500"  },
-    { emoji: "🎯", bar: "bg-blue-500"    },
-    { emoji: "💡", bar: "bg-pink-500"    },
+    { emoji: "🌱", bar: "bg-success" },
+    { emoji: "⚙️",  bar: "bg-warning" },
+    { emoji: "🚀", bar: "bg-coding"  },
+    { emoji: "🎯", bar: "bg-primary" },
+    { emoji: "💡", bar: "bg-coral"   },
   ]
   const ACTIVE_MODULES = (course.levels ?? []).map((lv, idx) => ({
     id: lv.id,
@@ -910,14 +910,14 @@ export default function CourseDetailPage() {
       <AnimatePresence>
         {lessonCompleteAnim && (
           <motion.div
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl px-6 py-3"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-success/20 border border-success/40 rounded-2xl px-6 py-3"
             initial={{ opacity: 0, y: 40, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
-            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-            <span className="text-sm font-semibold text-emerald-300">Lesson Complete! Keep going 🔥</span>
+            <CheckCircle2 className="h-5 w-5 text-success" />
+            <span className="text-sm font-semibold text-success">Lesson Complete! Keep going 🔥</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1033,7 +1033,7 @@ export default function CourseDetailPage() {
                                 >
                                   <div className="mt-0.5 flex-shrink-0">
                                     {lesson.is_completed
-                                      ? <CheckCircle className="h-4 w-4 text-emerald-400" />
+                                      ? <CheckCircle className="h-4 w-4 text-success" />
                                       : <div className={cn("w-4 h-4 rounded-full border-2 flex items-center justify-center", isActive ? "border-primary bg-primary/20" : "border-white/20")}>
                                           {isActive && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
                                         </div>
@@ -1046,7 +1046,7 @@ export default function CourseDetailPage() {
                                     <div className="flex items-center gap-2 mt-1">
                                       <Clock className="h-2.5 w-2.5 text-muted-foreground" />
                                       <span className="text-[10px] text-muted-foreground">{lesson.duration_mins} min</span>
-                                      <span className="text-[10px] text-amber-500">+{lesson.points} pts</span>
+                                      <span className="text-[10px] text-warning">+{lesson.points} pts</span>
                                     </div>
                                   </div>
                                 </button>
@@ -1069,7 +1069,7 @@ export default function CourseDetailPage() {
                     >
                       <div className="mt-0.5 flex-shrink-0">
                         {lesson.is_completed
-                          ? <CheckCircle className="h-5 w-5 text-emerald-400" />
+                          ? <CheckCircle className="h-5 w-5 text-success" />
                           : <PlayCircle className={cn("h-5 w-5", activeLesson?.id === lesson.id ? "text-primary" : "text-muted-foreground")} />
                         }
                       </div>
@@ -1080,7 +1080,7 @@ export default function CourseDetailPage() {
                         <div className="flex items-center gap-2 mt-1">
                           <Clock className="h-3 w-3 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">{lesson.duration_mins} min</span>
-                          <span className="text-xs text-amber-500">+{lesson.points} pts</span>
+                          <span className="text-xs text-warning">+{lesson.points} pts</span>
                         </div>
                       </div>
                     </button>
@@ -1103,7 +1103,7 @@ export default function CourseDetailPage() {
                           Lesson {activeIdx + 1} of {course.total_lessons}
                         </span>
                         {activeLesson.is_completed && (
-                          <span className="flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                          <span className="flex items-center gap-1 text-xs font-medium text-success bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
                             <CheckCircle2 className="h-3 w-3" /> Completed
                           </span>
                         )}
@@ -1113,8 +1113,8 @@ export default function CourseDetailPage() {
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />{activeLesson.duration_mins} min read
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
-                          <Star className="h-3 w-3 fill-amber-400" />+{activeLesson.points} pts
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-warning">
+                          <Star className="h-3 w-3 fill-warning" />+{activeLesson.points} pts
                         </div>
                       </div>
                     </div>
@@ -1259,7 +1259,7 @@ export default function CourseDetailPage() {
                 <motion.div
                   className={cn(
                     "fixed inset-0 pointer-events-none z-40",
-                    answerFeedback === "correct" ? "bg-emerald-500/10" : "bg-red-500/10"
+                    answerFeedback === "correct" ? "bg-success/10" : "bg-danger/10"
                   )}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -1297,13 +1297,13 @@ export default function CourseDetailPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <span className="text-emerald-400">Correct</span>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-success/20 bg-success/5">
+                      <div className="w-2 h-2 rounded-full bg-success" />
+                      <span className="text-success">Correct</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-red-500/20 bg-red-500/5">
-                      <div className="w-2 h-2 rounded-full bg-red-500" />
-                      <span className="text-red-400">Wrong</span>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-danger/20 bg-danger/5">
+                      <div className="w-2 h-2 rounded-full bg-danger" />
+                      <span className="text-danger">Wrong</span>
                     </div>
                   </div>
                 </div>
@@ -1322,7 +1322,7 @@ export default function CourseDetailPage() {
                         key={q.id}
                         className={cn(
                           "transition-all duration-200",
-                          isLocked && "border-emerald-500/30 bg-emerald-500/5"
+                          isLocked && "border-success/30 bg-success/5"
                         )}
                       >
                         {/* Question header */}
@@ -1330,9 +1330,9 @@ export default function CourseDetailPage() {
                           <span className={cn(
                             "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border",
                             isLocked
-                              ? "bg-emerald-500 border-emerald-500 text-white"
+                              ? "bg-success border-success text-white"
                               : result && !result.correct
-                              ? "bg-red-500/20 border-red-500/50 text-red-400"
+                              ? "bg-danger/20 border-danger/50 text-danger"
                               : "bg-secondary border-border text-muted-foreground"
                           )}>
                             {qIndex + 1}
@@ -1341,9 +1341,9 @@ export default function CourseDetailPage() {
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <Badge variant="outline" className={cn(
                               "text-[10px]",
-                              q.difficulty === "Easy" ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                              : q.difficulty === "Medium" ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
-                              : "bg-red-500/15 text-red-400 border-red-500/30"
+                              q.difficulty === "Easy" ? "chip chip-success"
+                              : q.difficulty === "Medium" ? "chip chip-warning"
+                              : "chip chip-danger"
                             )}>
                               {q.difficulty}
                             </Badge>
@@ -1369,9 +1369,9 @@ export default function CourseDetailPage() {
                                   "w-full p-3 rounded-xl text-left transition-all duration-150 border text-sm",
                                   !result && !isLocked && isSelected && "border-primary bg-primary/10 text-foreground",
                                   !result && !isLocked && !isSelected && "border-border hover:border-primary/40 hover:bg-primary/5 text-foreground",
-                                  isLockCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
-                                  result && isCorrectOpt && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
-                                  result && wasSelectedWrong && "border-red-500 bg-red-500/10 text-red-400",
+                                  isLockCorrect && "border-success bg-success/10 text-success",
+                                  result && isCorrectOpt && "border-success bg-success/10 text-success",
+                                  result && wasSelectedWrong && "border-danger bg-danger/10 text-danger",
                                   result && !isCorrectOpt && !wasSelectedWrong && "border-border text-muted-foreground opacity-40",
                                   isLocked && !isLockCorrect && "border-border text-muted-foreground opacity-40",
                                 )}
@@ -1379,16 +1379,16 @@ export default function CourseDetailPage() {
                                 <div className="flex items-center gap-2">
                                   <span className={cn(
                                     "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border flex-shrink-0",
-                                    (result && isCorrectOpt) || isLockCorrect ? "bg-emerald-500 border-emerald-500 text-white"
-                                    : result && wasSelectedWrong ? "bg-red-500 border-red-500 text-white"
+                                    (result && isCorrectOpt) || isLockCorrect ? "bg-success border-success text-white"
+                                    : result && wasSelectedWrong ? "bg-danger border-danger text-white"
                                     : "border-border text-muted-foreground"
                                   )}>
                                     {String.fromCharCode(65 + idx)}
                                   </span>
                                   <span className="flex-1 text-sm leading-relaxed">{opt}</span>
                                   {state.submitting && isSelected && <Loader2 className="h-4 w-4 animate-spin ml-auto flex-shrink-0" />}
-                                  {((result && isCorrectOpt) || isLockCorrect) && <CheckCircle className="h-4 w-4 ml-auto text-emerald-400 flex-shrink-0" />}
-                                  {result && wasSelectedWrong && <XCircle className="h-4 w-4 ml-auto text-red-400 flex-shrink-0" />}
+                                  {((result && isCorrectOpt) || isLockCorrect) && <CheckCircle className="h-4 w-4 ml-auto text-success flex-shrink-0" />}
+                                  {result && wasSelectedWrong && <XCircle className="h-4 w-4 ml-auto text-danger flex-shrink-0" />}
                                 </div>
                               </button>
                             )
@@ -1401,8 +1401,8 @@ export default function CourseDetailPage() {
                             <div className={cn(
                               "flex-1 p-3 rounded-lg text-xs leading-relaxed",
                               isLocked || result?.correct
-                                ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                                : "bg-red-500/10 border border-red-500/20 text-red-400"
+                                ? "bg-success/10 border border-success/20 text-success"
+                                : "bg-danger/10 border border-danger/20 text-danger"
                             )}>
                               {isLocked && !result && <p className="font-medium mb-1">Already answered correctly!</p>}
                               {result && (
@@ -1521,8 +1521,8 @@ export default function CourseDetailPage() {
                     <span className="flex items-center gap-1 text-muted-foreground">
                       <FileText className="h-3.5 w-3.5" />{a.total_questions} questions
                     </span>
-                    <span className="flex items-center gap-1 text-amber-500">
-                      <Star className="h-3.5 w-3.5 fill-amber-500" />{a.max_score} pts
+                    <span className="flex items-center gap-1 text-warning">
+                      <Star className="h-3.5 w-3.5 fill-warning" />{a.max_score} pts
                     </span>
                   </div>
 

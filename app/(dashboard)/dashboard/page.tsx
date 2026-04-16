@@ -181,7 +181,7 @@ function LevelCard({ points }: { points: number }) {
               <motion.span animate={{ scale: [1, 1.25, 1] }} transition={{ repeat: Infinity, duration: 2.5 }}>
                 👑
               </motion.span>
-              <p className="text-sm font-semibold text-amber-400">Maximum level — You're a Legend.</p>
+              <p className="text-sm font-semibold text-warning">Maximum level — You're a Legend.</p>
             </div>
           )}
         </div>
@@ -231,7 +231,7 @@ function QuoteBanner({ streak }: { streak: number }) {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
         >
-          <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/8 to-violet-500/5 px-5 py-4">
+          <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/8 to-coding/5 px-5 py-4">
             {/* Shimmer */}
             <motion.div
               className="absolute top-0 left-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent w-full"

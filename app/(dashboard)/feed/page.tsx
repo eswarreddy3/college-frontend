@@ -252,7 +252,7 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
                   tab === t.val && t.val === "post"
                     ? "bg-primary/15 border-primary/40 text-primary"
                     : tab === t.val && t.val === "blog"
-                    ? "bg-purple-500/15 border-purple-500/40 text-purple-400"
+                    ? "bg-coding/15 border-coding/40 text-coding"
                     : "border-border text-muted-foreground hover:bg-secondary/60"
                 )}
               >
@@ -311,17 +311,17 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border text-sm font-medium transition-all",
                 notifyStudents
-                  ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
+                  ? "bg-warning/15 border-warning/40 text-warning"
                   : "border-border text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
               )}
             >
-              <Bell className={cn("h-4 w-4 flex-shrink-0", notifyStudents && "fill-amber-400")} />
+              <Bell className={cn("h-4 w-4 flex-shrink-0", notifyStudents && "fill-warning")} />
               <span className="flex-1 text-left">
                 {notifyStudents ? notifyOnLabel : notifyLabel}
               </span>
               <span className={cn(
                 "ml-auto w-9 h-5 rounded-full border-2 transition-colors flex items-center px-0.5",
-                notifyStudents ? "bg-amber-500 border-amber-500" : "bg-transparent border-border"
+                notifyStudents ? "bg-warning border-warning" : "bg-transparent border-border"
               )}>
                 <span className={cn(
                   "w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200",
@@ -400,16 +400,16 @@ function PostCard({
       className={cn(
         "group relative overflow-hidden transition-all duration-300 cursor-pointer",
         isOfficial
-          ? "border-amber-500/40 hover:border-amber-400/60 shadow-[0_0_24px_rgba(245,158,11,0.08)]"
+          ? "border-warning/40 hover:border-warning/60 shadow-[0_0_24px_rgba(245,158,11,0.08)]"
           : "border-border/60 hover:border-primary/25"
       )}
       onClick={() => router.push(`/feed/post/${post.id}`)}
     >
       {/* Top accent — announcement banner for admins, thin line for others */}
       {isOfficial ? (
-        <div className="absolute top-0 left-0 right-0 flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 border-b border-amber-500/25">
-          <Megaphone className="h-3 w-3 text-amber-400 flex-shrink-0" />
-          <span className="text-[11px] font-semibold text-amber-400 tracking-wide uppercase">
+        <div className="absolute top-0 left-0 right-0 flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-warning/20 via-warning/15 to-warning/20 border-b border-warning/25">
+          <Megaphone className="h-3 w-3 text-warning flex-shrink-0" />
+          <span className="text-[11px] font-semibold text-warning tracking-wide uppercase">
             Official Announcement
           </span>
         </div>
@@ -417,7 +417,7 @@ function PostCard({
         <div className={cn(
           "absolute top-0 left-0 right-0 h-0.5",
           isBlog
-            ? "bg-gradient-to-r from-purple-500 via-pink-400 to-purple-500"
+            ? "bg-gradient-to-r from-coding via-coral to-coding"
             : "bg-gradient-to-r from-primary via-accent to-primary"
         )} />
       )}
@@ -445,13 +445,13 @@ function PostCard({
                 className={cn(
                   "ring-2 ring-offset-1 ring-offset-card transition-all",
                   isOfficial
-                    ? "ring-amber-500/50 group-hover:ring-amber-400/70"
+                    ? "ring-warning/50 group-hover:ring-warning/70"
                     : "ring-border group-hover:ring-primary/40"
                 )}
-                fallbackClassName={cn(isOfficial ? "bg-amber-500/20 text-amber-400" : "bg-primary/20 text-primary")}
+                fallbackClassName={cn(isOfficial ? "bg-warning/20 text-warning" : "bg-primary/20 text-primary")}
               />
               {isOfficial && (
-                <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-amber-500 ring-2 ring-card">
+                <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-warning ring-2 ring-card">
                   <ShieldCheck className="w-2.5 h-2.5 text-white" />
                 </span>
               )}
@@ -461,7 +461,7 @@ function PostCard({
               <div className="flex items-center gap-1.5 leading-none mb-1">
                 <p className="text-sm font-bold text-foreground">{post.author.name}</p>
                 {isOfficial && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-warning/15 border border-warning/30 text-warning">
                     {adminLabel(post.author.role)}
                   </span>
                 )}
@@ -482,7 +482,7 @@ function PostCard({
               className={cn(
                 "text-xs flex items-center gap-1 rounded-full",
                 isBlog
-                  ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
+                  ? "bg-coding/10 border-coding/30 text-coding"
                   : "bg-primary/10 border-primary/30 text-primary"
               )}
             >
@@ -491,7 +491,7 @@ function PostCard({
             </Badge>
             {post.author.id === currentUserId && (
               <button
-                className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger/10 transition-all opacity-0 group-hover:opacity-100"
                 onClick={e => { e.stopPropagation(); onDelete(post.id) }}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -504,7 +504,7 @@ function PostCard({
         {post.title && (
           <h3 className={cn(
             "font-bold font-serif text-foreground text-lg mb-2 leading-snug transition-colors",
-            isOfficial ? "group-hover:text-amber-400" : "group-hover:text-primary"
+            isOfficial ? "group-hover:text-warning" : "group-hover:text-primary"
           )}>
             {post.title}
           </h3>
@@ -530,7 +530,7 @@ function PostCard({
               <span key={tag} className={cn(
                 "text-xs px-2.5 py-0.5 rounded-full font-medium border",
                 isOfficial
-                  ? "text-amber-400/80 bg-amber-500/10 border-amber-500/15"
+                  ? "text-warning/80 bg-warning/10 border-warning/15"
                   : "text-primary/80 bg-primary/10 border-primary/15"
               )}>
                 #{tag}

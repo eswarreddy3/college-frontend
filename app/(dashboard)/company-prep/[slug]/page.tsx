@@ -107,23 +107,23 @@ type TipsGrouped = Partial<Record<"HR" | "Technical" | "GD" | "Resume", Tip[]>>
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const difficultyColors = {
-  Easy: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  Medium: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  Hard: "bg-red-500/20 text-red-400 border-red-500/30",
+  Easy: "bg-success/20 text-success border-success/30",
+  Medium: "bg-warning/20 text-warning border-warning/30",
+  Hard: "bg-danger/20 text-danger border-danger/30",
 }
 
 const sectionColors: Record<string, string> = {
-  Quantitative: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  Logical: "bg-violet-500/20 text-violet-400 border-violet-500/30",
-  Verbal: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  Technical: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  Quantitative: "bg-primary/20 text-primary border-primary/30",
+  Logical: "bg-coding/20 text-coding border-coding/30",
+  Verbal: "bg-success/20 text-success border-success/30",
+  Technical: "bg-warning/20 text-warning border-warning/30",
 }
 
 const tipCategoryConfig = {
-  HR: { icon: MessageSquare, color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20" },
+  HR: { icon: MessageSquare, color: "text-coding", bg: "bg-coding/10 border-coding/20" },
   Technical: { icon: Code, color: "text-primary", bg: "bg-primary/10 border-primary/20" },
-  GD: { icon: Users, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
-  Resume: { icon: FileText, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
+  GD: { icon: Users, color: "text-warning", bg: "bg-warning/10 border-warning/20" },
+  Resume: { icon: FileText, color: "text-primary", bg: "bg-primary/10 border-primary/20" },
 }
 
 function formatCTC(min: number | null, max: number | null): string {
@@ -200,7 +200,7 @@ function OverviewTab({ company }: { company: CompanyDetail }) {
                     </Badge>
                   )}
                   {round.is_eliminatory && (
-                    <Badge className="text-[10px] bg-red-500/15 text-red-400 border-red-500/30">
+                    <Badge className="text-[10px] bg-danger/15 text-danger border-danger/30">
                       Eliminatory
                     </Badge>
                   )}
@@ -215,7 +215,7 @@ function OverviewTab({ company }: { company: CompanyDetail }) {
       {/* Packages */}
       <GlassCard className="space-y-4">
         <h2 className="font-bold font-serif text-foreground text-lg flex items-center gap-2">
-          <Star className="h-5 w-5 text-amber-400" /> Salary & Packages
+          <Star className="h-5 w-5 text-warning" /> Salary & Packages
         </h2>
         <div className="space-y-3">
           {company.packages.map((pkg) => (
@@ -223,7 +223,7 @@ function OverviewTab({ company }: { company: CompanyDetail }) {
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-foreground">{pkg.role_name}</span>
-                  <Badge className={cn("text-[10px]", pkg.type === "Internship" ? "bg-violet-500/20 text-violet-400 border-violet-500/30" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30")}>
+                  <Badge className={cn("text-[10px]", pkg.type === "Internship" ? "bg-coding/20 text-coding border-coding/30" : "bg-success/20 text-success border-success/30")}>
                     {pkg.type}
                   </Badge>
                 </div>
@@ -237,7 +237,7 @@ function OverviewTab({ company }: { company: CompanyDetail }) {
                 )}
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold text-amber-400">{formatCTC(pkg.ctc_min, pkg.ctc_max)}</p>
+                <p className="text-lg font-bold text-warning">{formatCTC(pkg.ctc_min, pkg.ctc_max)}</p>
                 <p className="text-[10px] text-muted-foreground">CTC / Stipend</p>
               </div>
             </div>
@@ -325,18 +325,18 @@ function AptitudeTab({ slug }: { slug: string }) {
                         className={cn(
                           "flex items-center gap-3 px-4 py-2.5 rounded-xl border text-sm",
                           idx === q.correct_answer
-                            ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                            ? "border-success/40 bg-success/10 text-success"
                             : "border-white/8 bg-secondary/20 text-muted-foreground"
                         )}
                       >
                         <span className={cn(
                           "w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold flex-shrink-0",
-                          idx === q.correct_answer ? "border-emerald-500 bg-emerald-500 text-white" : "border-white/20 text-muted-foreground"
+                          idx === q.correct_answer ? "border-success bg-success text-white" : "border-white/20 text-muted-foreground"
                         )}>
                           {String.fromCharCode(65 + idx)}
                         </span>
                         <span className="flex-1">{opt}</span>
-                        {idx === q.correct_answer && <CheckCircle className="h-4 w-4 text-emerald-400 flex-shrink-0" />}
+                        {idx === q.correct_answer && <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />}
                       </div>
                     ))}
                   </div>
@@ -452,11 +452,11 @@ function CodingTab({ slug }: { slug: string }) {
                           className="border-white/10 text-muted-foreground gap-2"
                           onClick={(e) => { e.stopPropagation(); setShowHint(q.id) }}
                         >
-                          <Lightbulb className="h-4 w-4 text-amber-400" /> Show Approach Hint
+                          <Lightbulb className="h-4 w-4 text-warning" /> Show Approach Hint
                         </Button>
                       ) : (
-                        <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-sm">
-                          <p className="text-xs font-semibold text-amber-400 mb-1 flex items-center gap-1">
+                        <div className="p-3 rounded-xl bg-warning/5 border border-warning/20 text-sm">
+                          <p className="text-xs font-semibold text-warning mb-1 flex items-center gap-1">
                             <Lightbulb className="h-3.5 w-3.5" /> Approach Hint
                           </p>
                           <p className="text-muted-foreground leading-relaxed">{q.solution_hint}</p>
@@ -637,9 +637,9 @@ export default function CompanyDetailPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { icon: Shield, label: "Hiring Rounds", value: company.hiring_rounds.length, color: "text-primary" },
-          { icon: Star, label: "Packages", value: company.packages.length, color: "text-amber-400" },
-          { icon: FileQuestion, label: "Aptitude Qs", value: null, color: "text-blue-400" },
-          { icon: Code, label: "Coding Qs", value: null, color: "text-violet-400" },
+          { icon: Star, label: "Packages", value: company.packages.length, color: "text-warning" },
+          { icon: FileQuestion, label: "Aptitude Qs", value: null, color: "text-primary" },
+          { icon: Code, label: "Coding Qs", value: null, color: "text-coding" },
         ].map(({ icon: Icon, label, color }) => (
           <GlassCard key={label} className="text-center py-4">
             <Icon className={cn("h-5 w-5 mx-auto mb-1", color)} />

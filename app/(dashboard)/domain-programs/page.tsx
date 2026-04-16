@@ -42,9 +42,9 @@ const iconMap: Record<string, LucideIcon> = {
 }
 
 const difficultyConfig = {
-  Beginner:     { cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25", dot: "bg-emerald-400" },
-  Intermediate: { cls: "bg-amber-500/15   text-amber-400   border-amber-500/25",   dot: "bg-amber-400"   },
-  Advanced:     { cls: "bg-red-500/15     text-red-400     border-red-500/25",     dot: "bg-red-400"     },
+  Beginner:     { cls: "chip chip-success", dot: "bg-success" },
+  Intermediate: { cls: "chip chip-warning", dot: "bg-warning" },
+  Advanced:     { cls: "chip chip-danger",  dot: "bg-danger"  },
 }
 
 // ── Per-domain color tokens (used for glow, borders, SVG strokes) ─────────────
@@ -126,7 +126,7 @@ function ProgressRing({ pct, color, size = 52, stroke = 3 }: { pct: number; colo
   return (
     <svg ref={ref} width={size} height={size} className="rotate-[-90deg]">
       {/* Track */}
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border)" strokeWidth={stroke} />
       {/* Fill */}
       <motion.circle
         cx={size / 2} cy={size / 2} r={r}
@@ -460,7 +460,7 @@ function CourseCard({
           } : {}}
         >
           {isCompleted
-            ? <><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Review</>
+            ? <><CheckCircle2 className="w-3.5 h-3.5 text-success" /> Review</>
             : <><Play className="w-3 h-3" /> {ctaLabel}</>
           }
         </motion.button>
@@ -531,7 +531,7 @@ function DomainDetail({ data, onBack }: { data: DomainDetail; onBack: () => void
                     Domain Program
                   </span>
                   {completedCourses === courses.length && courses.length > 0 && (
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 flex items-center gap-1">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-success/15 border border-success/25 text-success flex items-center gap-1">
                       <Trophy className="w-3 h-3" /> Completed
                     </span>
                   )}
@@ -692,8 +692,7 @@ function DomainDetail({ data, onBack }: { data: DomainDetail; onBack: () => void
             className="relative z-10 flex justify-center mt-6"
           >
             {completedCourses === courses.length && courses.length > 0 ? (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-sm font-bold"
-                style={{ boxShadow: "0 0 20px rgba(245,158,11,0.2)" }}>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-warning/30 bg-warning/10 text-warning text-sm font-bold">
                 <Trophy className="w-4 h-4" /> Path Complete — You did it! 🎉
               </div>
             ) : (

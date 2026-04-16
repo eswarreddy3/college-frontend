@@ -72,11 +72,11 @@ export default function BranchAdminDashboard() {
 
   const stats = analytics ? [
     { label: "Total Students", value: analytics.total_students, icon: Users, color: "text-primary", bg: "bg-primary/10" },
-    { label: "Active This Week", value: analytics.active_this_week, icon: TrendingUp, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-    { label: "Avg Streak", value: `${analytics.avg_streak}d`, icon: Flame, color: "text-orange-400", bg: "bg-orange-500/10" },
-    { label: "Avg Points", value: analytics.avg_points.toLocaleString(), icon: Star, color: "text-amber-400", bg: "bg-amber-500/10" },
-    { label: "Engagement Rate", value: `${analytics.engagement_rate}%`, icon: Zap, color: "text-blue-400", bg: "bg-blue-500/10" },
-    { label: "Inactive Students", value: analytics.inactive_count, icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },
+    { label: "Active This Week", value: analytics.active_this_week, icon: TrendingUp, color: "text-success", bg: "bg-success/10" },
+    { label: "Avg Streak", value: `${analytics.avg_streak}d`, icon: Flame, color: "text-streak", bg: "bg-streak/10" },
+    { label: "Avg Points", value: analytics.avg_points.toLocaleString(), icon: Star, color: "text-warning", bg: "bg-warning/10" },
+    { label: "Engagement Rate", value: `${analytics.engagement_rate}%`, icon: Zap, color: "text-coding", bg: "bg-coding/10" },
+    { label: "Inactive Students", value: analytics.inactive_count, icon: AlertTriangle, color: "text-danger", bg: "bg-danger/10" },
   ] : []
 
   return (
@@ -127,7 +127,7 @@ export default function BranchAdminDashboard() {
         <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={6}>
           <GlassCard>
             <div className="flex items-center gap-2 mb-4">
-              <Crown className="h-5 w-5 text-amber-400" />
+              <Crown className="h-5 w-5 text-warning" />
               <h2 className="font-semibold text-foreground">Top Students</h2>
             </div>
             {loading ? (
@@ -162,10 +162,10 @@ export default function BranchAdminDashboard() {
                       {s.section && <p className="text-xs text-muted-foreground">Section {s.section}</p>}
                     </div>
                     <div className="flex items-center gap-3 text-xs flex-shrink-0">
-                      <span className="flex items-center gap-1 text-amber-400">
+                      <span className="flex items-center gap-1 text-warning">
                         <Star className="h-3 w-3" />{s.points.toLocaleString()}
                       </span>
-                      <span className="flex items-center gap-1 text-orange-400">
+                      <span className="flex items-center gap-1 text-streak">
                         <Flame className="h-3 w-3" />{s.streak}d
                       </span>
                     </div>
@@ -222,9 +222,9 @@ export default function BranchAdminDashboard() {
         <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={8}>
           <GlassCard>
             <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="h-5 w-5 text-red-400" />
+              <AlertTriangle className="h-5 w-5 text-danger" />
               <h2 className="font-semibold text-foreground">Inactive Students</h2>
-              <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-xs ml-auto">
+              <Badge className="bg-danger/15 text-danger border-danger/30 text-xs ml-auto">
                 {analytics.inactive_count} students
               </Badge>
             </div>
@@ -232,7 +232,7 @@ export default function BranchAdminDashboard() {
               {analytics.inactive_students.map(s => (
                 <div key={s.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/40 transition-colors">
                   <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarFallback className="bg-red-500/20 text-red-400 text-xs font-bold">
+                    <AvatarFallback className="bg-danger/20 text-danger text-xs font-bold">
                       {s.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
@@ -245,7 +245,7 @@ export default function BranchAdminDashboard() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs flex-shrink-0"
+                    className="border-danger/30 text-danger hover:bg-danger/10 text-xs flex-shrink-0"
                     onClick={() => sendReminder(s.id, s.name)}
                     disabled={remindingId === s.id}
                   >

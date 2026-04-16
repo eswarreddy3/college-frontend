@@ -539,7 +539,7 @@ export default function AdminStudentsPage() {
                             title="Send reminder"
                             onClick={() => handleRemind(student)}
                             disabled={remindingId === student.id}
-                            className="h-8 w-8 flex items-center justify-center rounded-md border border-red-500/30 text-red-400 hover:bg-red-500/10 disabled:opacity-50 transition-colors"
+                            className="h-8 w-8 flex items-center justify-center rounded-md border border-danger/30 text-danger hover:bg-danger/10 disabled:opacity-50 transition-colors"
                           >
                             {remindingId === student.id
                               ? <Loader2 className="h-3.5 w-3.5 animate-spin" />

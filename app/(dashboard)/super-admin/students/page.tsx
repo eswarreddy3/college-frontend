@@ -178,19 +178,19 @@ export default function SuperAdminStudentsPage() {
       title: "Activate Student?",
       description: `"${confirm.student.name}" will regain access to the platform.`,
       actionLabel: "Activate",
-      actionClass: "bg-emerald-600 hover:bg-emerald-700 text-white",
+      actionClass: "bg-success hover:bg-success/90 text-white",
     },
     deactivate: {
       title: "Deactivate Student?",
       description: `"${confirm.student.name}" will be blocked from logging in until reactivated.`,
       actionLabel: "Deactivate",
-      actionClass: "bg-amber-600 hover:bg-amber-700 text-white",
+      actionClass: "bg-warning hover:bg-warning/90 text-white",
     },
     delete: {
       title: "Delete Student?",
       description: `This will permanently delete "${confirm.student.name}" (${confirm.student.email}) and all their data. This cannot be undone.`,
       actionLabel: "Delete",
-      actionClass: "bg-red-600 hover:bg-red-700 text-white",
+      actionClass: "bg-danger hover:bg-danger/90 text-white",
     },
   }[confirm.type] : null
 
@@ -234,8 +234,8 @@ export default function SuperAdminStudentsPage() {
           className={cn(
             "text-xs",
             row.is_active
-              ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-              : "bg-red-500/20 text-red-400 border-red-500/30"
+              ? "bg-success/20 text-success border-success/30"
+              : "bg-danger/20 text-danger border-danger/30"
           )}
         >
           {row.is_active ? "Active" : "Inactive"}
@@ -329,7 +329,7 @@ export default function SuperAdminStudentsPage() {
                   size="sm"
                   variant="ghost"
                   disabled={actionLoading === row.id}
-                  className="h-7 px-2 text-muted-foreground hover:text-amber-400"
+                  className="h-7 px-2 text-muted-foreground hover:text-warning"
                   onClick={() => setConfirm({ type: "deactivate", student: row })}
                   title="Deactivate student"
                 >
@@ -340,7 +340,7 @@ export default function SuperAdminStudentsPage() {
                   size="sm"
                   variant="ghost"
                   disabled={actionLoading === row.id}
-                  className="h-7 px-2 text-muted-foreground hover:text-emerald-400"
+                  className="h-7 px-2 text-muted-foreground hover:text-success"
                   onClick={() => setConfirm({ type: "activate", student: row })}
                   title="Activate student"
                 >
@@ -351,7 +351,7 @@ export default function SuperAdminStudentsPage() {
                 size="sm"
                 variant="ghost"
                 disabled={actionLoading === row.id}
-                className="h-7 px-2 text-muted-foreground hover:text-red-400"
+                className="h-7 px-2 text-muted-foreground hover:text-danger"
                 onClick={() => setConfirm({ type: "delete", student: row })}
                 title="Delete student"
               >

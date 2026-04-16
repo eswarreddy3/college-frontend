@@ -39,9 +39,9 @@ const iconMap: Record<string, LucideIcon> = {
 }
 
 const difficultyColors = {
-  Beginner: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  Intermediate: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  Advanced: "bg-red-500/20 text-red-400 border-red-500/30",
+  Beginner: "chip chip-success",
+  Intermediate: "chip chip-warning",
+  Advanced: "chip chip-danger",
 }
 
 export default function LearnPage() {
@@ -134,7 +134,7 @@ export default function LearnPage() {
 
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                  <Star className="h-4 w-4 text-warning fill-warning" />
                   <span className="text-sm font-medium text-foreground">
                     {course.points_per_lesson * course.total_lessons} pts
                   </span>

@@ -31,11 +31,11 @@ interface FeedbackItem {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  general:  "bg-blue-500/15 text-blue-400 border-blue-500/30",
-  bug:      "bg-red-500/15 text-red-400 border-red-500/30",
-  feature:  "bg-violet-500/15 text-violet-400 border-violet-500/30",
-  content:  "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  ui:       "bg-pink-500/15 text-pink-400 border-pink-500/30",
+  general:  "bg-primary/15 text-primary border-primary/30",
+  bug:      "bg-danger/15 text-danger border-danger/30",
+  feature:  "bg-coding/15 text-coding border-coding/30",
+  content:  "bg-success/15 text-success border-success/30",
+  ui:       "bg-coral/15 text-coral border-coral/30",
   other:    "bg-secondary text-muted-foreground border-border",
 }
 
@@ -49,7 +49,7 @@ function StarRating({ rating }: { rating: number | null }) {
   return (
     <div className="flex gap-0.5">
       {[1,2,3,4,5].map(n => (
-        <Star key={n} className={cn("h-3.5 w-3.5", n <= rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20")} />
+        <Star key={n} className={cn("h-3.5 w-3.5", n <= rating ? "fill-warning text-warning" : "text-muted-foreground/20")} />
       ))}
     </div>
   )
@@ -104,10 +104,10 @@ export default function SuperAdminFeedbackPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total",      value: total,      color: "text-blue-400",   bg: "bg-blue-500/10 border-blue-500/20" },
-          { label: "Avg Rating", value: avgRating ? `★ ${avgRating}` : "—", color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
-          { label: "Bug Reports",   value: categoryCounts['bug'] || 0,     color: "text-red-400",    bg: "bg-red-500/10 border-red-500/20" },
-          { label: "Feature Reqs", value: categoryCounts['feature'] || 0, color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
+          { label: "Total",      value: total,      color: "text-primary",   bg: "bg-primary/10 border-primary/20" },
+          { label: "Avg Rating", value: avgRating ? `★ ${avgRating}` : "—", color: "text-warning", bg: "bg-warning/10 border-warning/20" },
+          { label: "Bug Reports",   value: categoryCounts['bug'] || 0,     color: "text-danger",    bg: "bg-danger/10 border-danger/20" },
+          { label: "Feature Reqs", value: categoryCounts['feature'] || 0, color: "text-coding", bg: "bg-coding/10 border-coding/20" },
         ].map(s => (
           <motion.div key={s.label}
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}

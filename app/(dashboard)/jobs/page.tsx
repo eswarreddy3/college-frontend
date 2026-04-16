@@ -30,10 +30,10 @@ interface Job {
 }
 
 const typeConfig: Record<string, { label: string; color: string }> = {
-  "internship":  { label: "Internship",  color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
-  "full-time":   { label: "Full-Time",   color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
-  "part-time":   { label: "Part-Time",   color: "bg-amber-500/20 text-amber-300 border-amber-500/30" },
-  "contract":    { label: "Contract",    color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+  "internship":  { label: "Internship",  color: "chip chip-primary" },
+  "full-time":   { label: "Full-Time",   color: "chip chip-success" },
+  "part-time":   { label: "Part-Time",   color: "chip chip-warning" },
+  "contract":    { label: "Contract",    color: "chip chip-coding" },
 }
 
 function daysUntil(isoDate: string): number {
@@ -43,9 +43,9 @@ function daysUntil(isoDate: string): number {
 function DeadlineBadge({ deadline }: { deadline: string | null }) {
   if (!deadline) return null
   const days = daysUntil(deadline)
-  if (days < 0) return <span className="text-xs text-red-400">Expired</span>
-  if (days === 0) return <span className="text-xs font-semibold text-red-400 animate-pulse">Closes today!</span>
-  if (days <= 3) return <span className="text-xs font-medium text-amber-400 flex items-center gap-1"><Flame className="h-3 w-3" />{days}d left</span>
+  if (days < 0) return <span className="text-xs text-danger">Expired</span>
+  if (days === 0) return <span className="text-xs font-semibold text-danger animate-pulse">Closes today!</span>
+  if (days <= 3) return <span className="text-xs font-medium text-warning flex items-center gap-1"><Flame className="h-3 w-3" />{days}d left</span>
   return (
     <span className="text-xs text-muted-foreground flex items-center gap-1">
       <Calendar className="h-3 w-3" />

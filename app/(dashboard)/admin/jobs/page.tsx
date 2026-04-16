@@ -39,10 +39,10 @@ interface Job {
 }
 
 const typeConfig: Record<string, { label: string; color: string }> = {
-  "internship":  { label: "Internship",  color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
-  "full-time":   { label: "Full-Time",   color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
-  "part-time":   { label: "Part-Time",   color: "bg-amber-500/20 text-amber-300 border-amber-500/30" },
-  "contract":    { label: "Contract",    color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+  "internship":  { label: "Internship",  color: "chip chip-primary" },
+  "full-time":   { label: "Full-Time",   color: "chip chip-success" },
+  "part-time":   { label: "Part-Time",   color: "chip chip-warning" },
+  "contract":    { label: "Contract",    color: "chip chip-coding" },
 }
 
 const schema = z.object({
@@ -184,17 +184,17 @@ function JobFormDialog({
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border text-sm font-medium transition-all",
                 notifyStudents
-                  ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
+                  ? "bg-warning/15 border-warning/40 text-warning"
                   : "border-border text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
               )}
             >
-              <Bell className={cn("h-4 w-4 flex-shrink-0", notifyStudents && "fill-amber-400")} />
+              <Bell className={cn("h-4 w-4 flex-shrink-0", notifyStudents && "fill-warning")} />
               <span className="flex-1 text-left">
                 {notifyStudents ? "Email notification ON — all students will be notified" : "Notify all students via email"}
               </span>
               <span className={cn(
                 "ml-auto w-9 h-5 rounded-full border-2 transition-colors flex items-center px-0.5",
-                notifyStudents ? "bg-amber-500 border-amber-500" : "bg-transparent border-border"
+                notifyStudents ? "bg-warning border-warning" : "bg-transparent border-border"
               )}>
                 <span className={cn(
                   "w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200",
@@ -395,7 +395,7 @@ export default function AdminJobsPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="border-white/10 hover:border-red-500/40 hover:text-red-400"
+                        className="border-white/10 hover:border-danger/40 hover:text-danger"
                         onClick={() => handleDelete(job)}
                         disabled={deletingId === job.id}
                       >

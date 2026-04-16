@@ -198,7 +198,7 @@ function DomainModal({ initial, isEdit, onSave, onClose }: {
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/40 border border-border">
             <span className="text-xs text-muted-foreground">ID</span>
             <code className="text-xs text-primary font-mono">{form.id}</code>
-            <Badge variant="outline" className="text-[10px] ml-auto border-amber-500/30 text-amber-400">locked</Badge>
+            <Badge variant="outline" className="text-[10px] ml-auto border-warning/30 text-warning">locked</Badge>
           </div>
         )}
 
@@ -484,7 +484,7 @@ function CourseMappingModal({ domain, onClose }: {
                       </button>
                       <button
                         onClick={() => removeCourse(s.course_id)}
-                        className="w-6 h-6 flex items-center justify-center rounded text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        className="w-6 h-6 flex items-center justify-center rounded text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors"
                         title="Remove"
                       >
                         <ArrowLeft className="h-3.5 w-3.5" />
@@ -742,7 +742,7 @@ export default function DomainsPage() {
                           </Button>
                           <Button
                             variant="ghost" size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-red-400"
+                            className="h-8 w-8 text-muted-foreground hover:text-danger"
                             title="Delete Domain"
                             onClick={() => setDeleteTarget(domain)}
                           >
@@ -799,7 +799,7 @@ export default function DomainsPage() {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteLoading}
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className="bg-danger hover:bg-danger/90 text-white"
             >
               {deleteLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Delete

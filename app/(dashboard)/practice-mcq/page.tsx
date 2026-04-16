@@ -478,7 +478,7 @@ function PracticeMCQContent() {
             <motion.div
               className={cn(
                 "fixed inset-0 pointer-events-none z-40",
-                answerFeedback === "correct" ? "bg-emerald-500/10" : "bg-red-500/10"
+                answerFeedback === "correct" ? "bg-success/10" : "bg-danger/10"
               )}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -576,7 +576,7 @@ function PracticeMCQContent() {
                             </div>
                             <div className="flex items-center justify-between text-xs">
                               {pct === 100 ? (
-                                <span className="font-semibold text-emerald-400">✓ Complete</span>
+                                <span className="font-semibold text-success">✓ Complete</span>
                               ) : attempted > 0 ? (
                                 <span className="text-primary font-medium">In Progress</span>
                               ) : (
@@ -689,13 +689,13 @@ function PracticeMCQContent() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <span className="text-emerald-400">Correct</span>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-success/20 bg-success/5">
+                      <div className="w-2 h-2 rounded-full bg-success" />
+                      <span className="text-success">Correct</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-red-500/20 bg-red-500/5">
-                      <div className="w-2 h-2 rounded-full bg-red-500" />
-                      <span className="text-red-400">Wrong</span>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-danger/20 bg-danger/5">
+                      <div className="w-2 h-2 rounded-full bg-danger" />
+                      <span className="text-danger">Wrong</span>
                     </div>
                   </div>
                 </div>
@@ -714,7 +714,7 @@ function PracticeMCQContent() {
                         key={q.id}
                         className={cn(
                           "transition-all duration-200",
-                          isLocked && "border-emerald-500/30 bg-emerald-500/5"
+                          isLocked && "border-success/30 bg-success/5"
                         )}
                       >
                         {/* Question header */}
@@ -722,9 +722,9 @@ function PracticeMCQContent() {
                           <span className={cn(
                             "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border",
                             isLocked
-                              ? "bg-emerald-500 border-emerald-500 text-white"
+                              ? "bg-success border-success text-white"
                               : result && !result.correct
-                              ? "bg-red-500/20 border-red-500/50 text-red-400"
+                              ? "bg-danger/20 border-danger/50 text-danger"
                               : "bg-secondary border-border text-muted-foreground"
                           )}>
                             {qIndex + 1}
@@ -756,9 +756,9 @@ function PracticeMCQContent() {
                                   "w-full p-3 rounded-xl text-left transition-all duration-150 border text-sm",
                                   !result && !isLocked && isSelected && "border-primary bg-primary/10 text-foreground",
                                   !result && !isLocked && !isSelected && "border-border hover:border-primary/40 hover:bg-primary/5 text-foreground",
-                                  isLockCorrect && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
-                                  result && isCorrectOpt && "border-emerald-500 bg-emerald-500/10 text-emerald-400",
-                                  result && wasSelectedWrong && "border-red-500 bg-red-500/10 text-red-400",
+                                  isLockCorrect && "border-success bg-success/10 text-success",
+                                  result && isCorrectOpt && "border-success bg-success/10 text-success",
+                                  result && wasSelectedWrong && "border-danger bg-danger/10 text-danger",
                                   result && !isCorrectOpt && !wasSelectedWrong && "border-border text-muted-foreground opacity-40",
                                   isLocked && !isLockCorrect && "border-border text-muted-foreground opacity-40",
                                 )}
@@ -766,16 +766,16 @@ function PracticeMCQContent() {
                                 <div className="flex items-center gap-2">
                                   <span className={cn(
                                     "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border flex-shrink-0",
-                                    (result && isCorrectOpt) || isLockCorrect ? "bg-emerald-500 border-emerald-500 text-white"
-                                    : result && wasSelectedWrong ? "bg-red-500 border-red-500 text-white"
+                                    (result && isCorrectOpt) || isLockCorrect ? "bg-success border-success text-white"
+                                    : result && wasSelectedWrong ? "bg-danger border-danger text-white"
                                     : "border-border text-muted-foreground"
                                   )}>
                                     {String.fromCharCode(65 + idx)}
                                   </span>
                                   <span className="flex-1">{opt}</span>
                                   {state.submitting && isSelected && <Loader2 className="h-4 w-4 animate-spin ml-auto flex-shrink-0" />}
-                                  {((result && isCorrectOpt) || isLockCorrect) && <CheckCircle className="h-4 w-4 ml-auto text-emerald-400 flex-shrink-0" />}
-                                  {result && wasSelectedWrong && <XCircle className="h-4 w-4 ml-auto text-red-400 flex-shrink-0" />}
+                                  {((result && isCorrectOpt) || isLockCorrect) && <CheckCircle className="h-4 w-4 ml-auto text-success flex-shrink-0" />}
+                                  {result && wasSelectedWrong && <XCircle className="h-4 w-4 ml-auto text-danger flex-shrink-0" />}
                                 </div>
                               </button>
                             )
@@ -788,8 +788,8 @@ function PracticeMCQContent() {
                             <div className={cn(
                               "flex-1 p-3 rounded-lg text-xs leading-relaxed",
                               isLocked || result?.correct
-                                ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                                : "bg-red-500/10 border border-red-500/20 text-red-400"
+                                ? "bg-success/10 border border-success/20 text-success"
+                                : "bg-danger/10 border border-danger/20 text-danger"
                             )}>
                               {isLocked && !result && <p className="font-medium mb-1">Already answered correctly!</p>}
                               {result && (
@@ -875,7 +875,7 @@ function PracticeMCQContent() {
           <motion.div
             className={cn(
               "fixed inset-0 pointer-events-none z-40",
-              answerFeedback === "correct" ? "bg-emerald-500/10" : "bg-red-500/10"
+              answerFeedback === "correct" ? "bg-success/10" : "bg-danger/10"
             )}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1039,13 +1039,13 @@ function PracticeMCQContent() {
                 </div>
                 {/* Legend pills */}
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span className="text-emerald-400">Correct</span>
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-success/20 bg-success/5">
+                    <div className="w-2 h-2 rounded-full bg-success" />
+                    <span className="text-success">Correct</span>
                   </div>
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-red-500/20 bg-red-500/5">
-                    <div className="w-2 h-2 rounded-full bg-red-500" />
-                    <span className="text-red-400">Wrong</span>
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-danger/20 bg-danger/5">
+                    <div className="w-2 h-2 rounded-full bg-danger" />
+                    <span className="text-danger">Wrong</span>
                   </div>
                   <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-border bg-secondary/30">
                     <div className="w-2 h-2 rounded-full bg-secondary border border-border" />
@@ -1071,9 +1071,9 @@ function PracticeMCQContent() {
                       key={q.id}
                       className={cn(
                         "transition-all duration-200 p-4 sm:p-5",
-                        state.locked && !result && "border-emerald-500/20",
-                        result?.correct && "border-emerald-500/20",
-                        result && !result.correct && "border-red-500/20",
+                        state.locked && !result && "border-success/20",
+                        result?.correct && "border-success/20",
+                        result && !result.correct && "border-danger/20",
                       )}
                     >
                       {/* Question row */}
@@ -1081,9 +1081,9 @@ function PracticeMCQContent() {
                         {/* Number badge */}
                         <span className={cn(
                           "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border mt-0.5",
-                          state.locked && !result ? "bg-emerald-500 border-emerald-500 text-white"
-                            : result?.correct ? "bg-emerald-500 border-emerald-500 text-white"
-                            : result && !result.correct ? "bg-red-500/20 border-red-500/40 text-red-400"
+                          state.locked && !result ? "bg-success border-success text-white"
+                            : result?.correct ? "bg-success border-success text-white"
+                            : result && !result.correct ? "bg-danger/20 border-danger/40 text-danger"
                             : "bg-secondary border-border text-muted-foreground"
                         )}>
                           {result?.correct || (state.locked && !result) ? <CheckCircle className="h-3.5 w-3.5" />
@@ -1120,9 +1120,9 @@ function PracticeMCQContent() {
                                 // Unanswered selected (pre-submit highlight)
                                 !isAnswered && isSelected && "border-primary bg-primary/10 text-foreground",
                                 // Correct option after answer
-                                isAnswered && isCorrectOpt && "border-emerald-500/60 bg-emerald-500/10 text-emerald-400",
+                                isAnswered && isCorrectOpt && "border-success/60 bg-success/10 text-success",
                                 // Wrong selected
-                                isAnswered && isWrongSelected && "border-red-500/60 bg-red-500/10 text-red-400",
+                                isAnswered && isWrongSelected && "border-danger/60 bg-danger/10 text-danger",
                                 // Neutral unchosen after answer
                                 isAnswered && !isCorrectOpt && !isWrongSelected && "border-border text-muted-foreground opacity-50",
                               )}
@@ -1130,8 +1130,8 @@ function PracticeMCQContent() {
                               {/* Letter badge */}
                               <span className={cn(
                                 "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border flex-shrink-0",
-                                isAnswered && isCorrectOpt ? "bg-emerald-500 border-emerald-500 text-white"
-                                  : isAnswered && isWrongSelected ? "bg-red-500 border-red-500 text-white"
+                                isAnswered && isCorrectOpt ? "bg-success border-success text-white"
+                                  : isAnswered && isWrongSelected ? "bg-danger border-danger text-white"
                                   : !isAnswered && isSelected ? "border-primary text-primary"
                                   : "border-border text-muted-foreground"
                               )}>
@@ -1139,8 +1139,8 @@ function PracticeMCQContent() {
                               </span>
                               <span className="flex-1 leading-snug">{optText}</span>
                               {state.submitting && isSelected && <Loader2 className="h-3.5 w-3.5 animate-spin flex-shrink-0 text-primary" />}
-                              {isAnswered && isCorrectOpt && <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-emerald-400" />}
-                              {isAnswered && isWrongSelected && <XCircle className="h-3.5 w-3.5 flex-shrink-0 text-red-400" />}
+                              {isAnswered && isCorrectOpt && <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-success" />}
+                              {isAnswered && isWrongSelected && <XCircle className="h-3.5 w-3.5 flex-shrink-0 text-danger" />}
                             </button>
                           )
                         })}
@@ -1150,9 +1150,9 @@ function PracticeMCQContent() {
                       {isAnswered && (
                         <div className={cn(
                           "mt-3 rounded-lg px-3 py-2 text-xs border flex items-start justify-between gap-3",
-                          state.locked && !result ? "bg-emerald-500/8 border-emerald-500/20 text-emerald-400"
-                            : result?.correct ? "bg-emerald-500/8 border-emerald-500/20 text-emerald-400"
-                            : "bg-red-500/8 border-red-500/20 text-red-400"
+                          state.locked && !result ? "bg-success/8 border-success/20 text-success"
+                            : result?.correct ? "bg-success/8 border-success/20 text-success"
+                            : "bg-danger/8 border-danger/20 text-danger"
                         )}>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold mb-0.5">

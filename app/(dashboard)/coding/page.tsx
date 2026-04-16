@@ -315,8 +315,8 @@ export default function CodingPage() {
                   <Badge variant="outline" className={cn("text-xs", difficultyColors[problem.difficulty])}>
                     {problem.difficulty}
                   </Badge>
-                  <span className="flex items-center gap-0.5 text-xs text-amber-400">
-                    <Star className="h-3 w-3 fill-amber-400" />
+                  <span className="flex items-center gap-0.5 text-xs text-warning">
+                    <Star className="h-3 w-3 fill-warning" />
                     {problem.points}
                   </span>
                 </div>
@@ -372,8 +372,8 @@ export default function CodingPage() {
                     <Badge variant="outline" className={cn("text-sm", difficultyColors[currentProblem.difficulty])}>
                       {currentProblem.difficulty}
                     </Badge>
-                    <span className="flex items-center gap-1 text-xs text-amber-400 font-medium">
-                      <Star className="h-3.5 w-3.5 fill-amber-400" />
+                    <span className="flex items-center gap-1 text-xs text-warning font-medium">
+                      <Star className="h-3.5 w-3.5 fill-warning" />
                       {currentProblem.points} pts
                     </span>
                   </div>
@@ -566,13 +566,13 @@ export default function CodingPage() {
                   testResults.map((tc) => (
                     <div key={tc.id} className={cn(
                       "p-3 rounded-lg border text-sm",
-                      tc.status === "passed" ? "bg-emerald-500/5 border-emerald-500/30" : "bg-red-500/5 border-red-500/30"
+                      tc.status === "passed" ? "bg-success/5 border-success/30" : "bg-danger/5 border-danger/30"
                     )}>
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-xs font-medium text-foreground">Test {tc.id}</span>
                         {tc.status === "passed"
-                          ? <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
-                          : <XCircle className="h-3.5 w-3.5 text-red-400" />}
+                          ? <CheckCircle className="h-3.5 w-3.5 text-success" />
+                          : <XCircle className="h-3.5 w-3.5 text-danger" />}
                       </div>
                       <div className="grid grid-cols-1 gap-1 text-xs font-mono">
                         <div className="flex gap-2">
@@ -585,7 +585,7 @@ export default function CodingPage() {
                         </div>
                         <div className="flex gap-2">
                           <span className="text-muted-foreground w-16 shrink-0">Got:</span>
-                          <code className={tc.status === "passed" ? "text-emerald-400" : "text-red-400"}>
+                          <code className={tc.status === "passed" ? "text-success" : "text-danger"}>
                             {tc.actualOutput}
                           </code>
                         </div>

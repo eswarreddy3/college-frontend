@@ -163,7 +163,7 @@ export default function SuperAdminPage() {
                 <div key={college.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/20 transition-colors">
                   <span className={cn(
                     "text-xs font-bold w-5 text-center",
-                    idx === 0 ? "text-amber-400" : idx === 1 ? "text-slate-400" : idx === 2 ? "text-orange-400" : "text-muted-foreground"
+                    idx === 0 ? "text-warning" : idx === 1 ? "text-slate-400" : idx === 2 ? "text-streak" : "text-muted-foreground"
                   )}>
                     #{idx + 1}
                   </span>
@@ -178,7 +178,7 @@ export default function SuperAdminPage() {
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {college.package && (
-                      <Badge variant="outline" className="text-xs text-purple-400 border-purple-400/30">
+                      <Badge variant="outline" className="text-xs text-coding border-coding/30">
                         {college.package}
                       </Badge>
                     )}
@@ -196,9 +196,9 @@ export default function SuperAdminPage() {
         {/* Platform Activity — Last 7 Days */}
         <GlassCard>
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-5 w-5 text-emerald-400" />
+            <TrendingUp className="h-5 w-5 text-success" />
             <h3 className="font-semibold font-serif text-foreground">Platform Activity</h3>
-            <Badge variant="outline" className="text-emerald-400 border-emerald-400/30 ml-auto text-xs">
+            <Badge variant="outline" className="text-success border-success/30 ml-auto text-xs">
               Last 7 days
             </Badge>
           </div>

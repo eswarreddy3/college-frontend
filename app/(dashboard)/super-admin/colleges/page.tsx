@@ -87,9 +87,9 @@ function getStatus(college: College): "active" | "pending" | "inactive" {
 }
 
 const statusConfig = {
-  active: { label: "Active", className: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-  pending: { label: "Pending", className: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
-  inactive: { label: "Inactive", className: "bg-red-500/20 text-red-400 border-red-500/30" },
+  active: { label: "Active", className: "chip chip-success" },
+  pending: { label: "Pending", className: "chip chip-warning" },
+  inactive: { label: "Inactive", className: "chip chip-danger" },
 }
 
 // Domain selector shows for any paid plan (base, pro, enterprise) — not free
@@ -134,7 +134,7 @@ function DomainCheckboxList({
         <p className="text-xs text-primary">{selected.length} of {domains.length} domains selected</p>
       )}
       {selected.length === 0 && (
-        <p className="text-xs text-amber-400">No domains selected — all domains will be locked.</p>
+        <p className="text-xs text-warning">No domains selected — all domains will be locked.</p>
       )}
     </div>
   )
@@ -437,19 +437,19 @@ export default function CollegesPage() {
       title: "Deactivate College?",
       description: `All users in "${confirm.college.name}" will be blocked from logging in until reactivated.`,
       actionLabel: "Deactivate",
-      actionClass: "bg-amber-600 hover:bg-amber-700 text-white",
+      actionClass: "bg-warning hover:bg-warning/90 text-white",
     },
     activate: {
       title: "Activate College?",
       description: `"${confirm.college.name}" and its users will regain access to the platform.`,
       actionLabel: "Activate",
-      actionClass: "bg-emerald-600 hover:bg-emerald-700 text-white",
+      actionClass: "bg-success hover:bg-success/90 text-white",
     },
     delete: {
       title: "Delete College?",
       description: `This will permanently delete "${confirm.college.name}" and all ${confirm.college.student_count} student(s). This cannot be undone.`,
       actionLabel: "Delete",
-      actionClass: "bg-red-600 hover:bg-red-700 text-white",
+      actionClass: "bg-danger hover:bg-danger/90 text-white",
     },
   }[confirm.type] : null
 
@@ -548,11 +548,11 @@ export default function CollegesPage() {
                       <td className="py-3 px-4">
                         {canEditDomains ? (
                           college.allowed_domain_ids && college.allowed_domain_ids.length > 0 ? (
-                            <span className="text-xs text-emerald-400">
+                            <span className="text-xs text-success">
                               {college.allowed_domain_ids.length} / {domains.length} unlocked
                             </span>
                           ) : (
-                            <span className="text-xs text-amber-400">All locked</span>
+                            <span className="text-xs text-warning">All locked</span>
                           )
                         ) : (
                           <span className="text-xs text-muted-foreground">All access</span>
@@ -571,7 +571,7 @@ export default function CollegesPage() {
                             size="sm"
                             variant="ghost"
                             disabled={isActioning}
-                            className="h-7 px-2 text-muted-foreground hover:text-violet-400"
+                            className="h-7 px-2 text-muted-foreground hover:text-primary"
                             onClick={() => openEditCollege(college)}
                             title="Edit college"
                           >
@@ -624,7 +624,7 @@ export default function CollegesPage() {
                               size="sm"
                               variant="ghost"
                               disabled={isActioning}
-                              className="h-7 px-2 text-muted-foreground hover:text-emerald-400"
+                              className="h-7 px-2 text-muted-foreground hover:text-success"
                               onClick={() => setConfirm({ type: "activate", college })}
                               title="Activate college"
                             >
@@ -638,7 +638,7 @@ export default function CollegesPage() {
                               size="sm"
                               variant="ghost"
                               disabled={isActioning}
-                              className="h-7 px-2 text-muted-foreground hover:text-amber-400"
+                              className="h-7 px-2 text-muted-foreground hover:text-warning"
                               onClick={() => setConfirm({ type: "deactivate", college })}
                               title="Deactivate college"
                             >
@@ -651,7 +651,7 @@ export default function CollegesPage() {
                             size="sm"
                             variant="ghost"
                             disabled={isActioning}
-                            className="h-7 px-2 text-muted-foreground hover:text-red-400"
+                            className="h-7 px-2 text-muted-foreground hover:text-danger"
                             onClick={() => openDeleteConfirm(college)}
                             title="Delete college"
                           >
@@ -697,14 +697,14 @@ export default function CollegesPage() {
         onSubmit={(e) => { e.preventDefault(); handleDelete() }}
         isLoading={isDeleting}
         submitLabel="Delete Permanently"
-        submitClassName="flex-1 bg-red-600 hover:bg-red-700 text-white"
+        submitClassName="flex-1 bg-danger hover:bg-danger/90 text-white"
       >
         <div className="space-y-4">
-          <div className="flex items-start gap-3 rounded-lg bg-red-500/10 border border-red-500/20 p-3">
-            <Trash2 className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
-            <div className="text-xs text-red-400 space-y-1">
+          <div className="info-box info-box-danger flex items-start gap-3 p-3">
+            <Trash2 className="h-4 w-4 text-danger mt-0.5 flex-shrink-0" />
+            <div className="text-xs text-danger space-y-1">
               <p className="font-semibold">This will permanently delete:</p>
-              <ul className="list-disc list-inside space-y-0.5 text-red-400/80">
+              <ul className="list-disc list-inside space-y-0.5 text-danger/80">
                 <li>The college and all its settings</li>
                 <li>All {deleteCollege?.student_count ?? 0} student account(s)</li>
                 <li>All student progress, points and streaks</li>
@@ -767,7 +767,7 @@ export default function CollegesPage() {
             </div>
             {editCourseIds.length > 0
               ? <p className="text-xs text-primary">{editCourseIds.length} of {courses.length} courses selected</p>
-              : <p className="text-xs text-amber-400">No courses selected — all courses will be locked.</p>
+              : <p className="text-xs text-warning">No courses selected — all courses will be locked.</p>
             }
           </div>
         </div>
@@ -909,7 +909,7 @@ export default function CollegesPage() {
                   <button
                     type="button"
                     onClick={() => { setEditLogoFile(null); setEditLogoPreview(null) }}
-                    className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300"
+                    className="flex items-center gap-1 text-xs text-danger hover:text-danger/80"
                   >
                     <X className="h-3 w-3" /> Remove logo
                   </button>

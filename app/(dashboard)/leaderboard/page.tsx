@@ -23,9 +23,9 @@ interface LeaderboardEntry {
 }
 
 const podiumColors = {
-  1: "from-warning to-amber-600",
+  1: "from-warning to-yellow-500",
   2: "from-slate-300 to-slate-500",
-  3: "from-streak to-orange-600",
+  3: "from-streak to-orange-500",
 }
 
 const podiumBorders = {
@@ -139,7 +139,7 @@ export default function LeaderboardPage() {
                 <div className="flex flex-col items-center text-center pt-4">
                   <div className="relative mb-4">
                     <UserAvatar name={topThree[0]?.name || ""} photoUrl={topThree[0]?.avatar} size="xl" points={topThree[0]?.points} />
-                    <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-r from-warning to-amber-600 flex items-center justify-center">
+                    <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-r from-warning to-yellow-500 flex items-center justify-center">
                       <Medal className="h-5 w-5 text-amber-900" />
                     </div>
                   </div>
@@ -167,7 +167,7 @@ export default function LeaderboardPage() {
                 <div className="flex flex-col items-center text-center pt-4">
                   <div className="relative mb-4">
                     <UserAvatar name={topThree[2]?.name || ""} photoUrl={topThree[2]?.avatar} size="lg" points={topThree[2]?.points} />
-                    <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-streak to-orange-600 flex items-center justify-center">
+                    <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-streak to-orange-500 flex items-center justify-center">
                       <span className="text-sm font-bold text-orange-900">3</span>
                     </div>
                   </div>

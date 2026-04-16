@@ -295,19 +295,19 @@ export default function BranchAdminsPage() {
       title: "Activate Branch Admin?",
       description: `"${confirm.admin.name}" will regain access to the platform.`,
       actionLabel: "Activate",
-      actionClass: "bg-emerald-600 hover:bg-emerald-700 text-white",
+      actionClass: "bg-success hover:bg-success/90 text-white",
     },
     deactivate: {
       title: "Deactivate Branch Admin?",
       description: `"${confirm.admin.name}" will be blocked from logging in until reactivated.`,
       actionLabel: "Deactivate",
-      actionClass: "bg-amber-600 hover:bg-amber-700 text-white",
+      actionClass: "bg-warning hover:bg-warning/90 text-white",
     },
     delete: {
       title: "Delete Branch Admin?",
       description: `This will permanently delete "${confirm.admin.name}" (${confirm.admin.email}). This cannot be undone.`,
       actionLabel: "Delete",
-      actionClass: "bg-red-600 hover:bg-red-700 text-white",
+      actionClass: "bg-danger hover:bg-danger/90 text-white",
     },
   }[confirm.type] : null
 
@@ -318,7 +318,7 @@ export default function BranchAdminsPage() {
       render: (row) => (
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarFallback className="bg-blue-500/20 text-blue-400 text-xs font-bold">
+            <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
               {row.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
             </AvatarFallback>
           </Avatar>
@@ -338,7 +338,7 @@ export default function BranchAdminsPage() {
       key: "branch",
       header: "Branch",
       render: (row) => (
-        <Badge variant="outline" className="border-blue-500/30 text-blue-400 bg-blue-500/10 text-xs">
+        <Badge variant="outline" className="border-primary/30 text-primary bg-primary/10 text-xs">
           <GitBranch className="h-3 w-3 mr-1" />{row.branch || "—"}
         </Badge>
       ),
@@ -350,8 +350,8 @@ export default function BranchAdminsPage() {
         <Badge variant="outline" className={cn(
           "text-xs",
           row.is_active
-            ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-            : "bg-red-500/20 text-red-400 border-red-500/30"
+            ? "bg-success/20 text-success border-success/30"
+            : "bg-danger/20 text-danger border-danger/30"
         )}>
           {row.is_active ? "Active" : "Inactive"}
         </Badge>
@@ -417,7 +417,7 @@ export default function BranchAdminsPage() {
                 size="sm"
                 variant="ghost"
                 disabled={resendingId === row.id}
-                className="h-7 px-2 text-muted-foreground hover:text-amber-400"
+                className="h-7 px-2 text-muted-foreground hover:text-warning"
                 onClick={() => handleResend(row.id, row.name)}
                 title="Resend credentials"
               >
@@ -431,7 +431,7 @@ export default function BranchAdminsPage() {
                   size="sm"
                   variant="ghost"
                   disabled={actionLoading === row.id}
-                  className="h-7 px-2 text-muted-foreground hover:text-amber-400"
+                  className="h-7 px-2 text-muted-foreground hover:text-warning"
                   onClick={() => setConfirm({ type: "deactivate", admin: row })}
                   title="Deactivate"
                 >
@@ -442,7 +442,7 @@ export default function BranchAdminsPage() {
                   size="sm"
                   variant="ghost"
                   disabled={actionLoading === row.id}
-                  className="h-7 px-2 text-muted-foreground hover:text-emerald-400"
+                  className="h-7 px-2 text-muted-foreground hover:text-success"
                   onClick={() => setConfirm({ type: "activate", admin: row })}
                   title="Activate"
                 >
@@ -453,7 +453,7 @@ export default function BranchAdminsPage() {
                 size="sm"
                 variant="ghost"
                 disabled={actionLoading === row.id}
-                className="h-7 px-2 text-muted-foreground hover:text-red-400"
+                className="h-7 px-2 text-muted-foreground hover:text-danger"
                 onClick={() => setConfirm({ type: "delete", admin: row })}
                 title="Delete"
               >

@@ -145,7 +145,7 @@ export default function BranchAdminStudentsPage() {
                   <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarFallback className={cn(
                       "text-sm font-bold",
-                      s.is_inactive ? "bg-red-500/20 text-red-400" : "bg-primary/20 text-primary"
+                      s.is_inactive ? "bg-danger/20 text-danger" : "bg-primary/20 text-primary"
                     )}>
                       {s.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
                     </AvatarFallback>
@@ -160,7 +160,7 @@ export default function BranchAdminStudentsPage() {
                         </Badge>
                       )}
                       {s.is_inactive && (
-                        <Badge variant="outline" className="text-xs border-red-500/30 text-red-400 bg-red-500/10">
+                        <Badge variant="outline" className="text-xs border-danger/30 text-danger bg-danger/10">
                           Inactive
                         </Badge>
                       )}
@@ -175,10 +175,10 @@ export default function BranchAdminStudentsPage() {
 
                   <div className="flex items-center gap-4 flex-shrink-0">
                     <div className="hidden sm:flex items-center gap-3 text-xs">
-                      <span className="flex items-center gap-1 text-amber-400">
+                      <span className="flex items-center gap-1 text-warning">
                         <Star className="h-3 w-3" />{s.points.toLocaleString()}
                       </span>
-                      <span className="flex items-center gap-1 text-orange-400">
+                      <span className="flex items-center gap-1 text-streak">
                         <Flame className="h-3 w-3" />{s.streak}d
                       </span>
                     </div>
@@ -186,7 +186,7 @@ export default function BranchAdminStudentsPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                        className="border-danger/30 text-danger hover:bg-danger/10 text-xs"
                         onClick={() => sendReminder(s.id, s.name)}
                         disabled={remindingId === s.id}
                       >

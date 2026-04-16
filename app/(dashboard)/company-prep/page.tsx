@@ -120,7 +120,7 @@ export default function CompanyPrepPage() {
               {/* Counts */}
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <FileQuestion className="h-3.5 w-3.5 text-blue-400" />
+                  <FileQuestion className="h-3.5 w-3.5 text-primary" />
                   {company.aptitude_count} aptitude
                 </span>
                 <span className="flex items-center gap-1">

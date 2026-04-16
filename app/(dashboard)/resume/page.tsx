@@ -1092,9 +1092,9 @@ export default function ResumePage() {
           <div>
             <h1 className="text-xl font-bold font-serif text-foreground">Resume Builder</h1>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {saveStatus === "saved"   && <><Cloud className="h-3 w-3 text-emerald-400" /><span className="text-xs text-emerald-400">Saved to cloud</span></>}
+              {saveStatus === "saved"   && <><Cloud className="h-3 w-3 text-success" /><span className="text-xs text-success">Saved to cloud</span></>}
               {saveStatus === "saving"  && <><Cloud className="h-3 w-3 text-muted-foreground animate-pulse" /><span className="text-xs text-muted-foreground">Saving…</span></>}
-              {saveStatus === "unsaved" && <><CloudOff className="h-3 w-3 text-amber-400" /><span className="text-xs text-amber-400">Unsaved changes</span></>}
+              {saveStatus === "unsaved" && <><CloudOff className="h-3 w-3 text-warning" /><span className="text-xs text-warning">Unsaved changes</span></>}
             </div>
           </div>
           <div className="flex items-center gap-3">

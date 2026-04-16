@@ -207,7 +207,7 @@ function CommentItem({ comment, currentUserId, depth = 0, onDelete, onLike, onRe
             <button
               className={cn(
                 "flex items-center gap-1 text-xs font-semibold transition-colors",
-                comment.liked_by_me ? "text-red-400" : "text-muted-foreground hover:text-red-400"
+                comment.liked_by_me ? "text-danger" : "text-muted-foreground hover:text-danger"
               )}
               onClick={() => onLike(comment.id)}
             >
@@ -231,7 +231,7 @@ function CommentItem({ comment, currentUserId, depth = 0, onDelete, onLike, onRe
 
             {comment.author.id === currentUserId && (
               <button
-                className="text-xs text-muted-foreground hover:text-red-400 transition-colors ml-auto"
+                className="text-xs text-muted-foreground hover:text-danger transition-colors ml-auto"
                 onClick={() => onDelete(comment.id)}
               >
                 <Trash2 className="h-3 w-3" />
@@ -440,20 +440,20 @@ export default function PostDetailPage() {
       <GlassCard className={cn(
         "relative overflow-hidden",
         isOfficial
-          ? "border-amber-500/40 shadow-[0_0_32px_rgba(245,158,11,0.09)]"
+          ? "border-warning/40 shadow-[0_0_32px_rgba(245,158,11,0.09)]"
           : "border-border/60"
       )}>
         {/* Accent bar / announcement banner */}
         {isOfficial ? (
-          <div className="absolute top-0 left-0 right-0 flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 border-b border-amber-500/25">
-            <Megaphone className="h-3 w-3 text-amber-400 flex-shrink-0" />
-            <span className="text-[11px] font-semibold text-amber-400 tracking-wide uppercase">Official Announcement</span>
+          <div className="absolute top-0 left-0 right-0 flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-warning/20 via-warning/15 to-warning/20 border-b border-warning/25">
+            <Megaphone className="h-3 w-3 text-warning flex-shrink-0" />
+            <span className="text-[11px] font-semibold text-warning tracking-wide uppercase">Official Announcement</span>
           </div>
         ) : (
           <div className={cn(
             "absolute top-0 left-0 right-0 h-1",
             isBlog
-              ? "bg-gradient-to-r from-purple-500 via-pink-400 to-purple-500"
+              ? "bg-gradient-to-r from-coding via-coral to-coding"
               : "bg-gradient-to-r from-primary via-accent to-primary"
           )} />
         )}
@@ -474,17 +474,17 @@ export default function PostDetailPage() {
             <div className="relative flex-shrink-0">
               <Avatar className={cn(
                 "h-12 w-12 ring-2 ring-offset-2 ring-offset-card",
-                isOfficial ? "ring-amber-500/50" : "ring-primary/30"
+                isOfficial ? "ring-warning/50" : "ring-primary/30"
               )}>
                 <AvatarFallback className={cn(
                   "font-bold text-sm",
-                  isOfficial ? "bg-amber-500/20 text-amber-400" : "bg-primary/20 text-primary"
+                  isOfficial ? "bg-warning/20 text-warning" : "bg-primary/20 text-primary"
                 )}>
                   {initials(post.author.name)}
                 </AvatarFallback>
               </Avatar>
               {isOfficial && (
-                <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-amber-500 ring-2 ring-card">
+                <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-warning ring-2 ring-card">
                   <ShieldCheck className="w-2.5 h-2.5 text-white" />
                 </span>
               )}
@@ -493,7 +493,7 @@ export default function PostDetailPage() {
               <div className="flex items-center gap-1.5 mb-0.5">
                 <p className="font-bold text-foreground">{post.author.name}</p>
                 {isOfficial && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-warning/15 border border-warning/30 text-warning">
                     {adminLabel}
                   </span>
                 )}
@@ -518,7 +518,7 @@ export default function PostDetailPage() {
               className={cn(
                 "flex items-center gap-1 rounded-full",
                 isBlog
-                  ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
+                  ? "bg-coding/10 border-coding/30 text-coding"
                   : "bg-primary/10 border-primary/30 text-primary"
               )}
             >

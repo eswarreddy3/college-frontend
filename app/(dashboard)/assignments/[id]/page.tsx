@@ -254,10 +254,10 @@ export default function AssignmentExamPage() {
             </div>
 
             {/* Warning */}
-            <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-left">
-              <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 bg-danger/10 border border-danger/30 rounded-xl px-4 py-3 text-left">
+              <AlertTriangle className="h-4 w-4 text-danger flex-shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-red-400">One attempt only</p>
+                <p className="text-sm font-semibold text-danger">One attempt only</p>
                 <p className="text-xs text-muted-foreground">
                   Once you start, the timer begins immediately and cannot be paused.
                   You cannot retake this assignment after submission.
@@ -347,11 +347,11 @@ export default function AssignmentExamPage() {
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-xl border font-mono text-lg font-bold transition-all",
               isTimeLow
-                ? "bg-red-500/20 border-red-500/40 text-red-300 animate-pulse"
+                ? "bg-danger/20 border-danger/40 text-danger animate-pulse"
                 : "bg-secondary/60 border-white/10 text-foreground"
             )}
           >
-            <Clock className={cn("h-5 w-5", isTimeLow ? "text-red-400" : "text-primary")} />
+            <Clock className={cn("h-5 w-5", isTimeLow ? "text-danger" : "text-primary")} />
             {formatTime(timeLeft)}
           </div>
           <Button
