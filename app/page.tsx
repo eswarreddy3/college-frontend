@@ -387,7 +387,7 @@ function HeroVisual() {
       <motion.div
         animate={{ y: [0, -16, 0], rotate: [-1, 1, -1] }}
         transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-        className="absolute top-12 left-4 z-30 glass-card rounded-2xl border border-primary/25 bg-primary/5 p-3 w-[156px] shadow-xl"
+        className="absolute top-12 left-4 z-30 glass-card rounded-2xl border border-primary/50 dark:border-primary/25 bg-primary/8 dark:bg-primary/5 p-3 w-[156px] shadow-xl"
       >
         <div className="flex items-center gap-2 mb-2">
           <div className="w-7 h-7 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center flex-shrink-0">
@@ -413,7 +413,7 @@ function HeroVisual() {
       <motion.div
         animate={{ y: [0, 14, 0], rotate: [0.5, -0.5, 0.5] }}
         transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut", delay: 1.1 }}
-        className="absolute bottom-14 right-0 z-30 glass-card rounded-2xl border border-violet-500/25 bg-violet-500/5 p-3 w-[190px] shadow-xl"
+        className="absolute bottom-14 right-0 z-30 glass-card rounded-2xl border border-violet-500/50 dark:border-violet-500/25 bg-violet-500/8 dark:bg-violet-500/5 p-3 w-[190px] shadow-xl"
       >
         <div className="flex items-center gap-1.5 mb-2">
           <Brain className="w-3.5 h-3.5 text-violet-400" />
@@ -435,7 +435,7 @@ function HeroVisual() {
       <motion.div
         animate={{ y: [0, -10, 0], scale: [1, 1.03, 1] }}
         transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut", delay: 0.7 }}
-        className="absolute top-[36%] -right-2 z-30 glass-card rounded-2xl border border-amber-500/25 bg-amber-500/5 p-3 shadow-xl"
+        className="absolute top-[36%] -right-2 z-30 glass-card rounded-2xl border border-amber-500/50 dark:border-amber-500/25 bg-amber-500/8 dark:bg-amber-500/5 p-3 shadow-xl"
       >
         <div className="flex items-center gap-1.5 mb-2">
           <Flame className="w-3.5 h-3.5 text-amber-400 flame-pulse" />
@@ -455,7 +455,7 @@ function HeroVisual() {
       <motion.div
         animate={{ y: [0, 11, 0], rotate: [0, -1, 0] }}
         transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut", delay: 1.7 }}
-        className="absolute bottom-8 left-2 z-30 glass-card rounded-2xl border border-emerald-500/25 bg-emerald-500/5 p-3 shadow-xl w-[152px]"
+        className="absolute bottom-8 left-2 z-30 glass-card rounded-2xl border border-emerald-500/50 dark:border-emerald-500/25 bg-emerald-500/8 dark:bg-emerald-500/5 p-3 shadow-xl w-[152px]"
       >
         <div className="flex items-center gap-1.5 mb-2">
           <BarChart2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -479,7 +479,7 @@ function HeroVisual() {
       <motion.div
         animate={{ y: [0, -8, 0] }}
         transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut", delay: 2.2 }}
-        className="absolute top-6 right-12 z-30 glass-card rounded-xl border border-pink-500/25 bg-pink-500/5 px-3 py-2 shadow-lg"
+        className="absolute top-6 right-12 z-30 glass-card rounded-xl border border-pink-500/50 dark:border-pink-500/25 bg-pink-500/8 dark:bg-pink-500/5 px-3 py-2 shadow-lg"
       >
         <div className="flex items-center gap-2">
           <ScrollText className="w-3.5 h-3.5 text-pink-400" />
@@ -795,8 +795,8 @@ export default function LandingPage() {
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden pt-20 pb-10 px-4 sm:px-6">
 
-        {/* Background image — heavier overlay on left for text legibility */}
-        <div className="absolute inset-0 z-0">
+        {/* Background image — dark mode only */}
+        <div className="dark:block hidden absolute inset-0 z-0">
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: "url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&q=75&auto=format&fit=crop')" }}
