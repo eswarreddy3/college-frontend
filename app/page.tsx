@@ -581,6 +581,16 @@ function TiltCard({ children, className = "" }: { children: React.ReactNode; cla
   )
 }
 
+// ─── Continuous-loop counter hook ──────────────────────────────────────────────
+function useLoopCounter(max: number, step = 1, interval = 80) {
+  const [val, setVal] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setVal(v => (v + step >= max ? 0 : v + step)), interval)
+    return () => clearInterval(t)
+  }, [max, step, interval])
+  return val
+}
+
 // ─── Admin Analytics Mockup ─────────────────────────────────────────────────────
 function AnalyticsMockup() {
   const bars = [
@@ -810,7 +820,7 @@ export default function LandingPage() {
             className="flex flex-col items-start"
           >
             {/* Logo */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, scale: 0.7, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ delay: 0.05, type: "spring", stiffness: 200, damping: 18 }}
@@ -821,7 +831,7 @@ export default function LandingPage() {
                   <Logo size={72} />
                 </motion.div>
               </MagneticWrap>
-            </motion.div>
+            </motion.div> */}
 
             {/* Badge */}
             <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.15, duration: 0.5 }}
@@ -998,6 +1008,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
 
             {/* ① Live Coding IDE — wide */}
+
             <FadeIn delay={0.05} className="lg:col-span-2">
               <TiltCard>
                 <motion.div whileHover={{ scale:1.005 }} className="relative h-full min-h-[280px] rounded-3xl border overflow-hidden group cursor-default"
@@ -1007,7 +1018,9 @@ export default function LandingPage() {
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.6 }}
+                        <motion.div
+                          animate={{ boxShadow:["0 0 0px rgba(6,182,212,0)","0 0 22px rgba(6,182,212,0.55)","0 0 0px rgba(6,182,212,0)"] }}
+                          transition={{ duration:2.5, repeat:Infinity }}
                           className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
                           <Code2 className="w-6 h-6 text-cyan-400" />
                         </motion.div>
@@ -1022,7 +1035,7 @@ export default function LandingPage() {
                       <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/5 bg-white/3">
                         {["bg-red-500/70","bg-amber-500/70","bg-emerald-500/70"].map(c=><div key={c} className={`w-2.5 h-2.5 rounded-full ${c}`} />)}
                         <span className="text-[10px] text-muted-foreground ml-2 font-mono">solution.py</span>
-                        <motion.span animate={{ opacity:[1,0,1] }} transition={{ duration:1, repeat:Infinity }} className="ml-auto text-[10px] text-cyan-400 font-mono">▋</motion.span>
+                        <motion.span animate={{ opacity:[1,0,1] }} transition={{ duration:0.9, repeat:Infinity }} className="ml-auto text-[10px] text-cyan-400 font-mono">▋</motion.span>
                       </div>
                       <div className="p-4 font-mono text-[11px] leading-[1.7]">
                         {[
@@ -1032,11 +1045,15 @@ export default function LandingPage() {
                           [<span key="if" className="pl-8 inline-block text-amber-300">if </span>,<span key="c" className="text-foreground/60">target-n </span>,<span key="in2" className="text-amber-300">in </span>,<span key="s2" className="text-violet-400">seen</span>,<span key="co" className="text-foreground/50">: </span>,<span key="r" className="text-amber-300">return </span>,<span key="rv" className="text-foreground/60">[seen[target-n], i]</span>],
                           [<span key="s3" className="pl-8 inline-block text-violet-400">seen</span>,<span key="as" className="text-foreground/50">[n] = i</span>],
                         ].map((line, i) => (
-                          <motion.div key={i} initial={{ opacity:0, x:-8 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }}
-                            transition={{ delay:0.2+i*0.08 }} className="flex flex-wrap">{line}</motion.div>
+                          <motion.div key={i}
+                            animate={{ opacity:[0.6,1,0.6] }}
+                            transition={{ duration:3, repeat:Infinity, delay:i*0.4, ease:"easeInOut" }}
+                            className="flex flex-wrap">{line}</motion.div>
                         ))}
                       </div>
-                      <motion.div initial={{ opacity:0, y:6 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.7 }}
+                      <motion.div
+                        animate={{ opacity:[0,1,1,1,0], y:[6,0,0,0,-4] }}
+                        transition={{ duration:4, repeat:Infinity, repeatDelay:2, times:[0,0.15,0.5,0.85,1] }}
                         className="mx-4 mb-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                         <span className="text-[10px] text-emerald-400 font-semibold">All 3 test cases passed · Runtime 12ms</span>
@@ -1057,7 +1074,9 @@ export default function LandingPage() {
                     style={{ background:"radial-gradient(ellipse at 50% 0%,rgba(168,85,247,0.18) 0%,transparent 60%)" }} />
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="flex items-center gap-3 mb-4">
-                      <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.6 }}
+                      <motion.div
+                        animate={{ boxShadow:["0 0 0px rgba(168,85,247,0)","0 0 22px rgba(168,85,247,0.55)","0 0 0px rgba(168,85,247,0)"] }}
+                        transition={{ duration:2.8, repeat:Infinity }}
                         className="w-12 h-12 rounded-2xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center">
                         <Brain className="w-6 h-6 text-violet-400" />
                       </motion.div>
@@ -1069,15 +1088,20 @@ export default function LandingPage() {
                     <div className="flex-1 rounded-2xl bg-secondary/30 border border-violet-500/15 p-4 space-y-2.5">
                       <p className="text-[11px] text-foreground/80 font-semibold mb-3">What is Big-O of binary search?</p>
                       {[{t:"O(n)",ok:false},{t:"O(log n)",ok:true},{t:"O(n²)",ok:false},{t:"O(1)",ok:false}].map((o,i)=>(
-                        <motion.div key={o.t} initial={{ x:-12,opacity:0 }} whileInView={{ x:0,opacity:1 }} viewport={{ once:true }}
-                          transition={{ delay:0.25+i*0.09 }}
+                        <motion.div key={o.t}
+                          animate={o.ok
+                            ? { boxShadow:["0 0 0px rgba(52,211,153,0)","0 0 14px rgba(52,211,153,0.45)","0 0 0px rgba(52,211,153,0)"] }
+                            : { opacity:[1,0.7,1] }}
+                          transition={{ duration: o.ok ? 2 : 3+i*0.5, repeat:Infinity, delay:i*0.2 }}
                           className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-semibold border ${o.ok?"bg-emerald-500/15 border-emerald-500/25 text-emerald-400":"bg-secondary/50 border-border text-muted-foreground"}`}>
                           {o.ok?<CheckCircle2 className="w-3 h-3 flex-shrink-0"/>:<span className="w-3 h-3 flex-shrink-0"/>}<span>{o.t}</span>
                         </motion.div>
                       ))}
                       <div className="flex items-center gap-2 pt-1">
                         <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                          <motion.div className="h-full bg-violet-400 rounded-full" initial={{ width:0 }} whileInView={{ width:"74%" }} viewport={{ once:true }} transition={{ duration:1, delay:0.6 }} />
+                          <motion.div className="h-full bg-violet-400 rounded-full"
+                            animate={{ width:["0%","74%","74%","0%"] }}
+                            transition={{ duration:4, repeat:Infinity, repeatDelay:1, times:[0,0.4,0.8,1] }} />
                         </div>
                         <span className="text-[9px] text-violet-400 font-bold">74% accuracy</span>
                       </div>
@@ -1097,7 +1121,9 @@ export default function LandingPage() {
                     style={{ background:"radial-gradient(ellipse at 50% 0%,rgba(14,112,112,0.20) 0%,transparent 60%)" }} />
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="flex items-center gap-3 mb-4">
-                      <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.6 }}
+                      <motion.div
+                        animate={{ boxShadow:["0 0 0px rgba(99,102,241,0)","0 0 22px rgba(99,102,241,0.55)","0 0 0px rgba(99,102,241,0)"] }}
+                        transition={{ duration:2.6, repeat:Infinity }}
                         className="w-12 h-12 rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center">
                         <BookOpen className="w-6 h-6 text-primary" />
                       </motion.div>
@@ -1113,15 +1139,15 @@ export default function LandingPage() {
                         {l:"Web Development",p:45,c:"bg-violet-400"},
                         {l:"System Design",p:18,c:"bg-amber-400"},
                       ].map((course,i)=>(
-                        <motion.div key={course.l} initial={{ opacity:0, x:-10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:0.2+i*0.1 }}
-                          className="flex items-center gap-3">
+                        <div key={course.l} className="flex items-center gap-3">
                           <span className="text-[10px] text-foreground/70 w-32 flex-shrink-0 truncate">{course.l}</span>
                           <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                            <motion.div className={`h-full ${course.c} rounded-full`} initial={{ width:0 }} whileInView={{ width:`${course.p}%` }} viewport={{ once:true }}
-                              transition={{ duration:0.9, delay:0.4+i*0.1, ease:"easeOut" }} />
+                            <motion.div className={`h-full ${course.c} rounded-full`}
+                              animate={{ width:["0%",`${course.p}%`,`${course.p}%`,"0%"] }}
+                              transition={{ duration:3.5, repeat:Infinity, repeatDelay:0.5, delay:i*0.6, times:[0,0.35,0.75,1], ease:"easeInOut" }} />
                           </div>
                           <span className="text-[9px] font-bold text-muted-foreground w-7 text-right">{course.p}%</span>
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
                     <p className="text-sm text-muted-foreground mt-3 leading-relaxed">Bite-sized lessons with points per completion, from Python to Web Dev.</p>
@@ -1139,7 +1165,9 @@ export default function LandingPage() {
                     style={{ background:"radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.20) 0%,transparent 60%)" }} />
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="flex items-center gap-3 mb-4">
-                      <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.6 }}
+                      <motion.div
+                        animate={{ boxShadow:["0 0 0px rgba(245,158,11,0)","0 0 22px rgba(245,158,11,0.6)","0 0 0px rgba(245,158,11,0)"] }}
+                        transition={{ duration:2, repeat:Infinity }}
                         className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
                         <Trophy className="w-6 h-6 text-amber-400" />
                       </motion.div>
@@ -1153,7 +1181,9 @@ export default function LandingPage() {
                         <div className="flex items-center gap-2"><Flame className="w-5 h-5 text-amber-400 flame-pulse" /><span className="text-sm font-bold text-amber-400">Daily Streak</span></div>
                         <div className="flex gap-1">
                           {Array.from({length:7}).map((_,i)=>(
-                            <motion.div key={i} initial={{ scale:0 }} whileInView={{ scale:1 }} viewport={{ once:true }} transition={{ delay:0.3+i*0.06, type:"spring" }}
+                            <motion.div key={i}
+                              animate={i<5 ? { scale:[1,1.3,1], opacity:[0.8,1,0.8] } : { opacity:[0.3,0.5,0.3] }}
+                              transition={{ duration:1.2, repeat:Infinity, delay:i*0.15, ease:"easeInOut" }}
                               className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] ${i<5?"bg-amber-500/20 text-amber-400":"bg-secondary/40 text-muted-foreground/40"}`}>
                               {i<5?"🔥":"·"}
                             </motion.div>
@@ -1162,7 +1192,9 @@ export default function LandingPage() {
                       </div>
                       <div className="grid grid-cols-4 gap-2">
                         {[{e:"⚡",l:"XP",c:"border-amber-400/30 text-amber-400"},{e:"🪙",l:"Coins",c:"border-cyan-400/30 text-cyan-400"},{e:"💎",l:"Gems",c:"border-violet-400/30 text-violet-400"},{e:"🛡️",l:"Shields",c:"border-emerald-400/30 text-emerald-400"}].map((g,i)=>(
-                          <motion.div key={g.l} initial={{ scale:0.5,opacity:0 }} whileInView={{ scale:1,opacity:1 }} viewport={{ once:true }} transition={{ delay:0.5+i*0.08,type:"spring" }}
+                          <motion.div key={g.l}
+                            animate={{ scale:[1,1.07,1], y:[0,-2,0] }}
+                            transition={{ duration:2, repeat:Infinity, delay:i*0.35, ease:"easeInOut" }}
                             className={`flex flex-col items-center gap-1 p-2 rounded-xl border bg-card ${g.c}`}>
                             <span className="text-base">{g.e}</span>
                             <span className={`text-[9px] font-bold ${g.c.split(" ")[1]}`}>{g.l}</span>
@@ -1185,7 +1217,9 @@ export default function LandingPage() {
                     style={{ background:"radial-gradient(ellipse at 50% 0%,rgba(251,191,36,0.18) 0%,transparent 60%)" }} />
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="flex items-center gap-3 mb-4">
-                      <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.6 }}
+                      <motion.div
+                        animate={{ boxShadow:["0 0 0px rgba(234,179,8,0)","0 0 22px rgba(234,179,8,0.55)","0 0 0px rgba(234,179,8,0)"] }}
+                        transition={{ duration:2.4, repeat:Infinity }}
                         className="w-12 h-12 rounded-2xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center">
                         <Building2 className="w-6 h-6 text-yellow-400" />
                       </motion.div>
@@ -1196,9 +1230,14 @@ export default function LandingPage() {
                     </div>
                     <div className="flex-1 space-y-2">
                       {["Aptitude Round","Technical Round","Coding Round","HR Interview"].map((round,i)=>(
-                        <motion.div key={round} initial={{ opacity:0, x:10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:0.2+i*0.09 }}
+                        <motion.div key={round}
+                          animate={{ x:[0,3,0], opacity:[0.8,1,0.8] }}
+                          transition={{ duration:2.5+i*0.4, repeat:Infinity, delay:i*0.3, ease:"easeInOut" }}
                           className="flex items-center gap-2.5 p-2.5 rounded-xl bg-yellow-500/8 border border-yellow-500/15">
-                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${["bg-yellow-400","bg-cyan-400","bg-violet-400","bg-emerald-400"][i]}`} />
+                          <motion.div
+                            animate={{ scale:[1,1.6,1] }}
+                            transition={{ duration:1.8, repeat:Infinity, delay:i*0.25 }}
+                            className={`w-2 h-2 rounded-full flex-shrink-0 ${["bg-yellow-400","bg-cyan-400","bg-violet-400","bg-emerald-400"][i]}`} />
                           <span className="text-[11px] font-semibold text-foreground/80 flex-1">{round}</span>
                           <Layers className={`w-3 h-3 ${["text-yellow-400","text-cyan-400","text-violet-400","text-emerald-400"][i]}`} />
                         </motion.div>
@@ -1220,7 +1259,9 @@ export default function LandingPage() {
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.6 }}
+                        <motion.div
+                          animate={{ boxShadow:["0 0 0px rgba(52,211,153,0)","0 0 22px rgba(52,211,153,0.55)","0 0 0px rgba(52,211,153,0)"] }}
+                          transition={{ duration:2.2, repeat:Infinity }}
                           className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
                           <BarChart2 className="w-6 h-6 text-emerald-400" />
                         </motion.div>
@@ -1235,25 +1276,36 @@ export default function LandingPage() {
                       </div>
                     </div>
                     <div className="flex-1 grid grid-cols-2 gap-4">
-                      {/* Chart */}
+                      {/* Animated bar chart */}
                       <div className="flex items-end gap-1.5 h-24">
-                        {[{h:42,c:"bg-violet-400"},{h:61,c:"bg-cyan-400"},{h:55,c:"bg-pink-400"},{h:78,c:"bg-amber-400"},{h:88,c:"bg-emerald-400"},{h:95,c:"bg-primary"}].map((b,i)=>(
-                          <motion.div key={i} className={`flex-1 rounded-t-lg ${b.c} opacity-80`} initial={{ height:0 }}
-                            whileInView={{ height:`${b.h}%` }} viewport={{ once:true }} transition={{ duration:0.7, delay:i*0.08, ease:"easeOut" }} />
+                        {[
+                          {vals:[42,68,42],c:"bg-violet-400"},
+                          {vals:[61,45,61],c:"bg-cyan-400"},
+                          {vals:[55,80,55],c:"bg-pink-400"},
+                          {vals:[78,55,78],c:"bg-amber-400"},
+                          {vals:[88,70,88],c:"bg-emerald-400"},
+                          {vals:[95,82,95],c:"bg-primary"},
+                        ].map((b,i)=>(
+                          <motion.div key={i} className={`flex-1 rounded-t-lg ${b.c} opacity-80`}
+                            animate={{ height:[`${b.vals[0]}%`,`${b.vals[1]}%`,`${b.vals[2]}%`] }}
+                            transition={{ duration:2.5, repeat:Infinity, delay:i*0.2, ease:"easeInOut", repeatType:"mirror" }} />
                         ))}
                       </div>
-                      {/* Metrics */}
+                      {/* Metrics with pulse */}
                       <div className="grid grid-cols-2 gap-2 content-center">
                         {[
                           {l:"Completion",v:"87%",c:"text-emerald-400",b:"bg-emerald-500/10",br:"border-emerald-500/20"},
                           {l:"Active",v:"94%",c:"text-cyan-400",b:"bg-cyan-500/10",br:"border-cyan-500/20"},
                           {l:"Avg Score",v:"78",c:"text-violet-400",b:"bg-violet-500/10",br:"border-violet-500/20"},
                           {l:"Submitted",v:"1.2k",c:"text-amber-400",b:"bg-amber-500/10",br:"border-amber-500/20"},
-                        ].map(m=>(
-                          <div key={m.l} className={`${m.b} border ${m.br} rounded-xl p-2 text-center`}>
+                        ].map((m,i)=>(
+                          <motion.div key={m.l}
+                            animate={{ scale:[1,1.04,1] }}
+                            transition={{ duration:2, repeat:Infinity, delay:i*0.4 }}
+                            className={`${m.b} border ${m.br} rounded-xl p-2 text-center`}>
                             <div className={`text-sm font-bold ${m.c}`}>{m.v}</div>
                             <div className="text-[9px] text-muted-foreground mt-0.5">{m.l}</div>
-                          </div>
+                          </motion.div>
                         ))}
                       </div>
                     </div>
@@ -1272,7 +1324,9 @@ export default function LandingPage() {
                     style={{ background:"radial-gradient(ellipse at 50% 0%,rgba(244,63,94,0.18) 0%,transparent 60%)" }} />
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="flex items-center gap-3 mb-4">
-                      <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.6 }}
+                      <motion.div
+                        animate={{ boxShadow:["0 0 0px rgba(244,63,94,0)","0 0 22px rgba(244,63,94,0.55)","0 0 0px rgba(244,63,94,0)"] }}
+                        transition={{ duration:2.3, repeat:Infinity }}
                         className="w-12 h-12 rounded-2xl bg-pink-500/15 border border-pink-500/30 flex items-center justify-center">
                         <ScrollText className="w-6 h-6 text-pink-400" />
                       </motion.div>
@@ -1283,13 +1337,21 @@ export default function LandingPage() {
                     </div>
                     <div className="flex-1 rounded-2xl bg-secondary/30 border border-pink-500/15 p-3 space-y-2">
                       {["Skills & Tech Stack","Work Experience","Education","Projects"].map((section,i)=>(
-                        <motion.div key={section} initial={{ opacity:0, y:6 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.2+i*0.1 }}
-                          className="flex items-center gap-2.5 p-2 rounded-lg bg-pink-500/8 border border-pink-500/12">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-pink-400 flex-shrink-0" />
+                        <motion.div key={section}
+                          animate={{ borderColor:["rgba(244,63,94,0.12)","rgba(244,63,94,0.4)","rgba(244,63,94,0.12)"] }}
+                          transition={{ duration:2.5, repeat:Infinity, delay:i*0.5 }}
+                          className="flex items-center gap-2.5 p-2 rounded-lg bg-pink-500/8 border">
+                          <motion.div
+                            animate={{ scale:[1,1.2,1] }}
+                            transition={{ duration:2, repeat:Infinity, delay:i*0.4 }}>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-pink-400 flex-shrink-0" />
+                          </motion.div>
                           <span className="text-[10px] font-medium text-foreground/80">{section}</span>
                         </motion.div>
                       ))}
                       <motion.button whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}
+                        animate={{ boxShadow:["0 0 0px rgba(244,63,94,0)","0 0 16px rgba(244,63,94,0.5)","0 0 0px rgba(244,63,94,0)"] }}
+                        transition={{ duration:2, repeat:Infinity }}
                         className="w-full mt-1 py-2 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 text-[10px] font-bold flex items-center justify-center gap-1.5">
                         <Download className="w-3 h-3" /> Export PDF
                       </motion.button>
@@ -1310,7 +1372,9 @@ export default function LandingPage() {
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.6 }}
+                        <motion.div
+                          animate={{ boxShadow:["0 0 0px rgba(139,92,246,0)","0 0 22px rgba(139,92,246,0.55)","0 0 0px rgba(139,92,246,0)"], rotate:[0,360] }}
+                          transition={{ boxShadow:{ duration:2.7, repeat:Infinity }, rotate:{ duration:8, repeat:Infinity, ease:"linear" } }}
                           className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center">
                           <Globe className="w-6 h-6 text-purple-400" />
                         </motion.div>
@@ -1323,18 +1387,22 @@ export default function LandingPage() {
                     </div>
                     <div className="flex-1 grid grid-cols-2 gap-4">
                       {[
-                        { name:"Data Analysis", steps:["Python","Pandas & NumPy","SQL Basics","Visualization"], color:"text-cyan-400", border:"border-cyan-500/20", bg:"bg-cyan-500/8" },
-                        { name:"Web Development", steps:["HTML & CSS","JavaScript","React","Node.js"], color:"text-purple-400", border:"border-purple-500/20", bg:"bg-purple-500/8" },
+                        { name:"Data Analysis", steps:["Python","Pandas & NumPy","SQL Basics","Visualization"], color:"text-cyan-400", border:"border-cyan-500/20", bg:"bg-cyan-500/8", dotDone:"bg-emerald-400" },
+                        { name:"Web Development", steps:["HTML & CSS","JavaScript","React","Node.js"], color:"text-purple-400", border:"border-purple-500/20", bg:"bg-purple-500/8", dotDone:"bg-emerald-400" },
                       ].map((path,pi)=>(
                         <div key={path.name} className={`rounded-2xl border ${path.border} ${path.bg} p-3`}>
                           <p className={`text-[10px] font-bold ${path.color} mb-2`}>{path.name}</p>
                           <div className="space-y-1.5">
                             {path.steps.map((step,si)=>(
-                              <motion.div key={step} initial={{ opacity:0, x:-6 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:0.3+pi*0.1+si*0.07 }}
-                                className="flex items-center gap-2">
-                                <div className={`w-1.5 h-1.5 rounded-full ${si<2?"bg-emerald-400":"bg-secondary-foreground/20"} flex-shrink-0`} />
+                              <div key={step} className="flex items-center gap-2">
+                                <motion.div
+                                  animate={si<2
+                                    ? { scale:[1,1.5,1], opacity:[0.8,1,0.8] }
+                                    : { scale:[0.8,1.2,0.8], opacity:[0.3,0.7,0.3] }}
+                                  transition={{ duration:1.8, repeat:Infinity, delay:pi*0.5+si*0.3 }}
+                                  className={`w-1.5 h-1.5 rounded-full ${si<2?path.dotDone:"bg-secondary-foreground/20"} flex-shrink-0`} />
                                 <span className="text-[10px] text-foreground/70">{step}</span>
-                              </motion.div>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -1355,7 +1423,9 @@ export default function LandingPage() {
                     style={{ background:"radial-gradient(ellipse at 50% 0%,rgba(59,130,246,0.18) 0%,transparent 60%)" }} />
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="flex items-center gap-3 mb-4">
-                      <motion.div whileHover={{ rotate:360 }} transition={{ duration:0.6 }}
+                      <motion.div
+                        animate={{ boxShadow:["0 0 0px rgba(59,130,246,0)","0 0 22px rgba(59,130,246,0.55)","0 0 0px rgba(59,130,246,0)"] }}
+                        transition={{ duration:2.6, repeat:Infinity }}
                         className="w-12 h-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center">
                         <MessageSquare className="w-6 h-6 text-blue-400" />
                       </motion.div>
@@ -1369,7 +1439,9 @@ export default function LandingPage() {
                         {avatar:"P",name:"Priya R.",text:"Just finished the DSA module 🎉",likes:12,c:"from-violet-500 to-purple-600"},
                         {avatar:"A",name:"Arjun K.",text:"Streak at 15 days — who's competing?",likes:24,c:"from-cyan-500 to-blue-600"},
                       ].map((post,i)=>(
-                        <motion.div key={post.name} initial={{ opacity:0, y:8 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.2+i*0.15 }}
+                        <motion.div key={post.name}
+                          animate={{ y:[0,-3,0] }}
+                          transition={{ duration:3+i*0.8, repeat:Infinity, delay:i*1.2, ease:"easeInOut" }}
                           className="p-3 rounded-2xl bg-blue-500/8 border border-blue-500/12">
                           <div className="flex items-center gap-2 mb-1.5">
                             <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${post.c} flex items-center justify-center text-white text-[9px] font-bold`}>{post.avatar}</div>
@@ -1377,7 +1449,10 @@ export default function LandingPage() {
                           </div>
                           <p className="text-[10px] text-foreground/70 mb-1.5">{post.text}</p>
                           <div className="flex items-center gap-3 text-[9px] text-muted-foreground">
-                            <span className="text-red-400">♥ {post.likes}</span>
+                            <motion.span
+                              animate={{ scale:[1,1.3,1] }}
+                              transition={{ duration:1.5, repeat:Infinity, delay:i*0.6 }}
+                              className="text-red-400">♥ {post.likes}</motion.span>
                             <span>💬 3 comments</span>
                           </div>
                         </motion.div>
