@@ -20,7 +20,7 @@ export default function DashboardLayout({
       <main
         className={cn(
           "min-h-screen transition-[padding] duration-300 ease-in-out",
-          isCollapsed ? "lg:pl-20" : "lg:pl-64"
+          isCollapsed ? "lg:pl-[68px]" : "lg:pl-64"
         )}
       >
         <div className="p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8 max-w-[1600px] mx-auto w-full">
