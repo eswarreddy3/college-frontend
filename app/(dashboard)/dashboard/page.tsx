@@ -640,11 +640,6 @@ function WeeklyMissionsCard({ data }: { data: DashboardData }) {
           </motion.div>
         ))}
       </div>
-      <div className={`mt-3 py-2 px-3 rounded-lg text-center ${done === missions.length ? "bg-gradient-to-r from-warning/15 to-primary/15 border border-warning/25" : "bg-secondary/30 border border-border/50"}`}>
-        <p className={`text-xs font-semibold ${done === missions.length ? "text-warning" : "text-muted-foreground"}`}>
-          🏆 Complete all {missions.length} · Weekly Warrior badge + 100 pts
-        </p>
-      </div>
     </GlassCard>
   )
 }
@@ -858,7 +853,7 @@ export default function DashboardPage() {
           <div>
             <motion.h1 className="text-3xl sm:text-4xl font-bold font-serif text-foreground leading-tight"
               initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1, duration: 0.4 }}>
-              Good morning, <span className="gradient-text">{firstName}</span> 👋
+              {(() => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; })()}, <span className="gradient-text">{firstName}</span> 👋
             </motion.h1>
             <motion.p className="text-sm text-muted-foreground mt-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
               {user?.college_name
