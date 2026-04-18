@@ -120,10 +120,10 @@ export default function LearnPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold font-serif text-foreground">Course Library</h1>
-        <p className="text-muted-foreground mt-2">Master programming, aptitude, and domain skills</p>
+        <p className="text-muted-foreground mt-2">Master programming, and domain skills</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      {/* <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-secondary/50 p-1">
           {["all", "programming", "aptitude"].map((tab) => (
             <TabsTrigger
@@ -135,7 +135,7 @@ export default function LearnPage() {
             </TabsTrigger>
           ))}
         </TabsList>
-      </Tabs>
+      </Tabs> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((course, idx) => {

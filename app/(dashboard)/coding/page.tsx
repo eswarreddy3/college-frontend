@@ -28,12 +28,18 @@ import {
   Terminal,
   ChevronDown,
   ChevronUp,
-  AlertTriangle,
   Star,
+  Code2,
+  X,
+  FileText,
+  Layers,
+  History,
+  BookOpen,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import api from "@/lib/api"
+import { motion, AnimatePresence } from "framer-motion"
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false })
 
@@ -77,23 +83,37 @@ interface TestResult {
 
 type Language = "python" | "java" | "cpp" | "javascript"
 
-const difficultyColors = {
-  Easy: "chip chip-success",
-  Medium: "chip chip-warning",
-  Hard: "chip chip-danger",
+const difficultyConfig = {
+  Easy:   { cls: "chip chip-success",  dot: "bg-success" },
+  Medium: { cls: "chip chip-warning",  dot: "bg-warning" },
+  Hard:   { cls: "chip chip-danger",   dot: "bg-danger" },
 }
 
 const statusColors: Record<string, string> = {
-  accepted: "text-success",
-  wrong_answer: "text-danger",
+  accepted:      "text-success",
+  wrong_answer:  "text-danger",
   runtime_error: "text-streak",
-  time_limit: "text-warning",
+  time_limit:    "text-warning",
+}
+
+const statusIcons: Record<string, React.ReactNode> = {
+  accepted:      <CheckCircle className="h-3.5 w-3.5" />,
+  wrong_answer:  <XCircle className="h-3.5 w-3.5" />,
+  runtime_error: <Terminal className="h-3.5 w-3.5" />,
+  time_limit:    <Clock className="h-3.5 w-3.5" />,
+}
+
+const LANG_LABELS: Record<Language, string> = {
+  python:     "Python 3",
+  java:       "Java",
+  cpp:        "C++",
+  javascript: "JavaScript",
 }
 
 const DEFAULT_CODE: Record<Language, string> = {
-  python: "# Write your solution here\n",
-  java: "class Solution {\n    // Write your solution here\n}\n",
-  cpp: "// Write your solution here\n",
+  python:     "# Write your solution here\n",
+  java:       "class Solution {\n    // Write your solution here\n}\n",
+  cpp:        "// Write your solution here\n",
   javascript: "// Write your solution here\n",
 }
 
@@ -108,25 +128,24 @@ function timeAgo(iso: string): string {
 }
 
 export default function CodingPage() {
-  const [problemsList, setProblemsList] = useState<ProblemListItem[]>([])
+  const [problemsList, setProblemsList]     = useState<ProblemListItem[]>([])
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null)
-  const [submissions, setSubmissions] = useState<Submission[]>([])
+  const [submissions, setSubmissions]       = useState<Submission[]>([])
   const [loadingProblems, setLoadingProblems] = useState(true)
-  const [loadingProblem, setLoadingProblem] = useState(false)
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [loadingProblem, setLoadingProblem]   = useState(false)
+  const [currentIndex, setCurrentIndex]     = useState(0)
 
-  const [language, setLanguage] = useState<Language>("python")
-  const [code, setCode] = useState(DEFAULT_CODE.python)
-  const [activeTab, setActiveTab] = useState("description")
+  const [language, setLanguage]       = useState<Language>("python")
+  const [code, setCode]               = useState(DEFAULT_CODE.python)
+  const [activeTab, setActiveTab]     = useState("description")
   const [showProblemList, setShowProblemList] = useState(false)
-  const [isRunning, setIsRunning] = useState(false)
+  const [isRunning, setIsRunning]     = useState(false)
   const [testResults, setTestResults] = useState<TestResult[]>([])
   const [customInput, setCustomInput] = useState("")
   const [customOutput, setCustomOutput] = useState("")
   const [showConsole, setShowConsole] = useState(false)
-  const [consoleTab, setConsoleTab] = useState<"testcases" | "custom">("testcases")
+  const [consoleTab, setConsoleTab]   = useState<"testcases" | "custom">("testcases")
 
-  // Load problems list
   useEffect(() => {
     api.get("/coding/problems")
       .then((res) => {
@@ -141,13 +160,12 @@ export default function CodingPage() {
     setLoadingProblem(true)
     setCurrentIndex(index)
     setTestResults([])
+    setShowConsole(false)
     api.get(`/coding/problems/${slug}`)
       .then((res) => {
         const p: Problem = res.data
         setCurrentProblem(p)
-        const starterCode = p.starter_code?.[language] || DEFAULT_CODE[language]
-        setCode(starterCode)
-        // Load submissions for this problem
+        setCode(p.starter_code?.[language] || DEFAULT_CODE[language])
         return api.get(`/coding/problems/${slug}/submissions`)
       })
       .then((res) => setSubmissions(res.data))
@@ -174,7 +192,8 @@ export default function CodingPage() {
   }
 
   function handleNext() {
-    if (currentIndex < problemsList.length - 1) loadProblem(problemsList[currentIndex + 1].slug, currentIndex + 1)
+    if (currentIndex < problemsList.length - 1)
+      loadProblem(problemsList[currentIndex + 1].slug, currentIndex + 1)
   }
 
   async function handleRunCode() {
@@ -183,7 +202,6 @@ export default function CodingPage() {
     setShowConsole(true)
 
     if (customInput.trim()) {
-      // Custom input mode
       setConsoleTab("custom")
       setCustomOutput("Running...")
       try {
@@ -200,7 +218,6 @@ export default function CodingPage() {
         setIsRunning(false)
       }
     } else {
-      // Test cases mode
       setConsoleTab("testcases")
       try {
         const res = await api.post("/coding/run", {
@@ -253,7 +270,6 @@ export default function CodingPage() {
           { description: message }
         )
       }
-      // Show all test results
       if (test_results) {
         setTestResults(test_results.map((r: any, i: number) => ({
           id: i + 1,
@@ -263,7 +279,6 @@ export default function CodingPage() {
           status: r.passed ? "passed" : "failed",
         })))
       }
-      // Refresh submissions tab
       const subsRes = await api.get(`/coding/problems/${currentProblem.slug}/submissions`)
       setSubmissions(subsRes.data)
       setActiveTab("submissions")
@@ -276,209 +291,321 @@ export default function CodingPage() {
 
   if (loadingProblems) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex flex-col items-center justify-center h-64 gap-3">
         <Loader2 className="h-8 w-8 text-primary animate-spin" />
+        <p className="text-sm text-muted-foreground">Loading problems...</p>
       </div>
     )
   }
 
+  const diff = currentProblem?.difficulty
+  const passedCount = testResults.filter(r => r.status === "passed").length
+
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4">
-      {/* Problem List Sidebar */}
-      <div className={cn(
-        "absolute lg:relative z-20 h-full transition-all duration-300 bg-background",
-        showProblemList ? "w-64" : "w-0 overflow-hidden"
-      )}>
-        <GlassCard className="h-full overflow-y-auto">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold font-serif text-foreground">Problems</h3>
-            <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => setShowProblemList(false)}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="space-y-2">
-            {problemsList.map((problem, idx) => (
-              <button
-                key={problem.id}
-                onClick={() => { loadProblem(problem.slug, idx); setShowProblemList(false) }}
-                className={cn(
-                  "w-full p-3 rounded-lg text-left transition-all hover:bg-secondary/50",
-                  idx === currentIndex && "bg-primary/10 border border-primary/30"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <span className={cn("text-sm truncate flex-1", idx === currentIndex ? "text-primary" : "text-foreground")}>
-                    {idx + 1}. {problem.title}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between mt-1">
-                  <Badge variant="outline" className={cn("text-xs", difficultyColors[problem.difficulty])}>
-                    {problem.difficulty}
-                  </Badge>
-                  <span className="flex items-center gap-0.5 text-xs text-warning">
-                    <Star className="h-3 w-3 fill-warning" />
-                    {problem.points}
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </GlassCard>
+    <div className="flex flex-col h-[calc(100vh-5rem)] gap-0 -mx-4 -mt-4">
+
+      {/* ── Top Bar ── */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card/60 backdrop-blur-sm shrink-0">
+        {/* Left: list + nav */}
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost" size="icon"
+            onClick={() => setShowProblemList(true)}
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            title="Problem list"
+          >
+            <List className="h-4 w-4" />
+          </Button>
+          <div className="w-px h-4 bg-border mx-1" />
+          <Button
+            variant="ghost" size="icon"
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className="h-8 w-8 text-muted-foreground disabled:opacity-30"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-xs text-muted-foreground tabular-nums select-none">
+            {currentIndex + 1} <span className="text-muted-foreground/50">/</span> {problemsList.length}
+          </span>
+          <Button
+            variant="ghost" size="icon"
+            onClick={handleNext}
+            disabled={currentIndex === problemsList.length - 1}
+            className="h-8 w-8 text-muted-foreground disabled:opacity-30"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Center: title + difficulty */}
+        <div className="hidden sm:flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
+          {currentProblem && (
+            <>
+              <span className="text-sm font-semibold font-serif text-foreground truncate max-w-xs">
+                {currentIndex + 1}. {currentProblem.title}
+              </span>
+              {diff && (
+                <span className={cn("chip text-xs", difficultyConfig[diff].cls)}>
+                  {diff}
+                </span>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Right: feedback */}
+        <div className="flex items-center gap-2">
+          <FeedbackModal compact triggerClassName="h-8 text-muted-foreground hover:text-primary" />
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-4 min-w-0">
-        {/* Left Panel — Problem Statement */}
-        <div className="w-full lg:w-2/5 flex flex-col min-h-0">
-          <div className="flex items-center gap-2 mb-4">
-            {!showProblemList && (
-              <Button variant="ghost" size="icon" onClick={() => setShowProblemList(true)} className="text-muted-foreground hover:text-foreground">
-                <List className="h-5 w-5" />
-              </Button>
-            )}
-            <Button variant="ghost" size="icon" onClick={handlePrev} disabled={currentIndex === 0} className="text-muted-foreground">
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={handleNext} disabled={currentIndex === problemsList.length - 1} className="text-muted-foreground">
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-            <span className="text-xs text-muted-foreground">{currentIndex + 1} / {problemsList.length}</span>
-            <div className="ml-auto">
-              <FeedbackModal compact triggerClassName="text-muted-foreground hover:text-primary" />
-            </div>
-          </div>
+      {/* ── Main Panels ── */}
+      <div className="flex flex-1 min-h-0 gap-0">
 
-          <GlassCard className="flex-1 overflow-y-auto">
-            {loadingProblem ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-6 w-6 text-primary animate-spin" />
-              </div>
-            ) : currentProblem ? (
-              <>
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h2 className="text-xl font-bold font-serif text-foreground">
-                      {currentIndex + 1}. {currentProblem.title}
-                    </h2>
-                    {currentProblem.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {currentProblem.tags.map(t => (
-                          <span key={t} className="text-xs text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded">{t}</span>
+        {/* Problem List Drawer */}
+        <AnimatePresence>
+          {showProblemList && (
+            <>
+              <motion.div
+                key="backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm"
+                onClick={() => setShowProblemList(false)}
+              />
+              <motion.div
+                key="drawer"
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", stiffness: 340, damping: 35 }}
+                className="fixed left-0 top-0 bottom-0 z-40 w-72 bg-background border-r border-border flex flex-col shadow-2xl"
+              >
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <Code2 className="h-4 w-4 text-primary" />
+                    <span className="font-semibold text-sm text-foreground">Problems</span>
+                    <span className="text-xs text-muted-foreground">({problemsList.length})</span>
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => setShowProblemList(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-3 space-y-1">
+                  {problemsList.map((problem, idx) => (
+                    <button
+                      key={problem.id}
+                      onClick={() => { loadProblem(problem.slug, idx); setShowProblemList(false) }}
+                      className={cn(
+                        "w-full p-3 rounded-xl text-left transition-all hover:bg-secondary/60 group",
+                        idx === currentIndex
+                          ? "bg-primary/10 border border-primary/25 shadow-sm"
+                          : "border border-transparent"
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className={cn(
+                          "text-sm font-medium leading-snug",
+                          idx === currentIndex ? "text-primary" : "text-foreground group-hover:text-foreground"
+                        )}>
+                          {idx + 1}. {problem.title}
+                        </span>
+                        <span className="flex items-center gap-0.5 text-xs text-warning shrink-0 mt-0.5">
+                          <Star className="h-3 w-3 fill-warning" />
+                          {problem.points}
+                        </span>
+                      </div>
+                      <div className="mt-1.5 flex items-center gap-1.5">
+                        <span className={cn("chip text-xs", difficultyConfig[problem.difficulty].cls)}>
+                          {problem.difficulty}
+                        </span>
+                        {problem.tags.slice(0, 1).map(t => (
+                          <span key={t} className="text-xs text-muted-foreground bg-secondary/50 px-1.5 py-0.5 rounded-md">
+                            {t}
+                          </span>
                         ))}
                       </div>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* ── Left Panel: Problem Statement ── */}
+        <div className="w-full lg:w-[42%] flex flex-col border-r border-border min-h-0">
+          {loadingProblem ? (
+            <div className="flex flex-col items-center justify-center flex-1 gap-3">
+              <Loader2 className="h-6 w-6 text-primary animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading problem...</p>
+            </div>
+          ) : currentProblem ? (
+            <>
+              {/* Problem header */}
+              <div className="px-5 pt-5 pb-3 border-b border-border shrink-0">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <h2 className="text-lg font-bold font-serif text-foreground leading-tight">
+                    {currentIndex + 1}. {currentProblem.title}
+                  </h2>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    {diff && (
+                      <span className={cn("chip text-xs", difficultyConfig[diff].cls)}>
+                        {diff}
+                      </span>
                     )}
-                  </div>
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    <Badge variant="outline" className={cn("text-sm", difficultyColors[currentProblem.difficulty])}>
-                      {currentProblem.difficulty}
-                    </Badge>
-                    <span className="flex items-center gap-1 text-xs text-warning font-medium">
-                      <Star className="h-3.5 w-3.5 fill-warning" />
+                    <span className="flex items-center gap-1 text-xs text-warning font-semibold">
+                      <Star className="h-3 w-3 fill-warning" />
                       {currentProblem.points} pts
                     </span>
                   </div>
                 </div>
-
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="bg-secondary/50 mb-4">
-                    {["description", "examples", "constraints", "submissions"].map((tab) => (
-                      <TabsTrigger key={tab} value={tab}
-                        className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground capitalize text-xs">
-                        {tab}
-                        {tab === "submissions" && submissions.length > 0 && (
-                          <span className="ml-1 text-xs">({submissions.length})</span>
-                        )}
-                      </TabsTrigger>
+                {currentProblem.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {currentProblem.tags.map(t => (
+                      <span key={t} className="text-xs text-muted-foreground bg-secondary/60 px-2 py-0.5 rounded-md font-medium">
+                        {t}
+                      </span>
                     ))}
-                  </TabsList>
+                  </div>
+                )}
+              </div>
 
-                  <TabsContent value="description" className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {currentProblem.description}
+              {/* Tabs */}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
+                <TabsList className="shrink-0 bg-transparent border-b border-border rounded-none px-4 h-10 gap-0 justify-start">
+                  {[
+                    { id: "description", icon: FileText, label: "Description" },
+                    { id: "examples",    icon: BookOpen,  label: "Examples" },
+                    { id: "constraints", icon: Layers,    label: "Constraints" },
+                    { id: "submissions", icon: History,   label: `Submissions${submissions.length > 0 ? ` (${submissions.length})` : ""}` },
+                  ].map(({ id, icon: Icon, label }) => (
+                    <TabsTrigger
+                      key={id}
+                      value={id}
+                      className="rounded-none h-10 px-3 text-xs font-medium data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none text-muted-foreground hover:text-foreground transition-colors gap-1.5"
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+
+                <div className="flex-1 overflow-y-auto">
+                  <TabsContent value="description" className="m-0 p-5">
+                    <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">
+                      {currentProblem.description}
+                    </p>
                   </TabsContent>
 
-                  <TabsContent value="examples" className="space-y-4">
+                  <TabsContent value="examples" className="m-0 p-5 space-y-4">
                     {currentProblem.examples.map((ex, i) => (
-                      <div key={i} className="p-4 rounded-lg bg-secondary/50">
-                        <h4 className="text-sm font-medium text-foreground mb-2">Example {i + 1}:</h4>
-                        <div className="space-y-1.5 text-sm">
-                          <p className="text-muted-foreground">
-                            <span className="text-foreground font-medium">Input: </span>
-                            <code className="font-mono text-primary">{ex.input}</code>
-                          </p>
-                          <p className="text-muted-foreground">
-                            <span className="text-foreground font-medium">Output: </span>
-                            <code className="font-mono text-primary">{ex.output}</code>
-                          </p>
+                      <div key={i} className="rounded-xl border border-border overflow-hidden">
+                        <div className="px-4 py-2 bg-secondary/40 border-b border-border">
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            Example {i + 1}
+                          </span>
+                        </div>
+                        <div className="p-4 space-y-2 text-sm">
+                          <div className="flex gap-2">
+                            <span className="text-muted-foreground font-medium w-20 shrink-0">Input:</span>
+                            <code className="font-mono text-primary text-xs bg-primary/5 px-2 py-0.5 rounded">{ex.input}</code>
+                          </div>
+                          <div className="flex gap-2">
+                            <span className="text-muted-foreground font-medium w-20 shrink-0">Output:</span>
+                            <code className="font-mono text-success text-xs bg-success/5 px-2 py-0.5 rounded">{ex.output}</code>
+                          </div>
                           {ex.explanation && (
-                            <p className="text-muted-foreground">
-                              <span className="text-foreground font-medium">Explanation: </span>
-                              {ex.explanation}
-                            </p>
+                            <div className="flex gap-2 pt-1 border-t border-border">
+                              <span className="text-muted-foreground font-medium w-20 shrink-0">Explain:</span>
+                              <span className="text-muted-foreground text-xs leading-relaxed">{ex.explanation}</span>
+                            </div>
                           )}
                         </div>
                       </div>
                     ))}
                   </TabsContent>
 
-                  <TabsContent value="constraints">
+                  <TabsContent value="constraints" className="m-0 p-5">
                     {currentProblem.constraints ? (
-                      <ul className="space-y-2">
+                      <ul className="space-y-2.5">
                         {currentProblem.constraints.split("\n").filter(Boolean).map((c, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                            <code className="font-mono">{c}</code>
+                          <li key={i} className="flex items-start gap-3 text-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0 mt-1.5" />
+                            <code className="font-mono text-foreground/80 text-xs leading-relaxed">{c}</code>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-sm text-muted-foreground">No constraints specified</p>
+                      <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
+                        <Layers className="h-8 w-8 text-muted-foreground/30" />
+                        <p className="text-sm text-muted-foreground">No constraints specified</p>
+                      </div>
                     )}
                   </TabsContent>
 
-                  <TabsContent value="submissions">
+                  <TabsContent value="submissions" className="m-0 p-5">
                     {submissions.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-8 text-center">
-                        <Clock className="h-12 w-12 text-muted-foreground/30 mb-3" />
+                      <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
+                        <History className="h-8 w-8 text-muted-foreground/30" />
                         <p className="text-sm text-muted-foreground">No submissions yet</p>
+                        <p className="text-xs text-muted-foreground/60">Submit your solution to see results here</p>
                       </div>
                     ) : (
                       <div className="space-y-2">
                         {submissions.map((s) => (
-                          <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 text-sm">
-                            <span className={cn("font-medium capitalize", statusColors[s.status] ?? "text-foreground")}>
-                              {s.status.replace("_", " ")}
-                            </span>
-                            <span className="text-muted-foreground">{s.language}</span>
-                            {s.runtime_ms && <span className="text-muted-foreground">{s.runtime_ms}ms</span>}
-                            <span className="text-muted-foreground">{timeAgo(s.submitted_at)}</span>
+                          <div
+                            key={s.id}
+                            className="flex items-center justify-between p-3 rounded-xl border border-border bg-secondary/30 hover:bg-secondary/50 transition-colors text-sm"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className={cn("flex items-center gap-1.5 font-semibold capitalize text-xs", statusColors[s.status] ?? "text-foreground")}>
+                                {statusIcons[s.status]}
+                                {s.status.replace("_", " ")}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <span className="font-mono bg-secondary/60 px-2 py-0.5 rounded">{s.language}</span>
+                              {s.runtime_ms && <span>{s.runtime_ms}ms</span>}
+                              <span>{timeAgo(s.submitted_at)}</span>
+                            </div>
                           </div>
                         ))}
                       </div>
                     )}
                   </TabsContent>
-                </Tabs>
-              </>
-            ) : null}
-          </GlassCard>
+                </div>
+              </Tabs>
+            </>
+          ) : null}
         </div>
 
-        {/* Right Panel — Monaco Editor */}
-        <div className="w-full lg:w-3/5 flex flex-col min-h-0">
-          <div className="flex items-center justify-between mb-4">
+        {/* ── Right Panel: Editor ── */}
+        <div className="flex-1 flex flex-col min-h-0 min-w-0">
+
+          {/* Editor toolbar */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card/40 shrink-0">
             <div className="flex items-center gap-2">
               <Select value={language} onValueChange={(v) => handleLanguageChange(v as Language)}>
-                <SelectTrigger className="w-40 bg-secondary/50 border-border text-foreground">
+                <SelectTrigger className="h-8 w-36 bg-secondary/50 border-border text-foreground text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="python">Python</SelectItem>
-                  <SelectItem value="java">Java</SelectItem>
-                  <SelectItem value="cpp">C++</SelectItem>
-                  <SelectItem value="javascript">JavaScript</SelectItem>
+                  {(Object.entries(LANG_LABELS) as [Language, string][]).map(([val, label]) => (
+                    <SelectItem key={val} value={val} className="text-xs">{label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <Button variant="ghost" size="icon" onClick={handleReset} className="text-muted-foreground hover:text-foreground" title="Reset to starter code">
-                <RotateCcw className="h-4 w-4" />
+              <Button
+                variant="ghost" size="icon"
+                onClick={handleReset}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                title="Reset to starter code"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
               </Button>
             </div>
 
@@ -488,24 +615,29 @@ export default function CodingPage() {
                 size="sm"
                 onClick={handleRunCode}
                 disabled={isRunning || !currentProblem}
-                className="bg-primary/10 border-primary/30 text-primary hover:bg-primary/20"
+                className="h-8 px-4 text-xs bg-secondary/50 border-border text-foreground hover:bg-secondary hover:text-foreground gap-1.5"
               >
-                {isRunning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
+                {isRunning && consoleTab === "testcases"
+                  ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  : <Play className="h-3.5 w-3.5 fill-current" />}
                 Run
               </Button>
               <Button
                 size="sm"
                 onClick={handleSubmit}
                 disabled={isRunning || !currentProblem}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                className="h-8 px-4 text-xs gradient-bg text-white hover:opacity-90 gap-1.5"
               >
-                {isRunning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                {isRunning && consoleTab !== "custom"
+                  ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  : <Send className="h-3.5 w-3.5" />}
                 Submit
               </Button>
             </div>
           </div>
 
-          <GlassCard className="flex-1 p-0 overflow-hidden">
+          {/* Monaco Editor */}
+          <div className="flex-1 min-h-0 overflow-hidden">
             <MonacoEditor
               height="100%"
               language={language === "cpp" ? "cpp" : language}
@@ -524,112 +656,146 @@ export default function CodingPage() {
                 padding: { top: 16, bottom: 16 },
                 smoothScrolling: true,
                 cursorSmoothCaretAnimation: "on",
+                bracketPairColorization: { enabled: true },
               }}
             />
-          </GlassCard>
+          </div>
 
           {/* Console Panel */}
-          <GlassCard className={cn("mt-4 transition-all", showConsole ? "block" : "hidden")}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <Terminal className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">Console</span>
-                <div className="flex gap-1">
-                  {(["testcases", "custom"] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setConsoleTab(tab)}
-                      className={cn(
-                        "px-3 py-0.5 rounded text-xs font-medium transition-all",
-                        consoleTab === tab
-                          ? "bg-primary/20 text-primary border border-primary/30"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      {tab === "testcases" ? "Test Cases" : "Custom Input"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <button onClick={() => setShowConsole(false)} className="text-muted-foreground hover:text-foreground">
-                <ChevronDown className="h-4 w-4" />
-              </button>
-            </div>
-
-            {consoleTab === "testcases" && (
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {testResults.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-4">
-                    Click Run to see test results
-                  </p>
-                ) : (
-                  testResults.map((tc) => (
-                    <div key={tc.id} className={cn(
-                      "p-3 rounded-lg border text-sm",
-                      tc.status === "passed" ? "bg-success/5 border-success/30" : "bg-danger/5 border-danger/30"
-                    )}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs font-medium text-foreground">Test {tc.id}</span>
-                        {tc.status === "passed"
-                          ? <CheckCircle className="h-3.5 w-3.5 text-success" />
-                          : <XCircle className="h-3.5 w-3.5 text-danger" />}
-                      </div>
-                      <div className="grid grid-cols-1 gap-1 text-xs font-mono">
-                        <div className="flex gap-2">
-                          <span className="text-muted-foreground w-16 shrink-0">Input:</span>
-                          <code className="text-foreground">{tc.input.replace(/\n/g, " | ")}</code>
-                        </div>
-                        <div className="flex gap-2">
-                          <span className="text-muted-foreground w-16 shrink-0">Expected:</span>
-                          <code className="text-primary">{tc.expectedOutput}</code>
-                        </div>
-                        <div className="flex gap-2">
-                          <span className="text-muted-foreground w-16 shrink-0">Got:</span>
-                          <code className={tc.status === "passed" ? "text-success" : "text-danger"}>
-                            {tc.actualOutput}
-                          </code>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {consoleTab === "custom" && (
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Standard Input (stdin)</label>
-                  <textarea
-                    value={customInput}
-                    onChange={(e) => setCustomInput(e.target.value)}
-                    placeholder={"Enter your input here...\n(Leave empty to run against test cases)"}
-                    className="w-full h-20 bg-secondary/40 border border-white/10 rounded-lg p-2 text-sm font-mono text-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40"
-                  />
-                </div>
-                {customOutput && (
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Output</label>
-                    <pre className="w-full min-h-12 max-h-32 overflow-auto bg-secondary/40 border border-white/10 rounded-lg p-2 text-sm font-mono text-foreground">
-                      {customOutput}
-                    </pre>
-                  </div>
-                )}
-              </div>
-            )}
-          </GlassCard>
-
-          {/* Console toggle when hidden */}
-          {!showConsole && (
+          <div className="shrink-0 border-t border-border">
+            {/* Console toggle bar */}
             <button
-              onClick={() => setShowConsole(true)}
-              className="mt-3 flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => setShowConsole(!showConsole)}
+              className="w-full flex items-center justify-between px-4 py-2 bg-card/60 hover:bg-secondary/40 transition-colors group"
             >
-              <Terminal className="h-3.5 w-3.5" />
-              Show Console
-              <ChevronUp className="h-3.5 w-3.5" />
+              <div className="flex items-center gap-2">
+                <Terminal className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium text-foreground">Console</span>
+                {testResults.length > 0 && (
+                  <span className={cn(
+                    "text-xs font-semibold px-1.5 py-0.5 rounded",
+                    passedCount === testResults.length
+                      ? "bg-success/10 text-success"
+                      : "bg-danger/10 text-danger"
+                  )}>
+                    {passedCount}/{testResults.length} passed
+                  </span>
+                )}
+              </div>
+              {showConsole
+                ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                : <ChevronUp className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+              }
             </button>
-          )}
+
+            <AnimatePresence initial={false}>
+              {showConsole && (
+                <motion.div
+                  key="console"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="bg-[#040810] border-t border-white/5">
+                    {/* Console tabs */}
+                    <div className="flex items-center gap-0 border-b border-white/8 px-4">
+                      {(["testcases", "custom"] as const).map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => setConsoleTab(tab)}
+                          className={cn(
+                            "px-3 py-2 text-xs font-medium transition-colors border-b-2",
+                            consoleTab === tab
+                              ? "text-primary border-primary"
+                              : "text-muted-foreground border-transparent hover:text-foreground"
+                          )}
+                        >
+                          {tab === "testcases" ? "Test Cases" : "Custom Input"}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Console content */}
+                    <div className="p-4 max-h-52 overflow-y-auto">
+                      {consoleTab === "testcases" && (
+                        <div className="space-y-2">
+                          {testResults.length === 0 ? (
+                            <p className="text-xs text-muted-foreground/60 font-mono py-3">
+                              &gt; Click <span className="text-primary">Run</span> to execute against test cases...
+                            </p>
+                          ) : (
+                            testResults.map((tc) => (
+                              <div
+                                key={tc.id}
+                                className={cn(
+                                  "rounded-lg border p-3",
+                                  tc.status === "passed"
+                                    ? "bg-success/5 border-success/20"
+                                    : "bg-danger/5 border-danger/20"
+                                )}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-xs font-semibold text-foreground/80">Test {tc.id}</span>
+                                  {tc.status === "passed"
+                                    ? <span className="flex items-center gap-1 text-xs text-success font-medium"><CheckCircle className="h-3 w-3" /> Passed</span>
+                                    : <span className="flex items-center gap-1 text-xs text-danger font-medium"><XCircle className="h-3 w-3" /> Failed</span>
+                                  }
+                                </div>
+                                <div className="grid gap-1 text-xs font-mono">
+                                  <div className="flex gap-2">
+                                    <span className="text-muted-foreground/60 w-16 shrink-0">Input</span>
+                                    <code className="text-foreground/80">{tc.input.replace(/\n/g, " | ")}</code>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <span className="text-muted-foreground/60 w-16 shrink-0">Expected</span>
+                                    <code className="text-emerald-400">{tc.expectedOutput}</code>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <span className="text-muted-foreground/60 w-16 shrink-0">Got</span>
+                                    <code className={tc.status === "passed" ? "text-emerald-400" : "text-red-400"}>
+                                      {tc.actualOutput}
+                                    </code>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+
+                      {consoleTab === "custom" && (
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-xs text-muted-foreground/60 font-mono mb-1.5 block">
+                              &gt; stdin
+                            </label>
+                            <textarea
+                              value={customInput}
+                              onChange={(e) => setCustomInput(e.target.value)}
+                              placeholder={"Enter input here...\n(leave empty to run against test cases)"}
+                              className="w-full h-20 bg-white/5 border border-white/10 rounded-lg p-2.5 text-sm font-mono text-foreground placeholder:text-muted-foreground/30 resize-none focus:outline-none focus:border-primary/40 transition-colors"
+                            />
+                          </div>
+                          {customOutput && (
+                            <div>
+                              <label className="text-xs text-muted-foreground/60 font-mono mb-1.5 block">
+                                &gt; stdout
+                              </label>
+                              <pre className="w-full min-h-10 max-h-28 overflow-auto bg-white/5 border border-white/10 rounded-lg p-2.5 text-sm font-mono text-emerald-400">
+                                {customOutput}
+                              </pre>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>
