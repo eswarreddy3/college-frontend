@@ -34,9 +34,9 @@ export const metadata: Metadata = {
   generator: 'v0.app',
   icons: {
     icon: [
-      { url: '/careerezi_logo.png', type: 'image/png' },
+      { url: '/c_logo.png', type: 'image/png' },
     ],
-    apple: '/careerezi_logo.png',
+    apple: '/c_logo2.png',
   },
 }
 
