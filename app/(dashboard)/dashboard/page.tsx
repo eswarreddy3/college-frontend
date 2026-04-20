@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { GlassCard } from "@/components/glass-card"
-import { StreakCalendar } from "@/components/streak-calendar"
 import { FeedbackModal } from "@/components/feedback-modal"
 import {
   Trophy, Star, Flame, Code2, Loader2, Quote, Zap,
@@ -1066,15 +1065,6 @@ export default function DashboardPage() {
           <InsightsRow data={data} />
         </motion.div>
       )}
-
-      {/* ── Streak Calendar ── */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}>
-        <StreakCalendar
-          activityMap={data?.activity_map ?? {}}
-          currentStreak={data?.streak ?? 0}
-          longestStreak={data?.longest_streak ?? 0}
-        />
-      </motion.div>
 
     </div>
   )

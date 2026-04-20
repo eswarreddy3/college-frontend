@@ -600,58 +600,62 @@ function PracticeMCQContent() {
         <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0" style={{ height: "calc(100vh - 10rem)" }}>
           {/* Left sidebar — subtopic list */}
           <div className="w-full lg:w-72 flex-shrink-0 flex flex-col min-h-0">
-            <GlassCard className="h-full overflow-y-auto flex flex-col gap-0">
-              {/* Back + topic header */}
-              <button
-                onClick={() => { setSelectedTopic(null); setSelectedSubtopic(null) }}
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-3"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" /> All Topics
-              </button>
-              {(() => {
-                const t = topics.find(t => t.topic === selectedTopic)!
-                const meta = getTopicMeta(selectedTopic)
-                const Icon = meta.icon
-                const total = t?.subtopics.reduce((a, s) => a + s.total, 0) ?? 0
-                const attempted = t?.subtopics.reduce((a, s) => a + s.attempted, 0) ?? 0
-                return (
-                  <div className="rounded-xl p-3 mb-4 border border-primary/20 bg-primary/5">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Icon className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-bold text-primary">{selectedTopic}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5 relative z-10">
-                      <span>{attempted} of {total} answered</span>
-                      <span className="font-semibold">{total > 0 ? Math.round((attempted/total)*100) : 0}%</span>
-                    </div>
-                    <Progress value={total > 0 ? (attempted/total)*100 : 0} className="h-1.5 relative z-10" />
-                  </div>
-                )
-              })()}
-              {/* Subtopics */}
-              <div className="space-y-1">
-                {topics.find(t => t.topic === selectedTopic)?.subtopics.map((sub) => {
-                  const isActive = selectedSubtopic?.topic === selectedTopic && selectedSubtopic?.subtopic === sub.name
-                  const pct = sub.total > 0 ? (sub.attempted / sub.total) * 100 : 0
+            <GlassCard className="h-full flex flex-col gap-0 p-0 overflow-hidden">
+              {/* Pinned header */}
+              <div className="p-4 flex-shrink-0">
+                <button
+                  onClick={() => { setSelectedTopic(null); setSelectedSubtopic(null) }}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-3"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> All Topics
+                </button>
+                {(() => {
+                  const t = topics.find(t => t.topic === selectedTopic)!
+                  const meta = getTopicMeta(selectedTopic)
+                  const Icon = meta.icon
+                  const total = t?.subtopics.reduce((a, s) => a + s.total, 0) ?? 0
+                  const attempted = t?.subtopics.reduce((a, s) => a + s.attempted, 0) ?? 0
                   return (
-                    <button
-                      key={sub.name}
-                      onClick={() => loadSubtopic(selectedTopic, sub.name)}
-                      className={cn(
-                        "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors border",
-                        isActive
-                          ? "bg-primary/10 text-primary border-primary/30"
-                          : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground border-transparent hover:border-border"
-                      )}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium">{sub.name}</span>
-                        <span className="text-xs opacity-70">{sub.attempted}/{sub.total}</span>
+                    <div className="rounded-xl p-3 border border-primary/20 bg-primary/5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Icon className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-bold text-primary">{selectedTopic}</span>
                       </div>
-                      <Progress value={pct} className="h-0.5 opacity-50" />
-                    </button>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5 relative z-10">
+                        <span>{attempted} of {total} answered</span>
+                        <span className="font-semibold">{total > 0 ? Math.round((attempted/total)*100) : 0}%</span>
+                      </div>
+                      <Progress value={total > 0 ? (attempted/total)*100 : 0} className="h-1.5 relative z-10" />
+                    </div>
                   )
-                })}
+                })()}
+              </div>
+              {/* Scrollable subtopics */}
+              <div className="flex-1 overflow-y-auto px-4 pb-4">
+                <div className="space-y-1">
+                  {topics.find(t => t.topic === selectedTopic)?.subtopics.map((sub) => {
+                    const isActive = selectedSubtopic?.topic === selectedTopic && selectedSubtopic?.subtopic === sub.name
+                    const pct = sub.total > 0 ? (sub.attempted / sub.total) * 100 : 0
+                    return (
+                      <button
+                        key={sub.name}
+                        onClick={() => loadSubtopic(selectedTopic, sub.name)}
+                        className={cn(
+                          "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors border",
+                          isActive
+                            ? "bg-primary/10 text-primary border-primary/30"
+                            : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground border-transparent hover:border-border"
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium">{sub.name}</span>
+                          <span className="text-xs opacity-70">{sub.attempted}/{sub.total}</span>
+                        </div>
+                        <Progress value={pct} className="h-0.5 opacity-50" />
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             </GlassCard>
           </div>
