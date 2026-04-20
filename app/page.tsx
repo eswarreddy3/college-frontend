@@ -927,7 +927,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Platform Features Marquee ─────────────────────────────────────────── */}
-      <MarqueeTicker />
+      {/* <MarqueeTicker /> */}
 
       {/* ── Problem ───────────────────────────────────────────────────────────── */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 relative overflow-hidden">
