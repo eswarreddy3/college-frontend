@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import {
   Users, Flame, Loader2, Download, Trophy,
   AlertTriangle, BookOpen, Target, Activity,
   UserX, Send, Code2, GitBranch, ClipboardCheck, TrendingUp,
+  Filter, RefreshCw, TrendingDown,
 } from "lucide-react"
 import { toast } from "sonner"
 import api from "@/lib/api"
@@ -28,6 +29,7 @@ interface TopStudent       { id: number; name: string; points: number; streak: n
 interface BranchStat       { branch: string; avgPoints: number; count: number }
 interface AssignmentMod    { module: string; attempts: number; passed: number; pass_rate: number; avg_score: number }
 interface CodingDiff       { difficulty: string; solved: number; total: number }
+interface FilterOptions    { branches: string[]; sections: string[]; passout_years: number[] }
 
 interface Analytics {
   total_students: number
@@ -35,15 +37,23 @@ interface Analytics {
   avg_streak: number
   avg_points: number
   engagement_rate: number
+  previous_engagement_rate: number
+  engagement_delta: number
+  days: number
+  filter_options: FilterOptions
   zero_activity_count: number
   weekly_trend: WeekPoint[]
   mcq_topic_stats: MCQTopicStat[]
+  total_mcq_attempts: number
+  avg_mcq_accuracy: number
   course_completions: CourseStat[]
   readiness_buckets: ReadinessBucket[]
   at_risk_students: AtRiskStudent[]
   at_risk_count: number
   branch_stats: BranchStat[]
   assignment_module_stats: AssignmentMod[]
+  total_assignment_attempts: number
+  assignment_avg_score: number
   coding_summary: CodingDiff[]
   total_coding_submissions: number
   top_students: TopStudent[]
@@ -100,6 +110,33 @@ function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: n
   )
 }
 
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  options: { label: string; value: string }[]
+}) {
+  return (
+    <label className="space-y-1">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-9 min-w-[130px] rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors hover:border-primary/50 focus:border-primary"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
 /* ─── loading skeleton ───────────────────────────────────────────────────── */
 function Skeleton() {
   const shimmer = "shimmer rounded-xl"
@@ -139,13 +176,27 @@ export default function AdminAnalyticsPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [loading, setLoading]     = useState(true)
   const [reminding, setReminding] = useState<number | null>(null)
+  const [branch, setBranch] = useState("")
+  const [section, setSection] = useState("")
+  const [passoutYear, setPassoutYear] = useState("")
+  const [days, setDays] = useState("30")
+
+  const query = useMemo(() => {
+    const params = new URLSearchParams()
+    if (branch) params.set("branch", branch)
+    if (section) params.set("section", section)
+    if (passoutYear) params.set("passout_year", passoutYear)
+    params.set("days", days)
+    return params.toString()
+  }, [branch, section, passoutYear, days])
 
   useEffect(() => {
-    api.get("/admin/analytics")
+    setLoading(true)
+    api.get(`/admin/analytics?${query}`)
       .then(res => setAnalytics(res.data))
       .catch(() => toast.error("Failed to load analytics"))
       .finally(() => setLoading(false))
-  }, [])
+  }, [query])
 
   async function sendRemind(s: AtRiskStudent) {
     setReminding(s.id)
@@ -170,16 +221,42 @@ export default function AdminAnalyticsPage() {
 
   if (loading) return <Skeleton />
 
-  const a = { branch_stats: [] as BranchStat[], assignment_module_stats: [] as AssignmentMod[], coding_summary: [] as CodingDiff[], total_coding_submissions: 0, ...analytics! }
+  const a = {
+    ...analytics!,
+    branch_stats: analytics?.branch_stats ?? [] as BranchStat[],
+    assignment_module_stats: analytics?.assignment_module_stats ?? [] as AssignmentMod[],
+    coding_summary: analytics?.coding_summary ?? [] as CodingDiff[],
+    weekly_trend: analytics?.weekly_trend ?? [] as WeekPoint[],
+    mcq_topic_stats: analytics?.mcq_topic_stats ?? [] as MCQTopicStat[],
+    course_completions: analytics?.course_completions ?? [] as CourseStat[],
+    readiness_buckets: analytics?.readiness_buckets ?? [] as ReadinessBucket[],
+    at_risk_students: analytics?.at_risk_students ?? [] as AtRiskStudent[],
+    top_students: analytics?.top_students ?? [] as TopStudent[],
+    filter_options: analytics?.filter_options ?? { branches: [], sections: [], passout_years: [] } as FilterOptions,
+    total_coding_submissions: analytics?.total_coding_submissions ?? 0,
+    total_mcq_attempts: analytics?.total_mcq_attempts ?? 0,
+    avg_mcq_accuracy: analytics?.avg_mcq_accuracy ?? 0,
+    total_assignment_attempts: analytics?.total_assignment_attempts ?? 0,
+    assignment_avg_score: analytics?.assignment_avg_score ?? 0,
+    engagement_delta: analytics?.engagement_delta ?? 0,
+    days: analytics?.days ?? Number(days),
+  }
 
   const avgCoursePct = a.course_completions.length
     ? Math.round(a.course_completions.reduce((s, c) => s + c.avg_completion_pct, 0) / a.course_completions.length) : 0
   const totalCodingSolved = a.coding_summary.reduce((s, d) => s + d.solved, 0)
   const maxPts = a.top_students[0]?.points || 1
+  const activeFilters = [branch, section, passoutYear].filter(Boolean).length
+  const resetFilters = () => {
+    setBranch("")
+    setSection("")
+    setPassoutYear("")
+    setDays("30")
+  }
 
   const statCards = [
     { label: "Total Students",   value: a.total_students,   suffix: "",  icon: Users,         bg: "bg-primary/10",  text: "text-primary"  },
-    { label: "Active This Week", value: a.active_this_week, suffix: "",  icon: Activity,      bg: "bg-success/10",  text: "text-success",  live: true },
+    { label: `Active ${a.days}d`, value: a.active_this_week, suffix: "",  icon: Activity,      bg: "bg-success/10",  text: "text-success",  live: true },
     { label: "Avg Streak",       value: a.avg_streak,       suffix: "d", icon: Flame,         bg: "bg-streak/10",   text: "text-streak"   },
     { label: "At Risk (14d)",    value: a.at_risk_count,    suffix: "",  icon: AlertTriangle, bg: "bg-danger/10",   text: "text-danger"   },
     { label: "Avg Course Done",  value: avgCoursePct,       suffix: "%", icon: BookOpen,      bg: "bg-coding/10",   text: "text-coding"   },
@@ -193,15 +270,70 @@ export default function AdminAnalyticsPage() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        className="flex flex-col xl:flex-row xl:items-start justify-between gap-4"
       >
         <div>
           <h1 className="text-3xl font-bold font-serif text-foreground">Analytics</h1>
           <p className="text-muted-foreground mt-1">Performance & engagement insights for your college</p>
+          <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 ${a.engagement_delta >= 0 ? "border-success/25 bg-success/10 text-success" : "border-danger/25 bg-danger/10 text-danger"}`}>
+              {a.engagement_delta >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+              {a.engagement_delta >= 0 ? "+" : ""}{a.engagement_delta}% vs previous {a.days}d
+            </span>
+            {activeFilters > 0 && <span>{activeFilters} filter{activeFilters > 1 ? "s" : ""} active</span>}
+          </div>
         </div>
-        <Button variant="outline" onClick={exportCSV} className="gap-2 self-start">
-          <Download className="h-4 w-4" /> Export CSV
-        </Button>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-card/50 p-3">
+            <div className="flex h-9 items-center gap-2 px-1 text-sm font-medium text-foreground">
+              <Filter className="h-4 w-4 text-primary" /> Filters
+            </div>
+            <FilterSelect
+              label="Period"
+              value={days}
+              onChange={setDays}
+              options={[
+                { label: "Last 7 days", value: "7" },
+                { label: "Last 30 days", value: "30" },
+                { label: "Last 90 days", value: "90" },
+                { label: "Last 180 days", value: "180" },
+              ]}
+            />
+            <FilterSelect
+              label="Branch"
+              value={branch}
+              onChange={setBranch}
+              options={[
+                { label: "All branches", value: "" },
+                ...a.filter_options.branches.map((b) => ({ label: b, value: b })),
+              ]}
+            />
+            <FilterSelect
+              label="Section"
+              value={section}
+              onChange={setSection}
+              options={[
+                { label: "All sections", value: "" },
+                ...a.filter_options.sections.map((s) => ({ label: s, value: s })),
+              ]}
+            />
+            <FilterSelect
+              label="Year"
+              value={passoutYear}
+              onChange={setPassoutYear}
+              options={[
+                { label: "All years", value: "" },
+                ...a.filter_options.passout_years.map((y) => ({ label: String(y), value: String(y) })),
+              ]}
+            />
+            <Button variant="outline" size="sm" onClick={resetFilters} className="h-9 gap-2">
+              <RefreshCw className="h-3.5 w-3.5" /> Reset
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportCSV} className="h-9 gap-2">
+              <Download className="h-3.5 w-3.5" /> Export
+            </Button>
+          </div>
+        </div>
       </motion.div>
 
       {/* ── Stat cards ── */}
@@ -237,6 +369,28 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* ── Weekly trend + Placement readiness ── */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {[
+          { label: "MCQ Accuracy", value: `${a.avg_mcq_accuracy}%`, sub: `${a.total_mcq_attempts.toLocaleString()} attempts`, tone: "text-primary" },
+          { label: "Assignment Avg", value: `${a.assignment_avg_score}%`, sub: `${a.total_assignment_attempts.toLocaleString()} attempts`, tone: "text-warning" },
+          { label: "Coding Submissions", value: a.total_coding_submissions.toLocaleString(), sub: `${totalCodingSolved} unique problems solved`, tone: "text-coding" },
+          { label: "Zero Activity", value: a.zero_activity_count.toLocaleString(), sub: "students need onboarding", tone: "text-danger" },
+        ].map((item, i) => (
+          <motion.div
+            key={item.label}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 + i * 0.05, duration: 0.35 }}
+          >
+            <GlassCard className="p-4">
+              <p className="text-xs text-muted-foreground">{item.label}</p>
+              <p className={`mt-1 text-2xl font-bold font-serif tabular-nums ${item.tone}`}>{item.value}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
+            </GlassCard>
+          </motion.div>
+        ))}
+      </div>
+
       <Section>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
@@ -432,7 +586,15 @@ export default function AdminAnalyticsPage() {
                     [`${val.toLocaleString()} pts · ${props.payload?.count ?? 0} students`, "Avg Points"]
                   }
                 />
-                <Bar dataKey="avgPoints" radius={[0, 6, 6, 0]} maxBarSize={26} animationDuration={900} animationEasing="ease-out">
+                <Bar
+                  dataKey="avgPoints"
+                  radius={[0, 6, 6, 0]}
+                  maxBarSize={26}
+                  animationDuration={900}
+                  animationEasing="ease-out"
+                  cursor="pointer"
+                  onClick={(entry: any) => setBranch(entry.branch === "Unknown" ? "" : entry.branch)}
+                >
                   {a.branch_stats.map((_, i) => (
                     <Cell key={i} fill={BRANCH_COLORS[i % BRANCH_COLORS.length]} />
                   ))}

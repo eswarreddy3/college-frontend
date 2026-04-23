@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress"
 import {
   Users, TrendingUp, Flame, Star, Mail, AlertTriangle, Loader2,
   Crown, ArrowRight, Share2, Trophy, Zap, CheckCircle, Upload, X,
+  Filter, RefreshCw, BookOpen, Code2, ClipboardCheck,
 } from "lucide-react"
 import { toast } from "sonner"
 import api from "@/lib/api"
@@ -42,6 +43,19 @@ interface Analytics {
   avg_streak: number
   avg_points: number
   engagement_rate: number
+  engagement_delta: number
+  days: number
+  filter_options: { branches: string[]; sections: string[]; passout_years: number[] }
+  zero_activity_count: number
+  at_risk_count: number
+  avg_mcq_accuracy: number
+  total_mcq_attempts: number
+  assignment_avg_score: number
+  total_assignment_attempts: number
+  total_coding_submissions: number
+  course_completions: { avg_completion_pct: number }[]
+  mcq_topic_stats: { topic: string; accuracy: number; total: number }[]
+  assignment_module_stats: { module: string; pass_rate: number; attempts: number }[]
   inactive_count: number
   inactive_students: InactiveStudent[]
   top_students: { id: number; name: string; points: number; streak: number; branch: string }[]
@@ -57,6 +71,33 @@ function formatLastActive(iso: string | null): string {
   return `${diffDays} days ago`
 }
 
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  options: { label: string; value: string }[]
+}) {
+  return (
+    <label className="space-y-1">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-9 min-w-[125px] rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors hover:border-primary/50 focus:border-primary"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
 const MEDALS = ["🥇", "🥈", "🥉"]
 
 const cardVariants = {
@@ -70,6 +111,10 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [remindingId, setRemindingId] = useState<number | null>(null)
   const [remindingAll, setRemindingAll] = useState(false)
+  const [branch, setBranch] = useState("")
+  const [section, setSection] = useState("")
+  const [passoutYear, setPassoutYear] = useState("")
+  const [days, setDays] = useState("30")
 
   const [linkedin, setLinkedin] = useState("")
   const [linkedinEmbeds, setLinkedinEmbeds] = useState(["", "", ""])
@@ -81,11 +126,24 @@ export default function AdminDashboardPage() {
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [savingLogo, setSavingLogo] = useState(false)
 
+  const analyticsQuery = useMemo(() => {
+    const params = new URLSearchParams()
+    if (branch) params.set("branch", branch)
+    if (section) params.set("section", section)
+    if (passoutYear) params.set("passout_year", passoutYear)
+    params.set("days", days)
+    return params.toString()
+  }, [branch, section, passoutYear, days])
+
   useEffect(() => {
-    api.get("/admin/analytics")
+    setLoading(true)
+    api.get(`/admin/analytics?${analyticsQuery}`)
       .then((res) => setAnalytics({ inactive_students: [], inactive_count: 0, ...res.data }))
       .catch(() => toast.error("Failed to load analytics"))
       .finally(() => setLoading(false))
+  }, [analyticsQuery])
+
+  useEffect(() => {
     api.get("/admin/college-social").then(res => {
       setLinkedin(res.data.linkedin_url ?? "")
       const li = res.data.linkedin_post_embeds ?? []
@@ -167,6 +225,35 @@ export default function AdminDashboardPage() {
     )
   }
 
+  const data = {
+    filter_options: { branches: [], sections: [], passout_years: [] },
+    course_completions: [] as Analytics["course_completions"],
+    mcq_topic_stats: [] as Analytics["mcq_topic_stats"],
+    assignment_module_stats: [] as Analytics["assignment_module_stats"],
+    engagement_delta: 0,
+    days: Number(days),
+    zero_activity_count: 0,
+    at_risk_count: 0,
+    avg_mcq_accuracy: 0,
+    total_mcq_attempts: 0,
+    assignment_avg_score: 0,
+    total_assignment_attempts: 0,
+    total_coding_submissions: 0,
+    ...analytics,
+  }
+
+  const avgCoursePct = data.course_completions.length
+    ? Math.round(data.course_completions.reduce((sum, c) => sum + c.avg_completion_pct, 0) / data.course_completions.length)
+    : 0
+  const weakestTopic = data.mcq_topic_stats[0]
+  const weakestModule = data.assignment_module_stats[0]
+  const resetFilters = () => {
+    setBranch("")
+    setSection("")
+    setPassoutYear("")
+    setDays("30")
+  }
+
   const engagementRate = analytics?.engagement_rate ??
     (analytics && analytics.total_students > 0
       ? Math.round((analytics.active_this_week / analytics.total_students) * 100)
@@ -181,7 +268,7 @@ export default function AdminDashboardPage() {
       text: "text-primary",
     },
     {
-      label: "Active This Week",
+      label: `Active ${data.days}d`,
       value: analytics?.active_this_week ?? "—",
       icon: TrendingUp,
       bg: "bg-success/20",
@@ -210,7 +297,16 @@ export default function AdminDashboardPage() {
       icon: Zap,
       bg: "bg-coding/20",
       text: "text-coding",
+      sub: `${data.engagement_delta >= 0 ? "+" : ""}${data.engagement_delta}% vs previous`,
       progress: engagementRate,
+    },
+    {
+      label: "At Risk",
+      value: data.at_risk_count,
+      icon: AlertTriangle,
+      bg: "bg-danger/20",
+      text: "text-danger",
+      sub: "inactive 14+ days",
     },
   ]
 
@@ -220,34 +316,85 @@ export default function AdminDashboardPage() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+        className="flex flex-col xl:flex-row xl:items-start justify-between gap-4"
       >
         <div>
           <h1 className="text-3xl font-bold font-serif text-foreground">Dashboard</h1>
           <p className="text-muted-foreground mt-1">
             Welcome back, {user?.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase() : ""}
           </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Engagement {data.engagement_delta >= 0 ? "up" : "down"} {Math.abs(data.engagement_delta)}% vs previous {data.days} days
+          </p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <Badge className="bg-warning/20 text-warning border-warning/30">
-            <Crown className="h-4 w-4 mr-2" />
-            {user?.college_name || "Your College"}
-          </Badge>
-          <Link href="/admin/analytics">
-            <Button size="sm" variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 gap-1">
-              <TrendingUp className="h-3.5 w-3.5" /> Full Analytics
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3 flex-wrap justify-start xl:justify-end">
+            <Badge className="bg-warning/20 text-warning border-warning/30">
+              <Crown className="h-4 w-4 mr-2" />
+              {user?.college_name || "Your College"}
+            </Badge>
+            <Link href="/admin/analytics">
+              <Button size="sm" variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 gap-1">
+                <TrendingUp className="h-3.5 w-3.5" /> Full Analytics
+              </Button>
+            </Link>
+            <Link href="/admin/students">
+              <Button size="sm" variant="outline" className="border-border text-muted-foreground hover:text-foreground gap-1">
+                <Users className="h-3.5 w-3.5" /> Students
+              </Button>
+            </Link>
+          </div>
+          <div className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-card/50 p-3">
+            <div className="flex h-9 items-center gap-2 px-1 text-sm font-medium text-foreground">
+              <Filter className="h-4 w-4 text-primary" /> Filters
+            </div>
+            <FilterSelect
+              label="Period"
+              value={days}
+              onChange={setDays}
+              options={[
+                { label: "Last 7 days", value: "7" },
+                { label: "Last 30 days", value: "30" },
+                { label: "Last 90 days", value: "90" },
+                { label: "Last 180 days", value: "180" },
+              ]}
+            />
+            <FilterSelect
+              label="Branch"
+              value={branch}
+              onChange={setBranch}
+              options={[
+                { label: "All branches", value: "" },
+                ...data.filter_options.branches.map((b) => ({ label: b, value: b })),
+              ]}
+            />
+            <FilterSelect
+              label="Section"
+              value={section}
+              onChange={setSection}
+              options={[
+                { label: "All sections", value: "" },
+                ...data.filter_options.sections.map((s) => ({ label: s, value: s })),
+              ]}
+            />
+            <FilterSelect
+              label="Year"
+              value={passoutYear}
+              onChange={setPassoutYear}
+              options={[
+                { label: "All years", value: "" },
+                ...data.filter_options.passout_years.map((y) => ({ label: String(y), value: String(y) })),
+              ]}
+            />
+            <Button size="sm" variant="outline" onClick={resetFilters} className="h-9 gap-1">
+              <RefreshCw className="h-3.5 w-3.5" /> Reset
             </Button>
-          </Link>
-          <Link href="/admin/students">
-            <Button size="sm" variant="outline" className="border-border text-muted-foreground hover:text-foreground gap-1">
-              <Users className="h-3.5 w-3.5" /> Students
-            </Button>
-          </Link>
+          </div>
         </div>
       </motion.div>
 
       {/* Stats — 5 cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
         {stats.map((stat, i) => (
           <motion.div key={stat.label} custom={i} variants={cardVariants} initial="hidden" animate="visible">
             <GlassCard className="h-full">
@@ -266,6 +413,54 @@ export default function AdminDashboardPage() {
                   <Progress value={stat.progress} className="h-1.5" />
                 </div>
               )}
+            </GlassCard>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {[
+          {
+            label: "Course Completion",
+            value: `${avgCoursePct}%`,
+            sub: "average across active courses",
+            icon: BookOpen,
+            tone: "text-primary",
+          },
+          {
+            label: "Weak MCQ Topic",
+            value: weakestTopic ? `${weakestTopic.accuracy}%` : "-",
+            sub: weakestTopic ? `${weakestTopic.topic} - ${weakestTopic.total} attempts` : "no attempts yet",
+            icon: AlertTriangle,
+            tone: "text-danger",
+          },
+          {
+            label: "Assignment Gap",
+            value: weakestModule ? `${weakestModule.pass_rate}%` : "-",
+            sub: weakestModule ? `${weakestModule.module} - ${weakestModule.attempts} attempts` : "no attempts yet",
+            icon: ClipboardCheck,
+            tone: "text-warning",
+          },
+          {
+            label: "Coding Activity",
+            value: data.total_coding_submissions.toLocaleString(),
+            sub: "submissions in selected cohort",
+            icon: Code2,
+            tone: "text-coding",
+          },
+        ].map((item, i) => (
+          <motion.div key={item.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.05 }}>
+            <GlassCard className="p-4 h-full">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-secondary/60 p-2">
+                  <item.icon className={`h-4 w-4 ${item.tone}`} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">{item.label}</p>
+                  <p className={`mt-1 text-xl font-bold font-serif ${item.tone}`}>{item.value}</p>
+                  <p className="mt-1 text-xs text-muted-foreground truncate">{item.sub}</p>
+                </div>
+              </div>
             </GlassCard>
           </motion.div>
         ))}
@@ -455,7 +650,7 @@ export default function AdminDashboardPage() {
       </motion.div>
 
       {/* Social Links */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+      {/* <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
         <GlassCard>
           <div className="flex items-center gap-3 mb-5">
             <Share2 className="h-5 w-5 text-primary" />
@@ -464,7 +659,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* LinkedIn */}
+            LinkedIn
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label className="flex items-center gap-2 text-foreground">
@@ -491,7 +686,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* Instagram */}
+            Instagram
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label className="flex items-center gap-2 text-foreground">
@@ -522,7 +717,7 @@ export default function AdminDashboardPage() {
             </Button>
           </div>
         </GlassCard>
-      </motion.div>
+      </motion.div> */}
     </div>
   )
 }
