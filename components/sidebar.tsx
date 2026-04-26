@@ -248,32 +248,42 @@ export function Sidebar() {
       >
         {/* ── Header ── */}
         <div className={cn(
-          "flex items-center h-16 border-b border-sidebar-border flex-shrink-0",
-          isCollapsed ? "justify-center px-0" : "px-4 justify-between"
+          "flex items-center border-b border-sidebar-border flex-shrink-0",
+          isCollapsed ? "flex-col justify-center gap-0.5 py-2 h-auto min-h-[4rem]" : "h-16 px-4 justify-between"
         )}>
-          {!isCollapsed && (
-            <Link href="/dashboard" className="flex items-center min-w-0">
-              <motion.div
-                whileHover={{ scale: 1.05, rotate: -1 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 18 }}
+          {isCollapsed ? (
+            <>
+              <Link href="/dashboard" className="flex items-center justify-center">
+                <img src="/c_logo.png" alt="CareerEzi" className="w-7 h-7 object-contain" />
+              </Link>
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                title="Expand sidebar"
+                className="hidden lg:flex items-center justify-center rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/60 w-7 h-7"
               >
-                <Logo size={52} showText={true} />
-              </motion.div>
-            </Link>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/dashboard" className="flex items-center min-w-0">
+                <motion.div
+                  whileHover={{ scale: 1.05, rotate: -1 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 18 }}
+                >
+                  <Logo size={52} showText={true} />
+                </motion.div>
+              </Link>
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                title="Collapse sidebar"
+                className="hidden lg:flex items-center justify-center rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/60 w-8 h-8 flex-shrink-0"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            </>
           )}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className={cn(
-              "hidden lg:flex items-center justify-center rounded-xl transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/60",
-              isCollapsed ? "w-10 h-10" : "w-8 h-8 flex-shrink-0"
-            )}
-          >
-            {isCollapsed
-              ? <ChevronRight className="h-4 w-4" />
-              : <ChevronLeft  className="h-4 w-4" />}
-          </button>
         </div>
 
         {/* ── Navigation ── */}
