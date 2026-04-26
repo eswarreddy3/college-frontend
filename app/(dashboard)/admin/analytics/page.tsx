@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { GlassCard } from "@/components/glass-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -14,22 +14,23 @@ import {
   Users, Flame, Loader2, Download, Trophy,
   AlertTriangle, BookOpen, Target, Activity,
   UserX, Send, Code2, GitBranch, ClipboardCheck, TrendingUp,
-  Filter, RefreshCw, TrendingDown,
+  RefreshCw, CheckCircle, SlidersHorizontal,
+  ArrowUpRight, ArrowDownRight, ChevronDown, X,
 } from "lucide-react"
 import { toast } from "sonner"
 import api from "@/lib/api"
 
 /* ─── interfaces ─────────────────────────────────────────────────────────── */
-interface ReadinessBucket  { range: string; label: string; count: number }
-interface WeekPoint        { week: string; active: number }
-interface MCQTopicStat     { topic: string; total: number; correct: number; accuracy: number }
-interface CourseStat       { course_id: number; course_title: string; students_started: number; total_students: number; avg_completion_pct: number; total_lessons: number }
-interface AtRiskStudent    { id: number; name: string; email: string; branch: string | null; section: string | null; roll_number: string | null; points: number; last_active: string | null }
-interface TopStudent       { id: number; name: string; points: number; streak: number; branch: string | null }
-interface BranchStat       { branch: string; avgPoints: number; count: number }
-interface AssignmentMod    { module: string; attempts: number; passed: number; pass_rate: number; avg_score: number }
-interface CodingDiff       { difficulty: string; solved: number; total: number }
-interface FilterOptions    { branches: string[]; sections: string[]; passout_years: number[] }
+interface ReadinessBucket { range: string; label: string; count: number }
+interface WeekPoint       { week: string; active: number }
+interface MCQTopicStat    { topic: string; total: number; correct: number; accuracy: number }
+interface CourseStat      { course_id: number; course_title: string; students_started: number; total_students: number; avg_completion_pct: number; total_lessons: number }
+interface AtRiskStudent   { id: number; name: string; email: string; branch: string | null; section: string | null; roll_number: string | null; points: number; last_active: string | null }
+interface TopStudent      { id: number; name: string; points: number; streak: number; branch: string | null }
+interface BranchStat      { branch: string; avgPoints: number; count: number }
+interface AssignmentMod   { module: string; attempts: number; passed: number; pass_rate: number; avg_score: number }
+interface CodingDiff      { difficulty: string; solved: number; total: number }
+interface FilterOptions   { branches: string[]; sections: string[]; passout_years: number[] }
 
 interface Analytics {
   total_students: number
@@ -59,20 +60,24 @@ interface Analytics {
   top_students: TopStudent[]
 }
 
-/* ─── helpers ────────────────────────────────────────────────────────────── */
+/* ─── constants ──────────────────────────────────────────────────────────── */
 const MEDALS = ["🥇", "🥈", "🥉"]
-const BRANCH_COLORS = ["var(--primary)", "var(--coding)", "#3B82F6", "#06B6D4", "var(--success)", "var(--warning)"]
+const BRANCH_COLORS = ["var(--primary)", "var(--coding)", "var(--success)", "var(--warning)", "var(--streak)", "var(--coral)"]
+const READINESS_COLORS = ["var(--danger)", "var(--warning)", "var(--primary)", "var(--success)"]
 
+/* ─── helpers ────────────────────────────────────────────────────────────── */
 function daysSince(iso: string | null) {
   if (!iso) return null
   return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
 }
-function accuracyColor(p: number) { return p >= 70 ? "var(--success)" : p >= 40 ? "var(--warning)" : "var(--danger)" }
-function passColor(p: number)     { return p >= 70 ? "var(--success)" : p >= 40 ? "var(--warning)" : "var(--danger)" }
-function readinessColor(i: number){ return ["var(--danger)","var(--warning)","var(--primary)","var(--success)"][i] }
-function diffColor(d: string)     { return d === "Easy" ? "var(--success)" : d === "Medium" ? "var(--warning)" : "var(--danger)" }
+function accuracyColor(p: number)  { return p >= 70 ? "var(--success)" : p >= 40 ? "var(--warning)" : "var(--danger)" }
+function passColor(p: number)      { return p >= 70 ? "var(--success)" : p >= 40 ? "var(--warning)" : "var(--danger)" }
+function readinessColor(i: number) { return READINESS_COLORS[i] }
+function diffColor(d: string)      { return d === "Easy" ? "var(--success)" : d === "Medium" ? "var(--warning)" : "var(--danger)" }
+function diffBg(d: string)         { return d === "Easy" ? "bg-success/10 border-success/25 text-success" : d === "Medium" ? "bg-warning/10 border-warning/25 text-warning" : "bg-danger/10 border-danger/25 text-danger" }
+function accuracyBg(p: number)     { return p >= 70 ? "bg-success/15 text-success" : p >= 40 ? "bg-warning/15 text-warning" : "bg-danger/15 text-danger" }
 
-/* ─── count-up hook ──────────────────────────────────────────────────────── */
+/* ─── count-up ───────────────────────────────────────────────────────────── */
 function useCountUp(end: number, duration = 1100) {
   const [val, setVal] = useState(0)
   useEffect(() => {
@@ -89,89 +94,101 @@ function useCountUp(end: number, duration = 1100) {
   }, [end, duration])
   return val
 }
-
-/* ─── animated number ────────────────────────────────────────────────────── */
 function Num({ value, suffix = "" }: { value: number; suffix?: string }) {
   const v = useCountUp(value)
   return <>{v.toLocaleString()}{suffix}</>
 }
 
-/* ─── section wrapper (scroll reveal) ───────────────────────────────────── */
-function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+/* ─── scroll-reveal section ──────────────────────────────────────────────── */
+function Section({ children, id }: { children: React.ReactNode; id?: string }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 28 }}
+      id={id}
+      className="scroll-mt-24 space-y-4"
+      initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.08 }}
-      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, amount: 0.05 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
   )
 }
 
-function FilterSelect({
-  label,
-  value,
-  onChange,
-  options,
+/* ─── section header ─────────────────────────────────────────────────────── */
+function SectionHead({
+  icon: Icon, title, subtitle, gradient, iconClass, bgClass, borderClass, right,
 }: {
-  label: string
-  value: string
-  onChange: (value: string) => void
-  options: { label: string; value: string }[]
+  icon: React.ElementType; title: string; subtitle: string
+  gradient: string; iconClass: string; bgClass: string; borderClass: string
+  right?: React.ReactNode
 }) {
   return (
-    <label className="space-y-1">
-      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-9 min-w-[130px] rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors hover:border-primary/50 focus:border-primary"
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>{option.label}</option>
-        ))}
-      </select>
-    </label>
+    <div className={`relative overflow-hidden rounded-xl border ${borderClass} ${bgClass} px-4 py-3`}>
+      <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${gradient}`} />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-xl ${iconClass}`}>
+            <Icon className="h-4 w-4" />
+          </div>
+          <div>
+            <h2 className="font-bold font-serif text-foreground">{title}</h2>
+            <p className="text-xs text-muted-foreground">{subtitle}</p>
+          </div>
+        </div>
+        {right}
+      </div>
+    </div>
   )
 }
 
-/* ─── loading skeleton ───────────────────────────────────────────────────── */
+/* ─── styled select ──────────────────────────────────────────────────────── */
+function StyledSelect({ label, value, onChange, options, icon: Icon, activeColor = "primary" }: {
+  label: string; value: string; onChange: (v: string) => void
+  options: { label: string; value: string }[]
+  icon?: React.ElementType
+  activeColor?: string
+}) {
+  const isActive = value !== ""
+  const activeCls = isActive
+    ? `border-${activeColor}/50 bg-${activeColor}/5 text-foreground`
+    : "border-border bg-background text-foreground"
+  return (
+    <div className="flex flex-col gap-1.5 min-w-0">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+        {Icon && <Icon className={`h-3 w-3 ${isActive ? `text-${activeColor}` : ""}`} />}
+        {label}
+      </span>
+      <div className="relative">
+        <select value={value} onChange={e => onChange(e.target.value)}
+          className={`w-full h-10 rounded-xl border pl-3 pr-8 text-sm appearance-none cursor-pointer outline-none transition-all hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/15 ${activeCls}`}>
+          {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+        <ChevronDown className="absolute right-2.5 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+      </div>
+    </div>
+  )
+}
+
+/* ─── skeleton ───────────────────────────────────────────────────────────── */
 function Skeleton() {
-  const shimmer = "shimmer rounded-xl"
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
-          <div className={`${shimmer} h-8 w-40`} />
-          <div className={`${shimmer} h-4 w-72`} />
-        </div>
-        <div className={`${shimmer} h-9 w-28`} />
+      <div className="shimmer rounded-2xl h-36" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="shimmer rounded-xl h-24" style={{ animationDelay: `${i * 80}ms` }} />
+        ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className={`${shimmer} h-[118px]`} style={{ animationDelay: `${i * 80}ms` }} />
+          <div key={i} className="shimmer rounded-xl h-28" style={{ animationDelay: `${i * 80}ms` }} />
         ))}
       </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className={`${shimmer} h-[72px]`} style={{ animationDelay: `${i * 80}ms` }} />
-        ))}
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className={`lg:col-span-3 ${shimmer} h-64`} />
-        <div className={`lg:col-span-2 ${shimmer} h-64`} />
-      </div>
+      <div className="shimmer rounded-xl h-80" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className={`${shimmer} h-72`} />
-        <div className={`${shimmer} h-72`} />
-      </div>
-      <div className={`${shimmer} h-56`} />
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className={`lg:col-span-3 ${shimmer} h-64`} />
-        <div className={`lg:col-span-2 ${shimmer} h-64`} />
+        <div className="shimmer rounded-xl h-72" />
+        <div className="shimmer rounded-xl h-72" />
       </div>
     </div>
   )
@@ -182,18 +199,19 @@ export default function AdminAnalyticsPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [loading, setLoading]     = useState(true)
   const [reminding, setReminding] = useState<number | null>(null)
-  const [branch, setBranch] = useState("")
-  const [section, setSection] = useState("")
+  const [branch, setBranch]       = useState("")
+  const [section, setSection]     = useState("")
   const [passoutYear, setPassoutYear] = useState("")
-  const [days, setDays] = useState("30")
+  const [days, setDays]           = useState("30")
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const query = useMemo(() => {
-    const params = new URLSearchParams()
-    if (branch) params.set("branch", branch)
-    if (section) params.set("section", section)
-    if (passoutYear) params.set("passout_year", passoutYear)
-    params.set("days", days)
-    return params.toString()
+    const p = new URLSearchParams()
+    if (branch) p.set("branch", branch)
+    if (section) p.set("section", section)
+    if (passoutYear) p.set("passout_year", passoutYear)
+    p.set("days", days)
+    return p.toString()
   }, [branch, section, passoutYear, days])
 
   useEffect(() => {
@@ -210,7 +228,7 @@ export default function AdminAnalyticsPage() {
       await api.post(`/admin/students/${s.id}/remind`)
       toast.success(`Reminder sent to ${s.name}`)
     } catch { toast.error("Failed to send reminder") }
-    finally  { setReminding(null) }
+    finally { setReminding(null) }
   }
 
   function exportCSV() {
@@ -220,8 +238,8 @@ export default function AdminAnalyticsPage() {
       ...analytics.top_students.map(s => [`"${s.name}"`, `"${s.branch || ""}"`, s.points, s.streak]),
     ]
     const blob = new Blob([rows.map(r => r.join(",")).join("\n")], { type: "text/csv" })
-    const url  = URL.createObjectURL(blob)
-    const a    = document.createElement("a"); a.href = url; a.download = "top_students.csv"; a.click()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a"); a.href = url; a.download = "top_students.csv"; a.click()
     URL.revokeObjectURL(url)
   }
 
@@ -229,147 +247,270 @@ export default function AdminAnalyticsPage() {
 
   const a = {
     ...analytics!,
-    branch_stats: analytics?.branch_stats ?? [] as BranchStat[],
+    branch_stats:            analytics?.branch_stats            ?? [] as BranchStat[],
     assignment_module_stats: analytics?.assignment_module_stats ?? [] as AssignmentMod[],
-    coding_summary: analytics?.coding_summary ?? [] as CodingDiff[],
-    weekly_trend: analytics?.weekly_trend ?? [] as WeekPoint[],
-    mcq_topic_stats: analytics?.mcq_topic_stats ?? [] as MCQTopicStat[],
-    course_completions: analytics?.course_completions ?? [] as CourseStat[],
-    readiness_buckets: analytics?.readiness_buckets ?? [] as ReadinessBucket[],
-    at_risk_students: analytics?.at_risk_students ?? [] as AtRiskStudent[],
-    top_students: analytics?.top_students ?? [] as TopStudent[],
-    filter_options: analytics?.filter_options ?? { branches: [], sections: [], passout_years: [] } as FilterOptions,
-    total_coding_submissions: analytics?.total_coding_submissions ?? 0,
-    total_mcq_attempts: analytics?.total_mcq_attempts ?? 0,
-    avg_mcq_accuracy: analytics?.avg_mcq_accuracy ?? 0,
-    total_assignment_attempts: analytics?.total_assignment_attempts ?? 0,
-    assignment_avg_score: analytics?.assignment_avg_score ?? 0,
-    engagement_delta: analytics?.engagement_delta ?? 0,
-    days: analytics?.days ?? Number(days),
+    coding_summary:          analytics?.coding_summary          ?? [] as CodingDiff[],
+    weekly_trend:            analytics?.weekly_trend            ?? [] as WeekPoint[],
+    mcq_topic_stats:         analytics?.mcq_topic_stats         ?? [] as MCQTopicStat[],
+    course_completions:      analytics?.course_completions      ?? [] as CourseStat[],
+    readiness_buckets:       analytics?.readiness_buckets       ?? [] as ReadinessBucket[],
+    at_risk_students:        analytics?.at_risk_students        ?? [] as AtRiskStudent[],
+    top_students:            analytics?.top_students            ?? [] as TopStudent[],
+    filter_options:          analytics?.filter_options          ?? { branches: [], sections: [], passout_years: [] } as FilterOptions,
+    total_coding_submissions:    analytics?.total_coding_submissions    ?? 0,
+    total_mcq_attempts:          analytics?.total_mcq_attempts          ?? 0,
+    avg_mcq_accuracy:            analytics?.avg_mcq_accuracy            ?? 0,
+    total_assignment_attempts:   analytics?.total_assignment_attempts   ?? 0,
+    assignment_avg_score:        analytics?.assignment_avg_score        ?? 0,
+    engagement_delta:            analytics?.engagement_delta            ?? 0,
+    days:                        analytics?.days                        ?? Number(days),
   }
 
-  const avgCoursePct = a.course_completions.length
+  const avgCoursePct      = a.course_completions.length
     ? Math.round(a.course_completions.reduce((s, c) => s + c.avg_completion_pct, 0) / a.course_completions.length) : 0
   const totalCodingSolved = a.coding_summary.reduce((s, d) => s + d.solved, 0)
-  const maxPts = a.top_students[0]?.points || 1
-  const weakestTopic = a.mcq_topic_stats[0]
+  const maxPts            = a.top_students[0]?.points || 1
+  const weakestTopic      = a.mcq_topic_stats[0]
   const weakestAssignment = a.assignment_module_stats[0]
-  const strongestBranch = a.branch_stats[0]
-  const activeFilters = [branch, section, passoutYear].filter(Boolean).length
-  const resetFilters = () => {
-    setBranch("")
-    setSection("")
-    setPassoutYear("")
-    setDays("30")
-  }
+  const strongestBranch   = a.branch_stats[0]
+  const activeFilters     = [branch, section, passoutYear].filter(Boolean).length
+  const engagementRate    = a.engagement_rate ?? (a.total_students > 0 ? Math.round((a.active_this_week / a.total_students) * 100) : 0)
 
-  const statCards = [
-    { label: "Total Students",   value: a.total_students,   suffix: "",  icon: Users,         bg: "bg-primary/10",  text: "text-primary"  },
-    { label: `Active ${a.days}d`, value: a.active_this_week, suffix: "",  icon: Activity,      bg: "bg-success/10",  text: "text-success",  live: true },
-    { label: "Avg Streak",       value: a.avg_streak,       suffix: "d", icon: Flame,         bg: "bg-streak/10",   text: "text-streak"   },
-    { label: "At Risk (14d)",    value: a.at_risk_count,    suffix: "",  icon: AlertTriangle, bg: "bg-danger/10",   text: "text-danger"   },
-    { label: "Avg Course Done",  value: avgCoursePct,       suffix: "%", icon: BookOpen,      bg: "bg-coding/10",   text: "text-coding"   },
-  ]
+  const resetFilters = () => { setBranch(""); setSection(""); setPassoutYear(""); setDays("30") }
 
   return (
     <div className="space-y-8">
 
-      {/* ── Header ── */}
+      {/* ── HEADER ─────────────────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-coding/10 p-5 shadow-2xl shadow-primary/5 flex flex-col xl:flex-row xl:items-start justify-between gap-4"
+        className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/12 via-card to-coding/10 px-6 py-5 shadow-2xl"
       >
-        <motion.div
-          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
-          initial={{ x: "-100%" }}
-          animate={{ x: "100%" }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: "linear", repeatDelay: 1.5 }}
-        />
+        <motion.div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
+          initial={{ x: "-100%" }} animate={{ x: "100%" }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "linear", repeatDelay: 1.5 }} />
         <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.04),transparent)] pointer-events-none" />
-        <div>
-          <h1 className="text-3xl font-bold font-serif text-foreground">Analytics</h1>
-          <p className="text-muted-foreground mt-1">Performance & engagement insights for your college</p>
-          <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 ${a.engagement_delta >= 0 ? "border-success/25 bg-success/10 text-success" : "border-danger/25 bg-danger/10 text-danger"}`}>
-              {a.engagement_delta >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-              {a.engagement_delta >= 0 ? "+" : ""}{a.engagement_delta}% vs previous {a.days}d
-            </span>
-            {activeFilters > 0 && <span>{activeFilters} filter{activeFilters > 1 ? "s" : ""} active</span>}
-          </div>
-        </div>
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-card/50 p-3">
-            <div className="flex h-9 items-center gap-2 px-1 text-sm font-medium text-foreground">
-              <Filter className="h-4 w-4 text-primary" /> Filters
+        <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
+        <div className="absolute -left-6 -bottom-6 w-36 h-36 rounded-full bg-coding/8 blur-3xl pointer-events-none" />
+
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary">Deep Analytics</span>
             </div>
-            <FilterSelect
-              label="Period"
-              value={days}
-              onChange={setDays}
-              options={[
-                { label: "Last 7 days", value: "7" },
-                { label: "Last 30 days", value: "30" },
-                { label: "Last 90 days", value: "90" },
-                { label: "Last 180 days", value: "180" },
-              ]}
-            />
-            <FilterSelect
-              label="Branch"
-              value={branch}
-              onChange={setBranch}
-              options={[
-                { label: "All branches", value: "" },
-                ...a.filter_options.branches.map((b) => ({ label: b, value: b })),
-              ]}
-            />
-            <FilterSelect
-              label="Section"
-              value={section}
-              onChange={setSection}
-              options={[
-                { label: "All sections", value: "" },
-                ...a.filter_options.sections.map((s) => ({ label: s, value: s })),
-              ]}
-            />
-            <FilterSelect
-              label="Year"
-              value={passoutYear}
-              onChange={setPassoutYear}
-              options={[
-                { label: "All years", value: "" },
-                ...a.filter_options.passout_years.map((y) => ({ label: String(y), value: String(y) })),
-              ]}
-            />
-            <Button variant="outline" size="sm" onClick={resetFilters} className="h-9 gap-2">
-              <RefreshCw className="h-3.5 w-3.5" /> Reset
-            </Button>
-            <Button variant="outline" size="sm" onClick={exportCSV} className="h-9 gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-foreground">College Analytics</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Engagement · Learning · Assessments · Coding · Students</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold
+              ${a.engagement_delta >= 0 ? "border-success/25 bg-success/10 text-success" : "border-danger/25 bg-danger/10 text-danger"}`}>
+              {a.engagement_delta >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+              {a.engagement_delta >= 0 ? "+" : ""}{a.engagement_delta}% vs prev {a.days}d
+            </span>
+            <Button variant="outline" size="sm" onClick={exportCSV} className="h-8 gap-1.5 border-border/60 text-muted-foreground hover:text-foreground">
               <Download className="h-3.5 w-3.5" /> Export
             </Button>
           </div>
         </div>
       </motion.div>
 
-      {/* ── Stat cards ── */}
+      {/* ── FILTER PANEL ──────────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <GlassCard className="relative overflow-hidden border-primary/15 p-0">
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary via-coding to-success" />
+
+          {/* ── Always-visible bar ── */}
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded-lg bg-primary/15">
+                <SlidersHorizontal className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-foreground">Filters</span>
+                {activeFilters > 0 && (
+                  <motion.span
+                    key={activeFilters}
+                    initial={{ scale: 0.6 }} animate={{ scale: 1 }}
+                    className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold"
+                  >
+                    {activeFilters}
+                  </motion.span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {activeFilters > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                  onClick={resetFilters}
+                  className="hidden sm:inline-flex items-center gap-1 text-xs text-danger hover:text-danger/80 font-medium transition-colors"
+                >
+                  <RefreshCw className="h-3 w-3" /> Reset
+                </motion.button>
+              )}
+              {/* Mobile toggle */}
+              <motion.button
+                onClick={() => setFiltersOpen(v => !v)}
+                className="flex lg:hidden items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-secondary/50 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+                animate={{ borderColor: filtersOpen ? "var(--primary)" : undefined }}
+              >
+                <span className="text-xs font-medium">{filtersOpen ? "Hide" : "Show"}</span>
+                <motion.div animate={{ rotate: filtersOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </motion.div>
+              </motion.button>
+            </div>
+          </div>
+
+          {/* ── Desktop: always visible ── */}
+          <div className="hidden lg:block border-t border-border/50 px-4 py-4">
+            <div className="grid grid-cols-5 gap-4 items-end">
+              {/* Period tabs */}
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Period</span>
+                <div className="flex gap-1 p-1 rounded-xl bg-secondary border border-border/60 h-10">
+                  {[{v:"7",l:"7d"},{v:"30",l:"30d"},{v:"90",l:"3mo"},{v:"180",l:"6mo"}].map(opt => (
+                    <button key={opt.v} onClick={() => setDays(opt.v)}
+                      className={`flex-1 rounded-lg text-xs font-semibold transition-all ${
+                        days === opt.v
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-background/60"
+                      }`}>
+                      {opt.l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <StyledSelect label="Branch" value={branch} onChange={setBranch} icon={GitBranch} activeColor="primary"
+                options={[{ label: "All branches", value: "" }, ...a.filter_options.branches.map(b => ({ label: b, value: b }))]} />
+              <StyledSelect label="Section" value={section} onChange={setSection} activeColor="coding"
+                options={[{ label: "All sections", value: "" }, ...a.filter_options.sections.map(s => ({ label: s, value: s }))]} />
+              <StyledSelect label="Passout Year" value={passoutYear} onChange={setPassoutYear} activeColor="success"
+                options={[{ label: "All years", value: "" }, ...a.filter_options.passout_years.map(y => ({ label: String(y), value: String(y) }))]} />
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground opacity-0 select-none">Actions</span>
+                <Button variant="outline" size="sm" onClick={resetFilters} className="h-10 gap-2 w-full border-border/70 hover:border-danger/40 hover:text-danger transition-colors">
+                  <RefreshCw className="h-3.5 w-3.5" /> Reset all
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Mobile: collapsible panel ── */}
+          <AnimatePresence>
+            {filtersOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                className="lg:hidden overflow-hidden border-t border-border/50"
+              >
+                <div className="px-4 py-4 space-y-4">
+                  {/* Period tabs */}
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Period</span>
+                    <div className="flex gap-1.5 p-1 rounded-xl bg-secondary border border-border/60 h-11">
+                      {[{v:"7",l:"7 days"},{v:"30",l:"30 days"},{v:"90",l:"3 months"},{v:"180",l:"6 months"}].map(opt => (
+                        <button key={opt.v} onClick={() => setDays(opt.v)}
+                          className={`flex-1 rounded-lg text-xs font-semibold transition-all ${
+                            days === opt.v
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}>
+                          {opt.l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <StyledSelect label="Branch" value={branch} onChange={setBranch} icon={GitBranch} activeColor="primary"
+                      options={[{ label: "All branches", value: "" }, ...a.filter_options.branches.map(b => ({ label: b, value: b }))]} />
+                    <StyledSelect label="Section" value={section} onChange={setSection} activeColor="coding"
+                      options={[{ label: "All sections", value: "" }, ...a.filter_options.sections.map(s => ({ label: s, value: s }))]} />
+                    <StyledSelect label="Passout Year" value={passoutYear} onChange={setPassoutYear} activeColor="success"
+                      options={[{ label: "All years", value: "" }, ...a.filter_options.passout_years.map(y => ({ label: String(y), value: String(y) }))]} />
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => { resetFilters(); setFiltersOpen(false) }}
+                    className="w-full h-9 gap-2 border-danger/30 text-danger hover:bg-danger/5">
+                    <RefreshCw className="h-3.5 w-3.5" /> Reset all filters
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── Active filter chips ── */}
+          <AnimatePresence>
+            {activeFilters > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden border-t border-border/50 px-4 py-2.5"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Active:</span>
+                  {branch && (
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary border border-primary/25 text-xs font-medium">
+                      <GitBranch className="h-3 w-3" /> {branch}
+                      <button onClick={() => setBranch("")} className="opacity-60 hover:opacity-100 ml-0.5">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </motion.span>
+                  )}
+                  {section && (
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-coding/15 text-coding border border-coding/25 text-xs font-medium">
+                      Section {section}
+                      <button onClick={() => setSection("")} className="opacity-60 hover:opacity-100 ml-0.5">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </motion.span>
+                  )}
+                  {passoutYear && (
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/15 text-success border border-success/25 text-xs font-medium">
+                      Batch {passoutYear}
+                      <button onClick={() => setPassoutYear("")} className="opacity-60 hover:opacity-100 ml-0.5">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </motion.span>
+                  )}
+                  <button onClick={resetFilters}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-danger/10 text-danger border border-danger/20 text-xs font-medium hover:bg-danger/15 transition-colors ml-auto">
+                    <X className="h-3 w-3" /> Clear all
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </GlassCard>
+      </motion.div>
+
+      {/* ── STICKY NAV ────────────────────────────────────────────────────── */}
       <div className="sticky top-3 z-20">
         <GlassCard className="p-2 border-primary/15 bg-card/85 backdrop-blur-xl">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1">
             {[
-              { label: "Engagement", href: "#engagement", icon: Activity },
-              { label: "Learning", href: "#learning", icon: BookOpen },
-              { label: "Branches", href: "#branches", icon: GitBranch },
-              { label: "Assessments", href: "#assessments", icon: ClipboardCheck },
-              { label: "Coding", href: "#coding", icon: Code2 },
-              { label: "Students", href: "#students", icon: Users },
-            ].map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="inline-flex h-9 items-center gap-2 rounded-lg border border-transparent px-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
-              >
-                <item.icon className="h-4 w-4" />
+              { label: "Engagement", href: "#engagement", icon: Activity,      color: "hover:text-primary hover:bg-primary/10 hover:border-primary/30"   },
+              { label: "Learning",   href: "#learning",   icon: BookOpen,      color: "hover:text-success hover:bg-success/10 hover:border-success/30"   },
+              { label: "Branches",   href: "#branches",   icon: GitBranch,     color: "hover:text-coding hover:bg-coding/10 hover:border-coding/30"      },
+              { label: "Assessments",href: "#assessments",icon: ClipboardCheck,color: "hover:text-warning hover:bg-warning/10 hover:border-warning/30"   },
+              { label: "Coding",     href: "#coding",     icon: Code2,         color: "hover:text-coral hover:bg-coral/10 hover:border-coral/30"         },
+              { label: "Students",   href: "#students",   icon: Users,         color: "hover:text-danger hover:bg-danger/10 hover:border-danger/30"      },
+            ].map(item => (
+              <a key={item.href} href={item.href}
+                className={`inline-flex h-9 items-center gap-1.5 rounded-lg border border-transparent px-3 text-sm font-medium text-muted-foreground transition-all ${item.color}`}>
+                <item.icon className="h-3.5 w-3.5" />
                 {item.label}
               </a>
             ))}
@@ -377,62 +518,87 @@ export default function AdminAnalyticsPage() {
         </GlassCard>
       </div>
 
+      {/* ── STAT CARDS ────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        {([
+          { label: "Total Students",   value: a.total_students,   suffix: "",  icon: Users,         gradient: "from-primary/20 to-primary/5",  accent: "from-primary to-coding",          iconClass: "bg-primary/20 text-primary", live: false },
+          { label: `Active (${a.days}d)`, value: a.active_this_week, suffix: "",  icon: Activity,      gradient: "from-success/20 to-success/5",  accent: "from-success to-primary",         iconClass: "bg-success/20 text-success", live: true  },
+          { label: "Avg Streak",       value: a.avg_streak,       suffix: "d", icon: Flame,         gradient: "from-streak/20 to-streak/5",    accent: "from-streak to-warning",          iconClass: "bg-streak/20 text-streak",   live: false },
+          { label: "At-Risk (14d)",    value: a.at_risk_count,    suffix: "",  icon: AlertTriangle, gradient: a.at_risk_count > 0 ? "from-danger/20 to-danger/5" : "from-success/20 to-success/5", accent: a.at_risk_count > 0 ? "from-danger to-warning" : "from-success to-primary", iconClass: a.at_risk_count > 0 ? "bg-danger/20 text-danger" : "bg-success/20 text-success", live: false },
+          { label: "Avg Course Done",  value: avgCoursePct,       suffix: "%", icon: BookOpen,      gradient: "from-coding/20 to-coding/5",    accent: "from-coding to-primary",          iconClass: "bg-coding/20 text-coding",   live: false },
+        ] as const).map((s, i) => (
+          <motion.div key={s.label}
+            initial={{ opacity: 0, y: 24, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: i * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.15 } }}
+          >
+            <GlassCard className={`p-4 h-full relative overflow-hidden border-border/60 bg-gradient-to-br ${s.gradient}`}>
+              <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${s.accent}`} />
+              <div className="mb-3">
+                <div className={`inline-flex p-2.5 rounded-xl ${s.iconClass} relative`}>
+                  <s.icon className="h-4 w-4" />
+                  {s.live && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-success">
+                      <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-60" />
+                    </span>
+                  )}
+                </div>
+              </div>
+              <p className="text-2xl font-bold font-serif text-foreground tabular-nums">
+                <Num value={s.value} suffix={s.suffix} />
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 leading-tight">{s.label}</p>
+            </GlassCard>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* ── SPOTLIGHT CARDS ───────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {[
           {
-            label: "Weakest MCQ Signal",
-            value: weakestTopic ? `${weakestTopic.accuracy}%` : "-",
-            sub: weakestTopic ? `${weakestTopic.topic} - ${weakestTopic.total} attempts` : "No MCQ attempts yet",
-            icon: AlertTriangle,
-            tone: "text-danger",
-            bar: weakestTopic?.accuracy ?? 0,
+            label: "Weakest MCQ Signal", icon: Target,
+            value: weakestTopic ? `${weakestTopic.accuracy}%` : "—",
+            sub: weakestTopic ? `${weakestTopic.topic} · ${weakestTopic.total} attempts` : "No MCQ attempts yet",
+            tone: "text-danger", bg: "from-danger/15 to-danger/5", border: "border-danger/25",
+            accent: "from-danger via-warning to-transparent", bar: weakestTopic?.accuracy ?? 0, barVar: "var(--danger)",
           },
           {
-            label: "Assignment Bottleneck",
-            value: weakestAssignment ? `${weakestAssignment.pass_rate}%` : "-",
-            sub: weakestAssignment ? `${weakestAssignment.module} - ${weakestAssignment.attempts} attempts` : "No assignment attempts yet",
-            icon: ClipboardCheck,
-            tone: "text-warning",
-            bar: weakestAssignment?.pass_rate ?? 0,
+            label: "Assignment Bottleneck", icon: ClipboardCheck,
+            value: weakestAssignment ? `${weakestAssignment.pass_rate}%` : "—",
+            sub: weakestAssignment ? `${weakestAssignment.module} · ${weakestAssignment.attempts} attempts` : "No attempts yet",
+            tone: "text-warning", bg: "from-warning/15 to-warning/5", border: "border-warning/25",
+            accent: "from-warning via-streak to-transparent", bar: weakestAssignment?.pass_rate ?? 0, barVar: "var(--warning)",
           },
           {
-            label: "Strongest Branch",
-            value: strongestBranch ? strongestBranch.branch : "-",
-            sub: strongestBranch ? `${strongestBranch.avgPoints.toLocaleString()} avg pts - ${strongestBranch.count} students` : "No branch data yet",
-            icon: GitBranch,
-            tone: "text-primary",
-            bar: strongestBranch ? Math.min(100, Math.round((strongestBranch.avgPoints / Math.max(1, a.avg_points || strongestBranch.avgPoints)) * 60)) : 0,
+            label: "Top Branch", icon: GitBranch,
+            value: strongestBranch ? strongestBranch.branch : "—",
+            sub: strongestBranch ? `${strongestBranch.avgPoints.toLocaleString()} avg pts · ${strongestBranch.count} students` : "No branch data yet",
+            tone: "text-success", bg: "from-success/15 to-success/5", border: "border-success/25",
+            accent: "from-success via-primary to-transparent", bar: 100, barVar: "var(--success)",
           },
         ].map((item, i) => (
-          <motion.div
-            key={item.label}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12 + i * 0.07 }}
+          <motion.div key={item.label}
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + i * 0.08 }}
             whileHover={{ y: -3, scale: 1.01 }}
           >
-            <GlassCard className="relative h-full overflow-hidden border-primary/10">
-              <motion.div
-                className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent"
-                initial={{ x: "-100%" }}
-                animate={{ x: "100%" }}
-                transition={{ delay: i * 0.3, duration: 2.8, repeat: Infinity, repeatDelay: 4 }}
-              />
+            <GlassCard className={`relative h-full overflow-hidden border ${item.border} bg-gradient-to-br ${item.bg}`}>
+              <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${item.accent}`} />
               <div className="flex items-start gap-3">
-                <div className="rounded-xl bg-secondary/60 p-2.5">
+                <div className={`rounded-xl p-2.5 border ${item.border} bg-card/40 flex-shrink-0`}>
                   <item.icon className={`h-5 w-5 ${item.tone}`} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-muted-foreground">{item.label}</p>
                   <p className={`mt-1 text-2xl font-bold font-serif truncate ${item.tone}`}>{item.value}</p>
                   <p className="mt-1 text-xs text-muted-foreground truncate">{item.sub}</p>
-                  <div className="mt-3 h-1.5 rounded-full bg-secondary overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full bg-primary"
+                  <div className="mt-3 h-1.5 rounded-full bg-secondary/50 overflow-hidden">
+                    <motion.div className="h-full rounded-full" style={{ background: item.barVar }}
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.max(3, Math.min(100, item.bar))}%` }}
-                      transition={{ delay: 0.25 + i * 0.1, duration: 0.9 }}
-                    />
+                      transition={{ delay: 0.3 + i * 0.1, duration: 0.9, ease: "easeOut" }} />
                   </div>
                 </div>
               </div>
@@ -441,116 +607,61 @@ export default function AdminAnalyticsPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {statCards.map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 24, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: i * 0.07, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ y: -2, transition: { duration: 0.15 } }}
-          >
-            <GlassCard className="p-4 h-full relative overflow-hidden border-primary/10 hover:border-primary/30 transition-colors">
-              <motion.div
-                className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent"
-                initial={{ x: "-100%" }}
-                animate={{ x: "100%" }}
-                transition={{ delay: i * 0.25, duration: 2.6, repeat: Infinity, repeatDelay: 5 }}
-              />
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${s.bg} flex-shrink-0 relative`}>
-                  <s.icon className={`h-4 w-4 ${s.text}`} />
-                  {"live" in s && s.live && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-success">
-                      <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" />
-                    </span>
-                  )}
-                </div>
-                <div>
-                  <p className="text-xl font-bold font-serif text-foreground tabular-nums">
-                    <Num value={s.value} suffix={s.suffix} />
-                  </p>
-                  <p className="text-xs text-muted-foreground leading-tight">{s.label}</p>
-                </div>
-              </div>
-            </GlassCard>
-          </motion.div>
-        ))}
-      </div>
+      {/* ── SECTION: Engagement ───────────────────────────────────────────── */}
+      <Section id="engagement">
+        <SectionHead icon={Activity} title="Engagement" subtitle={`Weekly activity trend · ${a.days}-day window`}
+          gradient="from-primary via-primary/50 to-transparent"
+          iconClass="bg-primary/20 text-primary" bgClass="bg-gradient-to-r from-primary/8 to-transparent" borderClass="border-primary/20"
+          right={
+            <Badge className={`${a.engagement_delta >= 0 ? "bg-success/15 text-success border-success/30" : "bg-danger/15 text-danger border-danger/30"}`}>
+              {a.engagement_delta >= 0 ? <ArrowUpRight className="h-3 w-3 mr-1 inline" /> : <ArrowDownRight className="h-3 w-3 mr-1 inline" />}
+              {a.engagement_delta >= 0 ? "+" : ""}{a.engagement_delta}%
+            </Badge>
+          }
+        />
 
-      {/* ── Weekly trend + Placement readiness ── */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { label: "MCQ Accuracy", value: `${a.avg_mcq_accuracy}%`, sub: `${a.total_mcq_attempts.toLocaleString()} attempts`, tone: "text-primary" },
-          { label: "Assignment Avg", value: `${a.assignment_avg_score}%`, sub: `${a.total_assignment_attempts.toLocaleString()} attempts`, tone: "text-warning" },
-          { label: "Coding Submissions", value: a.total_coding_submissions.toLocaleString(), sub: `${totalCodingSolved} unique problems solved`, tone: "text-coding" },
-          { label: "Zero Activity", value: a.zero_activity_count.toLocaleString(), sub: "students need onboarding", tone: "text-danger" },
-        ].map((item, i) => (
-          <motion.div
-            key={item.label}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 + i * 0.05, duration: 0.35 }}
-          >
-            <GlassCard className="p-4">
-              <p className="text-xs text-muted-foreground">{item.label}</p>
-              <p className={`mt-1 text-2xl font-bold font-serif tabular-nums ${item.tone}`}>{item.value}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{item.sub}</p>
-            </GlassCard>
-          </motion.div>
-        ))}
-      </div>
-
-      <Section>
-        <div id="engagement" className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-5 gap-6">
-
-          {/* Area chart — weekly trend */}
-          <GlassCard className="lg:col-span-3">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <GlassCard className="lg:col-span-3 relative overflow-hidden border-primary/20">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-coding to-success" />
             <div className="flex items-center gap-2 mb-1">
               <TrendingUp className="h-4 w-4 text-primary" />
               <h3 className="font-semibold font-serif text-foreground">Weekly Activity Trend</h3>
+              <Badge variant="outline" className="ml-auto border-primary/30 text-primary text-xs">{engagementRate}% active</Badge>
             </div>
             <p className="text-xs text-muted-foreground mb-4">Distinct active students per week · last 8 weeks</p>
             {a.weekly_trend.length > 0 ? (
-              <ChartContainer config={{ active: { label: "Active Students", color: "var(--primary)" } }} className="h-[210px] w-full">
+              <ChartContainer config={{ active: { label: "Active Students", color: "var(--primary)" } }} className="h-[220px] w-full">
                 <AreaChart data={a.weekly_trend} margin={{ top: 4, right: 4, left: -8, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="var(--primary)" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0}    />
+                    <linearGradient id="engGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%"   stopColor="var(--primary)" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0}   />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                  <XAxis dataKey="week" stroke="var(--muted-foreground)" fontSize={11} tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} />
-                  <YAxis stroke="var(--muted-foreground)" fontSize={11} tick={{ fill: "var(--muted-foreground)" }} allowDecimals={false} tickLine={false} axisLine={false} />
+                  <XAxis dataKey="week" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="var(--muted-foreground)" fontSize={11} allowDecimals={false} tickLine={false} axisLine={false} />
                   <ChartTooltip content={<ChartTooltipContent />} cursor={{ stroke: "var(--primary)", strokeWidth: 1, strokeDasharray: "4 2" }} />
-                  <Area
-                    type="monotone"
-                    dataKey="active"
-                    stroke="var(--primary)"
-                    strokeWidth={2.5}
-                    fill="url(#areaGrad)"
-                    dot={{ r: 3.5, fill: "var(--primary)", strokeWidth: 0 }}
-                    activeDot={{ r: 5.5, fill: "var(--primary)", stroke: "var(--background)", strokeWidth: 2 }}
-                    animationDuration={1200}
-                    animationEasing="ease-out"
-                  />
+                  <Area type="monotone" dataKey="active" stroke="var(--primary)" strokeWidth={2.5} fill="url(#engGrad)"
+                    dot={{ r: 4, fill: "var(--primary)", strokeWidth: 0 }}
+                    activeDot={{ r: 6, fill: "var(--primary)", stroke: "var(--background)", strokeWidth: 2 }}
+                    animationDuration={1200} />
                 </AreaChart>
               </ChartContainer>
             ) : (
-              <div className="h-[210px] flex items-center justify-center">
+              <div className="h-[220px] flex items-center justify-center">
                 <p className="text-sm text-muted-foreground">No activity data yet</p>
               </div>
             )}
           </GlassCard>
 
-          {/* Placement readiness */}
-          <GlassCard className="lg:col-span-2">
+          <GlassCard className="lg:col-span-2 relative overflow-hidden border-primary/20">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-danger via-warning to-success" />
             <div className="flex items-center gap-2 mb-1">
               <Target className="h-4 w-4 text-primary" />
               <h3 className="font-semibold font-serif text-foreground">Placement Readiness</h3>
             </div>
-            <p className="text-xs text-muted-foreground mb-5">Students grouped by total points earned</p>
+            <p className="text-xs text-muted-foreground mb-5">Points-based placement bands</p>
             <div className="space-y-4">
               {a.readiness_buckets.map((b, i) => {
                 const pct = a.total_students > 0 ? Math.round(b.count / a.total_students * 100) : 0
@@ -558,23 +669,24 @@ export default function AdminAnalyticsPage() {
                   <div key={b.range}>
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: readinessColor(i) }} />
+                        <motion.span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: readinessColor(i) }}
+                          animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.4 }} />
                         <span className="text-xs font-medium text-foreground">{b.label}</span>
                         <span className="text-xs text-muted-foreground">{b.range}</span>
                       </div>
-                      <span className="text-sm font-bold tabular-nums" style={{ color: readinessColor(i) }}>
-                        <Num value={b.count} />
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">{pct}%</span>
+                        <span className="text-sm font-bold tabular-nums" style={{ color: readinessColor(i) }}>
+                          <Num value={b.count} />
+                        </span>
+                      </div>
                     </div>
                     <div className="h-2 rounded-full bg-secondary overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: readinessColor(i) }}
+                      <motion.div className="h-full rounded-full" style={{ background: readinessColor(i) }}
                         initial={{ width: 0 }}
                         whileInView={{ width: `${pct}%` }}
                         viewport={{ once: true }}
-                        transition={{ type: "spring", stiffness: 55, damping: 14, delay: i * 0.1 }}
-                      />
+                        transition={{ type: "spring", stiffness: 55, damping: 14, delay: i * 0.1 }} />
                     </div>
                   </div>
                 )
@@ -582,50 +694,67 @@ export default function AdminAnalyticsPage() {
             </div>
             {a.zero_activity_count > 0 && (
               <p className="text-xs text-muted-foreground pt-3 mt-3 border-t border-border/50">
-                <span className="text-danger font-semibold">{a.zero_activity_count}</span> never been active
+                <span className="text-danger font-bold">{a.zero_activity_count}</span> students never been active
               </p>
             )}
           </GlassCard>
         </div>
       </Section>
 
-      {/* ── MCQ accuracy + Course completions ── */}
-      <Section delay={0.05}>
-        <div id="learning" className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* ── SECTION: Learning ─────────────────────────────────────────────── */}
+      <Section id="learning">
+        <SectionHead icon={BookOpen} title="Learning Performance"
+          subtitle="MCQ accuracy & course completion · weakest areas first"
+          gradient="from-success via-success/50 to-transparent"
+          iconClass="bg-success/20 text-success" bgClass="bg-gradient-to-r from-success/8 to-transparent" borderClass="border-success/20" />
 
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* MCQ accuracy */}
-          <GlassCard>
-            <h3 className="font-semibold font-serif text-foreground mb-1">MCQ Accuracy by Topic</h3>
-            <p className="text-xs text-muted-foreground mb-4">College-wide · sorted weakest first</p>
+          <GlassCard className="relative overflow-hidden border-success/15">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-danger via-warning to-success" />
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold font-serif text-foreground">MCQ Accuracy by Topic</h3>
+                <p className="text-xs text-muted-foreground">Sorted weakest first</p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold font-serif tabular-nums" style={{ color: accuracyColor(a.avg_mcq_accuracy) }}>
+                  <Num value={Math.round(a.avg_mcq_accuracy)} suffix="%" />
+                </p>
+                <p className="text-xs text-muted-foreground">avg</p>
+              </div>
+            </div>
             {a.mcq_topic_stats.length > 0 ? (
               <>
-                <div className="space-y-3 max-h-72 overflow-y-auto pr-1 scrollbar-hide">
+                <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1 scrollbar-hide">
                   {a.mcq_topic_stats.slice(0, 14).map((t, i) => (
-                    <div key={t.topic}>
+                    <motion.div key={t.topic}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.04 }}
+                    >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium text-foreground truncate max-w-[58%]">{t.topic}</span>
+                        <span className="text-xs font-medium text-foreground truncate max-w-[55%]">{t.topic}</span>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <span className="text-[11px] text-muted-foreground">{t.correct}/{t.total}</span>
-                          <span className="text-xs font-bold w-9 text-right tabular-nums" style={{ color: accuracyColor(t.accuracy) }}>
+                          <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full tabular-nums ${accuracyBg(t.accuracy)}`}>
                             {t.accuracy}%
                           </span>
                         </div>
                       </div>
-                      <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ background: accuracyColor(t.accuracy) }}
+                      <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                        <motion.div className="h-full rounded-full" style={{ background: accuracyColor(t.accuracy) }}
                           initial={{ width: 0 }}
                           whileInView={{ width: `${t.accuracy}%` }}
                           viewport={{ once: true }}
-                          transition={{ type: "spring", stiffness: 60, damping: 16, delay: i * 0.05 }}
-                        />
+                          transition={{ type: "spring", stiffness: 60, damping: 16, delay: i * 0.04 }} />
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
                 <div className="flex gap-4 mt-4 pt-3 border-t border-border/50">
-                  {[["var(--danger)","<40% weak"],["var(--warning)","40–69%"],["var(--success)","≥70% good"]].map(([c,l]) => (
+                  {([["var(--danger)","<40% Weak"],["var(--warning)","40–69%"],["var(--success)","≥70% Strong"]] as const).map(([c, l]) => (
                     <span key={l} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <span className="w-2 h-2 rounded-full inline-block flex-shrink-0" style={{ background: c }} />{l}
                     </span>
@@ -640,30 +769,46 @@ export default function AdminAnalyticsPage() {
           </GlassCard>
 
           {/* Course completions */}
-          <GlassCard>
-            <h3 className="font-semibold font-serif text-foreground mb-1">Course Completion Rates</h3>
-            <p className="text-xs text-muted-foreground mb-4">Avg % completed · among students who started</p>
+          <GlassCard className="relative overflow-hidden border-success/15">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-success via-primary to-coding" />
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold font-serif text-foreground">Course Completion Rates</h3>
+                <p className="text-xs text-muted-foreground">Avg % completed per course</p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold font-serif text-success tabular-nums">
+                  <Num value={avgCoursePct} suffix="%" />
+                </p>
+                <p className="text-xs text-muted-foreground">avg all courses</p>
+              </div>
+            </div>
             {a.course_completions.length > 0 ? (
-              <div className="space-y-3 max-h-72 overflow-y-auto pr-1 scrollbar-hide">
+              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1 scrollbar-hide">
                 {a.course_completions.map((c, i) => (
-                  <div key={c.course_id}>
+                  <motion.div key={c.course_id}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.04 }}
+                  >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-foreground truncate max-w-[58%]">{c.course_title}</span>
+                      <span className="text-xs font-medium text-foreground truncate max-w-[55%]">{c.course_title}</span>
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-[11px] text-muted-foreground">{c.students_started} students</span>
-                        <span className="text-xs font-bold text-primary w-8 text-right tabular-nums">{c.avg_completion_pct}%</span>
+                        <span className="text-[11px] text-muted-foreground">{c.students_started} started</span>
+                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full tabular-nums ${accuracyBg(c.avg_completion_pct)}`}>
+                          {c.avg_completion_pct}%
+                        </span>
                       </div>
                     </div>
-                    <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full bg-primary"
+                    <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                      <motion.div className="h-full rounded-full" style={{ background: accuracyColor(c.avg_completion_pct) }}
                         initial={{ width: 0 }}
                         whileInView={{ width: `${c.avg_completion_pct}%` }}
                         viewport={{ once: true }}
-                        transition={{ type: "spring", stiffness: 55, damping: 14, delay: i * 0.05 }}
-                      />
+                        transition={{ type: "spring", stiffness: 55, damping: 14, delay: i * 0.05 }} />
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             ) : (
@@ -675,112 +820,112 @@ export default function AdminAnalyticsPage() {
         </div>
       </Section>
 
-      {/* ── Branch performance ── */}
+      {/* ── SECTION: Branches ─────────────────────────────────────────────── */}
       {a.branch_stats.length > 0 && (
-        <Section delay={0.05}>
-          <GlassCard className="scroll-mt-24" id="branches">
-            <div className="flex items-center gap-2 mb-1">
-              <GitBranch className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold font-serif text-foreground">Branch Performance</h3>
-            </div>
-            <p className="text-xs text-muted-foreground mb-4">Average points per branch · highest first</p>
+        <Section id="branches">
+          <SectionHead icon={GitBranch} title="Branch Performance"
+            subtitle="Average points per branch · click a bar to filter"
+            gradient="from-coding via-coding/50 to-transparent"
+            iconClass="bg-coding/20 text-coding" bgClass="bg-gradient-to-r from-coding/8 to-transparent" borderClass="border-coding/20" />
+
+          <GlassCard className="relative overflow-hidden border-coding/20">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-coding via-primary to-success" />
             <ChartContainer config={{ avgPoints: { label: "Avg Points", color: "var(--primary)" } }} className="h-[220px] w-full">
-              <BarChart data={a.branch_stats} layout="vertical" margin={{ left: 8, right: 32, top: 0, bottom: 0 }}>
+              <BarChart data={a.branch_stats} layout="vertical" margin={{ left: 8, right: 48, top: 4, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                <XAxis type="number" stroke="var(--muted-foreground)" fontSize={11} tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} />
-                <YAxis dataKey="branch" type="category" stroke="var(--muted-foreground)" fontSize={11} tick={{ fill: "var(--muted-foreground)" }} width={76} tickLine={false} axisLine={false} />
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
+                <XAxis type="number" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis dataKey="branch" type="category" stroke="var(--muted-foreground)" fontSize={11} width={80} tickLine={false} axisLine={false} />
+                <ChartTooltip content={<ChartTooltipContent />}
                   cursor={{ fill: "var(--secondary)", opacity: 0.5 }}
-                  formatter={(val: number, _name: string, props: { payload?: BranchStat }) =>
+                  formatter={(val: number, _: string, props: { payload?: BranchStat }) =>
                     [`${val.toLocaleString()} pts · ${props.payload?.count ?? 0} students`, "Avg Points"]
-                  }
-                />
-                <Bar
-                  dataKey="avgPoints"
-                  radius={[0, 6, 6, 0]}
-                  maxBarSize={26}
-                  animationDuration={900}
-                  animationEasing="ease-out"
-                  cursor="pointer"
-                  onClick={(entry: any) => setBranch(entry.branch === "Unknown" ? "" : entry.branch)}
-                >
+                  } />
+                <Bar dataKey="avgPoints" radius={[0, 8, 8, 0]} maxBarSize={28} animationDuration={900} cursor="pointer"
+                  onClick={(entry: any) => setBranch(entry.branch === "Unknown" ? "" : entry.branch)}>
                   {a.branch_stats.map((_, i) => (
                     <Cell key={i} fill={BRANCH_COLORS[i % BRANCH_COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>
             </ChartContainer>
+            <p className="text-xs text-muted-foreground text-center mt-2">Click a bar to filter all analytics to that branch</p>
           </GlassCard>
         </Section>
       )}
 
-      {/* ── Assignment pass rates + Coding breakdown ── */}
-      <Section delay={0.05}>
-        <div id="assessments" className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-5 gap-6">
+      {/* ── SECTION: Assessments ──────────────────────────────────────────── */}
+      <Section id="assessments">
+        <SectionHead icon={ClipboardCheck} title="Assessments & Coding"
+          subtitle="Assignment pass rates · coding problem breakdown by difficulty"
+          gradient="from-warning via-warning/50 to-transparent"
+          iconClass="bg-warning/20 text-warning" bgClass="bg-gradient-to-r from-warning/8 to-transparent" borderClass="border-warning/20" />
 
-          {/* Assignment pass rates */}
-          <GlassCard className="lg:col-span-3">
-            <div className="flex items-center gap-2 mb-1">
-              <ClipboardCheck className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold font-serif text-foreground">Assignment Pass Rates</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <GlassCard className="lg:col-span-3 relative overflow-hidden border-warning/20">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-danger via-warning to-success" />
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold font-serif text-foreground">Assignment Pass Rates</h3>
+                <p className="text-xs text-muted-foreground">% scoring ≥50% per module · weakest first</p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold font-serif tabular-nums" style={{ color: passColor(a.assignment_avg_score) }}>
+                  <Num value={Math.round(a.assignment_avg_score)} suffix="%" />
+                </p>
+                <p className="text-xs text-muted-foreground">overall avg</p>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-4">% scoring ≥50% per module · weakest first</p>
             {a.assignment_module_stats.length > 0 ? (
-              <ChartContainer
-                config={{
-                  pass_rate: { label: "Pass Rate %", color: "var(--success)" },
-                  avg_score: { label: "Avg Score %", color: "var(--primary)" },
-                }}
-                className="h-[260px] w-full"
-              >
-                <BarChart
-                  data={[...a.assignment_module_stats].reverse()}
-                  layout="vertical"
-                  margin={{ left: 8, right: 32, top: 0, bottom: 0 }}
-                  barCategoryGap="28%"
+              <>
+                <ChartContainer
+                  config={{
+                    pass_rate: { label: "Pass Rate %", color: "var(--success)" },
+                    avg_score: { label: "Avg Score %", color: "var(--primary)" },
+                  }}
+                  className="h-[260px] w-full"
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                  <XAxis type="number" domain={[0, 100]} stroke="var(--muted-foreground)" fontSize={11}
-                    tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false}
-                    tickFormatter={v => `${v}%`} />
-                  <YAxis dataKey="module" type="category" stroke="var(--muted-foreground)" fontSize={10}
-                    tick={{ fill: "var(--muted-foreground)" }} width={118} tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} cursor={{ fill: "var(--secondary)", opacity: 0.5 }}
-                    formatter={(val: number) => [`${val}%`]} />
-                  <Bar dataKey="pass_rate" name="Pass Rate %" radius={[0, 4, 4, 0]} maxBarSize={14} animationDuration={900}>
-                    {a.assignment_module_stats.map(s => (
-                      <Cell key={s.module} fill={passColor(s.pass_rate)} />
-                    ))}
-                  </Bar>
-                  <Bar dataKey="avg_score" name="Avg Score %" radius={[0, 4, 4, 0]} maxBarSize={14}
-                    fill="var(--primary)" opacity={0.3} animationDuration={900} animationBegin={200} />
-                </BarChart>
-              </ChartContainer>
+                  <BarChart data={[...a.assignment_module_stats].reverse()} layout="vertical"
+                    margin={{ left: 8, right: 40, top: 0, bottom: 0 }} barCategoryGap="28%">
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                    <XAxis type="number" domain={[0, 100]} stroke="var(--muted-foreground)" fontSize={11}
+                      tickLine={false} axisLine={false} tickFormatter={v => `${v}%`} />
+                    <YAxis dataKey="module" type="category" stroke="var(--muted-foreground)" fontSize={10}
+                      width={120} tickLine={false} axisLine={false} />
+                    <ChartTooltip content={<ChartTooltipContent />}
+                      cursor={{ fill: "var(--secondary)", opacity: 0.5 }} formatter={(val: number) => [`${val}%`]} />
+                    <Bar dataKey="pass_rate" name="Pass Rate %" radius={[0, 5, 5, 0]} maxBarSize={14} animationDuration={900}>
+                      {a.assignment_module_stats.map(s => (
+                        <Cell key={s.module} fill={passColor(s.pass_rate)} />
+                      ))}
+                    </Bar>
+                    <Bar dataKey="avg_score" name="Avg Score %" radius={[0, 5, 5, 0]} maxBarSize={14}
+                      fill="var(--primary)" opacity={0.35} animationDuration={900} animationBegin={200} />
+                  </BarChart>
+                </ChartContainer>
+                <div className="flex gap-4 mt-3 pt-3 border-t border-border/50">
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span className="w-3 h-2 rounded bg-success inline-block" /> Pass Rate
+                  </span>
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span className="w-3 h-2 rounded bg-primary opacity-40 inline-block" /> Avg Score
+                  </span>
+                </div>
+              </>
             ) : (
               <div className="h-64 flex items-center justify-center">
                 <p className="text-sm text-muted-foreground">No assignment attempts yet</p>
               </div>
             )}
-            {a.assignment_module_stats.length > 0 && (
-              <div className="flex gap-4 mt-3 pt-3 border-t border-border/50">
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="w-3 h-2 rounded inline-block bg-success" /> Pass Rate
-                </span>
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="w-3 h-2 rounded inline-block bg-primary opacity-40" /> Avg Score
-                </span>
-              </div>
-            )}
           </GlassCard>
 
-          {/* Coding difficulty donut */}
-          <GlassCard id="coding" className="scroll-mt-24 lg:col-span-2 flex flex-col">
+          {/* Coding donut */}
+          <GlassCard id="coding" className="scroll-mt-24 lg:col-span-2 relative overflow-hidden border-coral/20 flex flex-col">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-success via-warning to-danger" />
             <div className="flex items-center gap-2 mb-1">
-              <Code2 className="h-4 w-4 text-primary" />
+              <Code2 className="h-4 w-4 text-coding" />
               <h3 className="font-semibold font-serif text-foreground">Coding Solved</h3>
             </div>
-            <p className="text-xs text-muted-foreground mb-3">Unique problems · across all students</p>
+            <p className="text-xs text-muted-foreground mb-3">Unique problems · by difficulty</p>
 
             {a.coding_summary.some(d => d.solved > 0) ? (
               <div className="flex-1 flex flex-col">
@@ -788,36 +933,24 @@ export default function AdminAnalyticsPage() {
                   config={{
                     Easy:   { label: "Easy",   color: "var(--success)" },
                     Medium: { label: "Medium", color: "var(--warning)" },
-                    Hard:   { label: "Hard",   color: "var(--danger)" },
+                    Hard:   { label: "Hard",   color: "var(--danger)"  },
                   }}
                   className="h-[170px] w-full"
                 >
                   <PieChart>
-                    <Pie
-                      data={a.coding_summary}
-                      dataKey="solved"
-                      nameKey="difficulty"
-                      cx="50%" cy="50%"
-                      innerRadius={46} outerRadius={72}
-                      paddingAngle={4}
-                      strokeWidth={0}
-                      animationBegin={0}
-                      animationDuration={1000}
-                    >
-                      {a.coding_summary.map(d => (
-                        <Cell key={d.difficulty} fill={diffColor(d.difficulty)} />
-                      ))}
-                      <Label
-                        content={({ viewBox }) => {
-                          const { cx, cy } = viewBox as { cx: number; cy: number }
-                          return (
-                            <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
-                              <tspan x={cx} dy="-6" fontSize="20" fontWeight="700" fill="var(--foreground)">{totalCodingSolved}</tspan>
-                              <tspan x={cx} dy="16" fontSize="10" fill="var(--muted-foreground)">solved</tspan>
-                            </text>
-                          )
-                        }}
-                      />
+                    <Pie data={a.coding_summary} dataKey="solved" nameKey="difficulty"
+                      cx="50%" cy="50%" innerRadius={46} outerRadius={72}
+                      paddingAngle={4} strokeWidth={0} animationDuration={1000}>
+                      {a.coding_summary.map(d => <Cell key={d.difficulty} fill={diffColor(d.difficulty)} />)}
+                      <Label content={({ viewBox }) => {
+                        const { cx, cy } = viewBox as { cx: number; cy: number }
+                        return (
+                          <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+                            <tspan x={cx} dy="-6" fontSize="20" fontWeight="700" fill="var(--foreground)">{totalCodingSolved}</tspan>
+                            <tspan x={cx} dy="16" fontSize="10" fill="var(--muted-foreground)">solved</tspan>
+                          </text>
+                        )
+                      }} />
                     </Pie>
                     <ChartTooltip content={<ChartTooltipContent />} formatter={(val: number, name: string) => [`${val} solved`, name]} />
                   </PieChart>
@@ -825,17 +958,20 @@ export default function AdminAnalyticsPage() {
 
                 <div className="grid grid-cols-3 gap-2 mt-2 pt-3 border-t border-border/50">
                   {a.coding_summary.map(d => (
-                    <div key={d.difficulty} className="text-center">
-                      <p className="text-lg font-bold font-serif tabular-nums" style={{ color: diffColor(d.difficulty) }}>
+                    <motion.div key={d.difficulty}
+                      className={`text-center p-2 rounded-xl border ${diffBg(d.difficulty)}`}
+                      whileHover={{ scale: 1.06 }}
+                    >
+                      <p className="text-lg font-bold font-serif tabular-nums">
                         <Num value={d.solved} />
-                        <span className="text-xs font-normal text-muted-foreground">/{d.total}</span>
                       </p>
-                      <p className="text-[11px] text-muted-foreground">{d.difficulty}</p>
-                    </div>
+                      <p className="text-[10px] font-medium">{d.difficulty}</p>
+                      <p className="text-[10px] text-muted-foreground">/{d.total}</p>
+                    </motion.div>
                   ))}
                 </div>
-                <p className="text-[11px] text-muted-foreground text-center mt-2">
-                  <Num value={a.total_coding_submissions} /> total submissions
+                <p className="text-[11px] text-muted-foreground text-center mt-3">
+                  <span className="font-semibold text-coding tabular-nums"><Num value={a.total_coding_submissions} /></span> total submissions
                 </p>
               </div>
             ) : (
@@ -847,147 +983,154 @@ export default function AdminAnalyticsPage() {
         </div>
       </Section>
 
-      {/* ── At-risk students ── */}
-      <Section delay={0.05}>
-        <GlassCard id="students" className="scroll-mt-24">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <UserX className="h-4 w-4 text-danger" />
-              <h3 className="font-semibold font-serif text-foreground">At-Risk Students</h3>
-              {a.at_risk_count > 0 && (
-                <Badge variant="destructive" className="text-xs h-5">{a.at_risk_count}</Badge>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground">Inactive 14+ days</p>
-          </div>
+      {/* ── SECTION: Students ─────────────────────────────────────────────── */}
+      <Section id="students">
+        <SectionHead icon={Users} title="Students"
+          subtitle="At-risk students · top performers leaderboard"
+          gradient="from-danger via-danger/50 to-transparent"
+          iconClass="bg-danger/20 text-danger" bgClass="bg-gradient-to-r from-danger/8 to-transparent" borderClass="border-danger/20" />
 
-          {a.at_risk_students.length > 0 ? (
-            <div className="space-y-2">
-              {a.at_risk_students.map((s, i) => {
-                const days = daysSince(s.last_active)
-                const urgency = days === null || days > 30 ? "high" : days > 21 ? "med" : "low"
-                return (
-                  <motion.div
-                    key={s.id}
-                    initial={{ opacity: 0, x: -12 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.04, duration: 0.35, ease: "easeOut" }}
-                    whileHover={{ x: 2, transition: { duration: 0.12 } }}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors cursor-default"
-                  >
-                    <div className="relative flex-shrink-0">
-                      <div className="w-8 h-8 rounded-full bg-danger/10 flex items-center justify-center">
-                        <span className="text-xs font-bold text-danger">{s.name.charAt(0).toUpperCase()}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* At-risk */}
+          <GlassCard className="relative overflow-hidden border-danger/20">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-danger via-warning to-transparent" />
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <UserX className="h-4 w-4 text-danger" />
+                <h3 className="font-semibold font-serif text-foreground">At-Risk Students</h3>
+                {a.at_risk_count > 0 && (
+                  <Badge className="bg-danger/15 text-danger border-danger/30 text-xs">{a.at_risk_count}</Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">Inactive 14+ days</p>
+            </div>
+
+            {a.at_risk_students.length > 0 ? (
+              <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                {a.at_risk_students.map((s, i) => {
+                  const d = daysSince(s.last_active)
+                  const urgency = d === null || d > 30 ? "high" : d > 21 ? "med" : "low"
+                  const rowCls  = urgency === "high" ? "bg-danger/8 border-danger/20"   : urgency === "med" ? "bg-warning/8 border-warning/20" : "bg-primary/5 border-primary/15"
+                  const nameCls = urgency === "high" ? "text-danger"                     : urgency === "med" ? "text-warning"                   : "text-primary"
+                  const avatarCls = urgency === "high" ? "bg-danger/15 text-danger"      : urgency === "med" ? "bg-warning/15 text-warning"      : "bg-primary/15 text-primary"
+                  return (
+                    <motion.div key={s.id}
+                      initial={{ opacity: 0, x: -12 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.04 }}
+                      whileHover={{ x: 3, transition: { duration: 0.12 } }}
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${rowCls}`}
+                    >
+                      <div className="relative flex-shrink-0">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm ${avatarCls}`}>
+                          {s.name.charAt(0).toUpperCase()}
+                        </div>
+                        {urgency === "high" && (
+                          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card bg-danger">
+                            <span className="absolute inset-0 rounded-full bg-danger animate-ping opacity-60" />
+                          </span>
+                        )}
                       </div>
-                      <span
-                        className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-card"
-                        style={{ background: urgency === "high" ? "var(--danger)" : urgency === "med" ? "var(--warning)" : "var(--primary)" }}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {[s.branch, s.section].filter(Boolean).join(" · ") || "—"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <div className="text-right hidden sm:block">
-                        <p className="text-xs font-semibold text-foreground tabular-nums">{s.points} pts</p>
-                        <p className="text-xs" style={{ color: urgency === "high" ? "var(--danger)" : urgency === "med" ? "var(--warning)" : "var(--primary)" }}>
-                          {days === null ? "Never active" : `${days}d ago`}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {[s.branch, s.section].filter(Boolean).join(" · ") || "—"}
                         </p>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 gap-1 text-xs border-primary/30 text-primary hover:bg-primary/10"
-                        disabled={reminding === s.id}
-                        onClick={() => sendRemind(s)}
-                      >
-                        {reminding === s.id
-                          ? <Loader2 className="h-3 w-3 animate-spin" />
-                          : <Send className="h-3 w-3" />}
-                        Remind
-                      </Button>
-                    </div>
-                  </motion.div>
-                )
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              All students active in the last 14 days
-            </p>
-          )}
-        </GlassCard>
-      </Section>
-
-      {/* ── Top 10 leaderboard ── */}
-      <Section delay={0.05}>
-        <GlassCard>
-          <div className="flex items-center gap-2 mb-5">
-            <Trophy className="h-4 w-4 text-warning" />
-            <h3 className="font-semibold font-serif text-foreground">Top 10 Students</h3>
-          </div>
-
-          {a.top_students.length > 0 ? (
-            <div className="space-y-1">
-              {a.top_students.map((s, i) => {
-                const pct = Math.round(s.points / maxPts * 100)
-                return (
-                  <motion.div
-                    key={s.id}
-                    initial={{ opacity: 0, x: -12 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05, duration: 0.35, ease: "easeOut" }}
-                    className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg overflow-hidden hover:bg-secondary/40 transition-colors"
-                  >
-                    {/* rank background bar */}
-                    <motion.div
-                      className="absolute inset-0 rounded-lg"
-                      style={{ background: i === 0 ? "rgba(251,191,36,0.07)" : "transparent" }}
-                      initial={{ scaleX: 0, originX: 0 }}
-                      whileInView={{ scaleX: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.05 + 0.2, duration: 0.6, ease: "easeOut" }}
-                    />
-                    <motion.div
-                      className="absolute left-0 top-0 bottom-0 rounded-l-lg opacity-10"
-                      style={{ background: i < 3 ? ["var(--warning)","#94A3B8","#CD7F32"][i] : "var(--primary)", width: `${pct}%` }}
-                      initial={{ scaleX: 0, originX: 0 }}
-                      whileInView={{ scaleX: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.05 + 0.15, duration: 0.7, ease: "easeOut" }}
-                    />
-
-                    <span className="relative w-7 text-center flex-shrink-0">
-                      {i < 3
-                        ? <span className="text-base">{MEDALS[i]}</span>
-                        : <span className="text-sm font-bold text-muted-foreground">{i + 1}</span>}
-                    </span>
-                    <div className="relative flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
-                      <p className="text-xs text-muted-foreground">{s.branch || "—"}</p>
-                    </div>
-                    <div className="relative flex items-center gap-4">
-                      <div className="flex items-center gap-1">
-                        <Flame className="h-3 w-3 text-streak" />
-                        <span className="text-xs text-muted-foreground tabular-nums">{s.streak}d</span>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="text-right hidden sm:block">
+                          <p className={`text-xs font-bold tabular-nums ${nameCls}`}>
+                            {d === null ? "Never" : `${d}d ago`}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{s.points} pts</p>
+                        </div>
+                        <Button size="sm" variant="outline"
+                          className="h-7 w-7 p-0 border-danger/30 text-danger hover:bg-danger/10"
+                          disabled={reminding === s.id}
+                          onClick={() => sendRemind(s)}
+                          title={`Send reminder to ${s.name}`}
+                        >
+                          {reminding === s.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+                        </Button>
                       </div>
-                      <span className="text-sm font-semibold text-primary w-24 text-right font-mono tabular-nums">
-                        {s.points.toLocaleString()} pts
-                      </span>
-                    </div>
-                  </motion.div>
-                )
-              })}
+                    </motion.div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 gap-2">
+                <div className="w-12 h-12 rounded-full bg-success/15 flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-success" />
+                </div>
+                <p className="text-sm font-medium text-foreground">All students active!</p>
+                <p className="text-xs text-muted-foreground">No one inactive for 14+ days</p>
+              </div>
+            )}
+          </GlassCard>
+
+          {/* Top 10 leaderboard */}
+          <GlassCard className="relative overflow-hidden border-warning/20">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-warning via-primary to-coding" />
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-warning" />
+                <h3 className="font-semibold font-serif text-foreground">Top 10 Students</h3>
+              </div>
+              <Button variant="outline" size="sm" onClick={exportCSV} className="h-7 gap-1.5 text-xs">
+                <Download className="h-3 w-3" /> Export
+              </Button>
             </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">No students yet</p>
-          )}
-        </GlassCard>
+
+            {a.top_students.length > 0 ? (
+              <div className="space-y-1">
+                {a.top_students.map((s, i) => {
+                  const pct      = Math.round(s.points / maxPts * 100)
+                  const rankColor = i === 0 ? "var(--warning)" : i === 1 ? "#94A3B8" : i === 2 ? "#CD7F32" : "var(--primary)"
+                  return (
+                    <motion.div key={s.id}
+                      initial={{ opacity: 0, x: -12 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.05 }}
+                      whileHover={{ x: 3, transition: { duration: 0.12 } }}
+                      className="relative flex items-center gap-3 px-3 py-2.5 rounded-xl overflow-hidden hover:bg-secondary/40 transition-colors"
+                    >
+                      <motion.div className="absolute left-0 top-0 bottom-0 rounded-xl opacity-[0.07]"
+                        style={{ background: rankColor }}
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${pct}%` }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.05 + 0.2, duration: 0.8, ease: "easeOut" }} />
+                      <span className="relative w-7 text-center flex-shrink-0">
+                        {i < 3 ? <span className="text-base">{MEDALS[i]}</span>
+                          : <span className="text-sm font-bold text-muted-foreground">{i + 1}</span>}
+                      </span>
+                      <div className="relative flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
+                        <p className="text-xs text-muted-foreground">{s.branch || "—"}</p>
+                      </div>
+                      <div className="relative flex items-center gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-1">
+                          <Flame className="h-3 w-3 text-streak" />
+                          <span className="text-xs text-muted-foreground tabular-nums">{s.streak}d</span>
+                        </div>
+                        <span className="text-sm font-bold tabular-nums" style={{ color: rankColor }}>
+                          {s.points.toLocaleString()}
+                        </span>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 gap-2">
+                <Users className="h-8 w-8 text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">No students yet</p>
+              </div>
+            )}
+          </GlassCard>
+        </div>
       </Section>
 
     </div>

@@ -517,7 +517,7 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
                     className="bg-transparent border-0 rounded-none px-4 py-3 text-xl font-bold font-serif placeholder:text-muted-foreground/40 focus-visible:ring-0 h-auto"
                   />
                   {/* Cover URL — metadata, icon inside, pl-10 */}
-                  <div className="relative">
+                  {/* <div className="relative">
                     <ImagePlus className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                     <Input
                       placeholder="Cover image URL (optional)"
@@ -525,7 +525,7 @@ function CreatePostPanel({ user, onCreated }: { user: any; onCreated: (p: Post) 
                       onChange={e => setCoverUrl(e.target.value)}
                       className="pl-10 bg-transparent border-0 rounded-none focus-visible:ring-0"
                     />
-                  </div>
+                  </div> */}
                 </motion.div>
               )}
             </AnimatePresence>

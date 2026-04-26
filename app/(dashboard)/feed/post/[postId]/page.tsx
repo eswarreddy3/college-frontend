@@ -460,12 +460,12 @@ export default function PostDetailPage() {
         <div className={cn(isOfficial && "mt-7")}>
 
         {/* Cover image */}
-        {isBlog && post.cover_image_url && (
+        {/* {isBlog && post.cover_image_url && (
           <div className="relative -mx-5 -mt-1 mb-5 h-56 overflow-hidden" style={{ width: "calc(100% + 2.5rem)", marginLeft: "-1.25rem" }}>
             <img src={post.cover_image_url} alt={post.title ?? ""} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
           </div>
-        )}
+        )} */}
 
         {/* Author row */}
         <div className="flex items-center justify-between mb-5">
