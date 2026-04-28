@@ -1230,7 +1230,9 @@ Array: [64, 25, 12, 22, 11]   Search key: 22  Step 1: Compare 64 with 22 → No 
 
 \`\`\`
 // Linear Search — works on any array (sorted or unsorted)int linearSearch(int arr[], int n, int key) {  for(int i = 0; i < n; i++) {    if(arr[i] == key)      return i;   // found at index i  }  return -1;  // not found}// Usage:// int arr[] = {64, 25, 12, 22, 11};// int result = linearSearch(arr, 5, 22);// result = 3 (index of element 22)
-\`\`\`(/Gifs/dv3.gif)
+\`\`\`
+
+!(/Gifs/dv3.gif)
 
 | Case | Complexity | Example Scenario |
 | --- | --- | --- |
