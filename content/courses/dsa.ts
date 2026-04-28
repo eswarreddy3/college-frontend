@@ -436,7 +436,7 @@ If int arr[5] = {10, 20, 30, 40, 50} and base address = 1000 (each int = 4 bytes
 Address Formula: Address of arr[i] = Base + (i × Size_of_element)  Address of arr[3] = 1000 + (3 × 4) = 1012
 \`\`\`
 
-![Array Visualization — Contiguous Memory](/DSA%20images/dimg6.png)
+![Array Visualization — Contiguous Memory](/Gifs/dv1.gif)
 
 ## ▶ Three Types of Array Indexing
 
@@ -534,7 +534,7 @@ A Linked List is a collection of elements (nodes) where:
 Linked List: 10 → 15 → 5 → 20 → NULL
 \`\`\`
 
-![Linked List — Node Structure and Chain](/DSA%20images/dimg7.png)
+![Linked List — Node Structure and Chain](/Gifs/dv2.mp4)
 
 ## ▶ Node Declaration in C
 
@@ -683,7 +683,7 @@ What is a Stack?A Stack is a linear data structure that follows the LIFO princip
 Stack (max size=4):
 \`\`\`
 
-![Stack Operations — PUSH and POP](/DSA%20images/dimg9.png)
+![Stack Operations — PUSH and POP](/Gifs/dv3.gif)
 
 ## ▶ Stack Operations — All 5
 
@@ -1226,7 +1226,7 @@ Linear Search is the simplest search algorithm. It sequentially checks each elem
 Array: [64, 25, 12, 22, 11]   Search key: 22  Step 1: Compare 64 with 22 → No  Step 2: Compare 25 with 22 → No  Step 3: Compare 12 with 22 → No  Step 4: Compare 22 with 22 → YES! Found at index 3 ✓
 \`\`\`
 
-![Linear Search — Step-by-Step Example](/DSA%20images/dimg26.png)
+![Linear Search — Step-by-Step Example](/Gifs/dv4.gif)
 
 \`\`\`
 // Linear Search — works on any array (sorted or unsorted)int linearSearch(int arr[], int n, int key) {  for(int i = 0; i < n; i++) {    if(arr[i] == key)      return i;   // found at index i  }  return -1;  // not found}// Usage:// int arr[] = {64, 25, 12, 22, 11};// int result = linearSearch(arr, 5, 22);// result = 3 (index of element 22)
@@ -1251,7 +1251,7 @@ Step-by-Step Example: Array = [2, 5, 8, 12, 16, 23, 38, 42, 56, 72]  Search key 
 low=0, high=9  Iteration 1: mid = (0+9)/2 = 4  → arr[4]=16 < 23 → low = 5  Iteration 2: mid = (5+9)/2 = 7  → arr[7]=42 > 23 → high = 6  Iteration 3: mid = (5+6)/2 = 5  → arr[5]=23 = 23 → FOUND at index 5! ✓  Only 3 comparisons for 10 elements! (Linear would need 6)
 \`\`\`
 
-![Binary Search — 3-Iteration Example](/DSA%20images/dimg27.png)
+![Binary Search — 3-Iteration Example](/Gifs/dv5.gif)
 
 \`\`\`
 // Binary Search — Iterative (preferred)int binarySearch(int arr[], int n, int key) {  int low = 0, high = n - 1;  while(low <= high) {    int mid = low + (high - low) / 2;  // avoids integer overflow    if(arr[mid] == key)  return mid;   // FOUND    else if(arr[mid] < key) low = mid + 1;  // search RIGHT half    else high = mid - 1;                    // search LEFT half  }  return -1;  // not found}// Binary Search — Recursiveint binarySearchRecursive(int arr[], int low, int high, int key) {  if(low > high) return -1;  // base case: not found  int mid = low + (high - low) / 2;  if(arr[mid] == key) return mid;  if(arr[mid] < key) return binarySearchRecursive(arr, mid+1, high, key);  return binarySearchRecursive(arr, low, mid-1, key);}
@@ -1273,7 +1273,7 @@ Jump Search divides the sorted array into blocks of size √n. It jumps forward 
 Array (n=16): [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31]  Block size: √16 = 4  Search key: 19  Jump 1: arr[0]=1 < 19  → jump  Jump 2: arr[4]=9 < 19  → jump  Jump 3: arr[8]=17 < 19 → jump  Jump 4: arr[12]=25 > 19 → overshot! Go back to arr[8]  Linear from index 8: arr[8]=17, arr[9]=19 → FOUND at index 9 ✓
 \`\`\`
 
-![Jump Search — Block Jumping then Linear Phase](/DSA%20images/dimg28.png)
+![Jump Search — Block Jumping then Linear Phase](/Gifs/dv6.gif)
 
 \`\`\`
 #include <math.h>int jumpSearch(int arr[], int n, int key) {  int step = (int)sqrt(n);  // block size = √n  int prev = 0;  // Jump forward in blocks  while(arr[step < n ? step : n-1] < key) {    prev = step;    step += (int)sqrt(n);    if(prev >= n) return -1;  // gone past end  }  // Linear search in the block [prev...step]  while(arr[prev] < key) {    prev++;    if(prev == (step<n?step:n)) return -1;  }  if(arr[prev] == key) return prev;  return -1;}
@@ -1336,7 +1336,7 @@ Bubble Sort repeatedly compares adjacent elements and SWAPS them if they are in 
 Array: [64, 34, 25, 12, 22, 11, 90]  Pass 1: Compare pairs and swap if needed  [64,34] → swap → [34,64,25,12,22,11,90]  [64,25] → swap → [34,25,64,12,22,11,90]  [64,12] → swap → [34,25,12,64,22,11,90]  [64,22] → swap → [34,25,12,22,64,11,90]  [64,11] → swap → [34,25,12,22,11,64,90]  [64,90] → ok   → [34,25,12,22,11,64,90] ← 90 at correct position  After pass 1: largest element 90 is at correct position  Need n-1 passes to sort n elements
 \`\`\`
 
-![Bubble Sort — Full Step-by-Step on 7 Elements](/DSA%20images/dimg29.png)
+![Bubble Sort — Full Step-by-Step on 7 Elements](/Gifs/dv7.gif)
 
 \`\`\`
 void bubbleSort(int arr[], int n) {  for(int i=0; i<n-1; i++) {    int swapped = 0;  // optimisation flag    for(int j=0; j<n-i-1; j++) {      if(arr[j] > arr[j+1]) {        // swap arr[j] and arr[j+1]        int temp = arr[j];        arr[j] = arr[j+1];        arr[j+1] = temp;        swapped = 1;      }    }    if(!swapped) break;  // already sorted — stop early  }}// Time: O(n²) worst/avg | O(n) best (already sorted with flag)
@@ -1350,7 +1350,7 @@ Selection Sort finds the MINIMUM element in the unsorted portion and places it a
 Array: [64, 25, 12, 22, 11]  Pass 1: Min of [64,25,12,22,11] = 11 at index 4 → swap with index 0          [11, 25, 12, 22, 64]  Pass 2: Min of [25,12,22,64] = 12 at index 2 → swap with index 1          [11, 12, 25, 22, 64]  Pass 3: Min of [25,22,64] = 22 at index 3 → swap with index 2          [11, 12, 22, 25, 64]  Pass 4: Min of [25,64] = 25 → already in place          [11, 12, 22, 25, 64] ← SORTED! ✓
 \`\`\`
 
-![Selection Sort — Find Minimum, Swap to Front](/DSA%20images/dimg30.png)
+![Selection Sort — Find Minimum, Swap to Front](/Gifs/dv8.gif)
 
 \`\`\`
 void selectionSort(int arr[], int n) {  for(int i=0; i<n-1; i++) {    int minIdx = i;    for(int j=i+1; j<n; j++)      if(arr[j] < arr[minIdx]) minIdx = j;    // Swap minimum with first element of unsorted part    int temp = arr[minIdx]; arr[minIdx] = arr[i]; arr[i] = temp;  }}// Time: O(n²) always | Space: O(1) | Not stable// Advantage: Makes minimum number of swaps — n-1 swaps maximum
@@ -1364,7 +1364,7 @@ Insertion Sort builds a sorted array ONE element at a time by picking the next e
 Array: [12, 11, 13, 5, 6]  i=1: key=11 → compare with 12, shift 12 right → insert 11 → [11,12,13,5,6]  i=2: key=13 → 13>12, no shift needed         → insert 13 → [11,12,13,5,6]  i=3: key=5  → shift 13,12,11 right            → insert 5  → [5,11,12,13,6]  i=4: key=6  → shift 13,12,11 right            → insert 6  → [5,6,11,12,13]  SORTED! ✓
 \`\`\`
 
-![Insertion Sort — Pick and Insert into Sorted Portion](/DSA%20images/dimg31.png)
+![Insertion Sort — Pick and Insert into Sorted Portion](/Gifs/dv9.gif)
 
 \`\`\`
 void insertionSort(int arr[], int n) {  for(int i=1; i<n; i++) {    int key = arr[i];  // element to insert    int j = i - 1;    // Shift elements > key one position right    while(j >= 0 && arr[j] > key) {      arr[j+1] = arr[j];      j--;    }    arr[j+1] = key;  // insert key at correct position  }}// Time: O(n) best | O(n²) avg/worst | Stable | Best for nearly sorted
@@ -1378,7 +1378,7 @@ Merge Sort uses DIVIDE AND CONQUER: recursively split array into halves, sort ea
 Array: [38, 27, 43, 3, 9, 82, 10]  DIVIDE:  [38,27,43,3]       [9,82,10]  [38,27]  [43,3]    [9,82]  [10]  [38][27] [43][3]   [9][82] [10]  MERGE (conquer):  [27,38]  [3,43]    [9,82]  [10]  [3,27,38,43]       [9,10,82]  [3,9,10,27,38,43,82]  ← SORTED! ✓
 \`\`\`
 
-![Merge Sort — Divide and Conquer Visualization](/DSA%20images/dimg32.png)
+![Merge Sort — Divide and Conquer Visualization](/Gifs/dv10.gif)
 
 \`\`\`
 // Merge two sorted halvesvoid merge(int arr[], int l, int m, int r) {  int n1=m-l+1, n2=r-m;  int L[n1], R[n2];  for(int i=0;i<n1;i++) L[i]=arr[l+i];  for(int j=0;j<n2;j++) R[j]=arr[m+1+j];  int i=0, j=0, k=l;  while(i<n1 && j<n2)    arr[k++] = (L[i]<=R[j]) ? L[i++] : R[j++];  while(i<n1) arr[k++]=L[i++];  while(j<n2) arr[k++]=R[j++];}// Recursive divide and mergevoid mergeSort(int arr[], int l, int r) {  if(l < r) {    int m = l + (r-l)/2;    mergeSort(arr, l, m);      // sort left half    mergeSort(arr, m+1, r);    // sort right half    merge(arr, l, m, r);       // merge both halves  }}// Call: mergeSort(arr, 0, n-1);// Time: O(n log n) ALWAYS | Space: O(n) | Stable
@@ -1392,7 +1392,7 @@ Quick Sort picks a PIVOT element and partitions the array so all elements less t
 Array: [10, 80, 30, 90, 40, 50, 70]  Pivot = last element = 70  Partition step: place all <70 left of 70, all >70 right  [10, 30, 40, 50, 70, 90, 80]  ← 70 is now at correct position!  left: [10,30,40,50]  right: [90,80]  Recursively sort left and right parts  Final: [10, 30, 40, 50, 70, 80, 90] ✓
 \`\`\`
 
-![Quick Sort — Partition Step and Recursive Sorting](/DSA%20images/dimg33.png)
+![Quick Sort — Partition Step and Recursive Sorting](/Gifs/dv11.gif)
 
 \`\`\`
 // Partition — returns index of pivot in correct positionint partition(int arr[], int low, int high) {  int pivot = arr[high];  // choose last element as pivot  int i = low - 1;        // i tracks boundary of < pivot region  for(int j=low; j<high; j++) {    if(arr[j] <= pivot) {      i++;      int temp=arr[i]; arr[i]=arr[j]; arr[j]=temp;  // swap    }  }  // Place pivot in correct position  int temp=arr[i+1]; arr[i+1]=arr[high]; arr[high]=temp;  return i+1;  // pivot index}void quickSort(int arr[], int low, int high) {  if(low < high) {    int pi = partition(arr, low, high);    quickSort(arr, low, pi-1);   // sort left of pivot    quickSort(arr, pi+1, high);  // sort right of pivot  }}// Time: O(n logn) avg | O(n²) worst (sorted array + bad pivot)// Space: O(log n) | Not stable | Fastest in practice (good cache)

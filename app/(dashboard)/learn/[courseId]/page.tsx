@@ -683,6 +683,7 @@ export default function CourseDetailPage() {
   const [mcqQStates, setMcqQStates] = useState<McqQState[]>([])
   const [answerFeedback, setAnswerFeedback] = useState<"correct" | "wrong" | null>(null)
   const [moduleAssignments, setModuleAssignments] = useState<ModuleAssignment[]>([])
+  const [panelOpen, setPanelOpen] = useState(true)
 
   const MCQ_LETTERS = ["A", "B", "C", "D", "E"]
 
@@ -957,7 +958,7 @@ export default function CourseDetailPage() {
             return (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => { setActiveTab(tab); setPanelOpen(true) }}
                 className={cn(
                   "px-5 py-2 rounded-lg text-sm font-medium transition-all",
                   activeTab === tab
@@ -974,16 +975,32 @@ export default function CourseDetailPage() {
 
       {/* ── TAB: Lessons (+ non-tiered courses) ────────────────────────────── */}
       {(!isModular || activeTab === "lessons") && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Module / lesson nav — sticky on desktop */}
-          <div className="lg:col-span-1 lg:sticky lg:top-4">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          {/* Module / lesson nav */}
+          <AnimatePresence initial={false}>
+            {panelOpen && (
+              <motion.div
+                key="lesson-panel"
+                className="w-full lg:w-[272px] lg:flex-shrink-0 lg:sticky lg:top-4"
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -16 }}
+                transition={{ duration: 0.22 }}
+              >
             <GlassCard className="p-0 overflow-hidden">
-              <div className="p-4 border-b border-border">
+              <div className="flex items-center justify-between p-4 border-b border-border">
                 <h2 className="font-semibold font-serif text-foreground">
                   {isModular ? "Modules" : "Lessons"}
                 </h2>
+                <button
+                  onClick={() => setPanelOpen(false)}
+                  title="Collapse panel"
+                  className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-secondary/60 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
               </div>
-              <div className="overflow-y-auto max-h-[60vh]">
+              <div className="overflow-y-auto max-h-[55vh] lg:max-h-[62vh]">
                 {isModular ? (
                   ACTIVE_MODULES.map((mod) => {
                     const modLessons = course.lessons.filter(l => mod.lesson_ids.includes(l.id))
@@ -1025,7 +1042,7 @@ export default function CourseDetailPage() {
                               return (
                                 <button
                                   key={lesson.id}
-                                  onClick={() => setActiveLesson(lesson)}
+                                  onClick={() => { setActiveLesson(lesson); if (window.innerWidth < 1024) setPanelOpen(false) }}
                                   className={cn(
                                     "w-full flex items-start gap-3 pl-6 pr-4 py-3 text-left border-t border-border transition-colors hover:bg-secondary/30",
                                     isActive && "bg-primary/10 border-l-2 border-l-primary pl-[22px]"
@@ -1061,7 +1078,7 @@ export default function CourseDetailPage() {
                   course.lessons.map((lesson, idx) => (
                     <button
                       key={lesson.id}
-                      onClick={() => setActiveLesson(lesson)}
+                      onClick={() => { setActiveLesson(lesson); if (window.innerWidth < 1024) setPanelOpen(false) }}
                       className={cn(
                         "w-full flex items-start gap-3 p-4 text-left border-b border-border last:border-0 transition-colors hover:bg-secondary/30",
                         activeLesson?.id === lesson.id && "bg-primary/10 border-l-2 border-l-primary"
@@ -1088,10 +1105,24 @@ export default function CourseDetailPage() {
                 )}
               </div>
             </GlassCard>
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Lesson content */}
-          <div className="lg:col-span-2" ref={contentPanelRef}>
+          <div className="flex-1 min-w-0" ref={contentPanelRef}>
+            {!panelOpen && (
+              <motion.button
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                onClick={() => setPanelOpen(true)}
+                className="mb-4 flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-secondary/40 hover:bg-secondary/60 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <BookOpen className="h-3.5 w-3.5" />
+                <span>{isModular ? "Show Modules" : "Show Lessons"}</span>
+                <ChevronRight className="h-3.5 w-3.5 ml-1" />
+              </motion.button>
+            )}
             {activeLesson ? (
               <GlassCard className="p-0 overflow-hidden">
                 {/* Lesson header */}
@@ -1164,14 +1195,30 @@ export default function CourseDetailPage() {
 
       {/* ── TAB: MCQ Practice ───────────────────────────────────────────────── */}
       {isModular && activeTab === "practice" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Topic list by module — sticky on desktop */}
-          <div className="lg:col-span-1 lg:sticky lg:top-4">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          {/* Topic list by module */}
+          <AnimatePresence initial={false}>
+            {panelOpen && (
+              <motion.div
+                key="practice-panel"
+                className="w-full lg:w-[272px] lg:flex-shrink-0 lg:sticky lg:top-4"
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -16 }}
+                transition={{ duration: 0.22 }}
+              >
             <GlassCard className="p-0 overflow-hidden">
-              <div className="p-4 border-b border-border">
+              <div className="flex items-center justify-between p-4 border-b border-border">
                 <h2 className="font-semibold font-serif text-foreground">Topics</h2>
+                <button
+                  onClick={() => setPanelOpen(false)}
+                  title="Collapse panel"
+                  className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-secondary/60 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
               </div>
-              <div className="overflow-y-auto max-h-[60vh]">
+              <div className="overflow-y-auto max-h-[55vh] lg:max-h-[62vh]">
                 {ACTIVE_MODULES.map((mod) => {
                   const withQuestions = mod.lesson_ids.filter(id => (mcqLessonCounts[String(id)] ?? 0) > 0).length
                   const total = mod.lesson_ids.length
@@ -1213,7 +1260,7 @@ export default function CourseDetailPage() {
                             return (
                               <button
                                 key={lessonId}
-                                onClick={() => openMcqTopic(lesson.id, lesson.title)}
+                                onClick={() => { openMcqTopic(lesson.id, lesson.title); if (window.innerWidth < 1024) setPanelOpen(false) }}
                                 className={cn(
                                   "w-full flex items-start gap-3 pl-6 pr-4 py-3 text-left border-t border-border transition-colors hover:bg-secondary/30",
                                   isSelected && "bg-primary/10 border-l-2 border-l-primary pl-[22px]"
@@ -1248,10 +1295,24 @@ export default function CourseDetailPage() {
                 })}
               </div>
             </GlassCard>
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* MCQ question panel */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
+          <div className="flex-1 min-w-0 flex flex-col gap-4">
+            {!panelOpen && (
+              <motion.button
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                onClick={() => setPanelOpen(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-secondary/40 hover:bg-secondary/60 text-sm text-muted-foreground hover:text-foreground transition-colors self-start"
+              >
+                <Brain className="h-3.5 w-3.5" />
+                <span>Show Topics</span>
+                <ChevronRight className="h-3.5 w-3.5 ml-1" />
+              </motion.button>
+            )}
 
             {/* Answer flash overlay */}
             <AnimatePresence>
