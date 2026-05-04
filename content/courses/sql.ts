@@ -2,15 +2,11 @@ const sqlContent: Record<number, string> = {
 
   1: `# Introduction to Databases
 
-A database is an organized, structured collection of data stored and accessed electronically. Think of it
-like a digital filing system instead of paper files in cabinets, data is stored in tables that can be searched,
-sorted, and updated instantly. Databases power almost every application we use daily.
+A database is an organized, structured collection of data stored and accessed electronically. Think of it like a digital filing system instead of paper files in cabinets, data is stored in tables that can be searched, sorted, and updated instantly. Databases power almost every application we use daily.
 
 ## 1. What is a Database?
 
-A database is a collection of related data organized for efficient storage and retrieval. Every time you log
-into an app, check your bank balance, or order food online a database is working behind the scenes.
-Without databases, applications would have no permanent memory.
+A database is a collection of related data organized for efficient storage and retrieval. Every time you log into an app, check your bank balance, or order food online a database is working behind the scenes. Without databases, applications would have no permanent memory.
 
 :::scenario
 Amazon has millions of products. Every product name, price, stock count, and seller detail is stored in databases. When you search 'headphones', the database retrieves matching rows instantly from millions of records.
@@ -23,9 +19,7 @@ Amazon has millions of products. Every product name, price, stock count, and sel
 
 ## 2. What is an RDBMS?
 
-RDBMS stands for Relational Database Management System. It organizes data into tables (like
-spreadsheet grids) with rows and columns. The 'relational' part means tables can be linked to each other
-using keys. This avoids storing duplicate data and keeps the database efficient.
+RDBMS stands for Relational Database Management System. It organizes data into tables (like spreadsheet grids) with rows and columns. The 'relational' part means tables can be linked to each other using keys. This avoids storing duplicate data and keeps the database efficient.
 
 :::scenario
 A hospital database has a 'Patients' table and a 'Doctors' table. Instead of repeating the doctor's name in every patient record, we store the doctor's ID and link the tables this is the relational model.
@@ -38,10 +32,7 @@ A hospital database has a 'Patients' table and a 'Doctors' table. Instead of rep
 
 ## 3. SQL vs NoSQL
 
-SQL (Structured Query Language) databases are relational they use fixed schemas and tables.
-NoSQL databases are non-relational they store data as documents, key-value pairs, graphs, or wide
-columns. SQL is better for structured, consistent data; NoSQL is better for unstructured, large-scale, or
-rapidly changing data.
+SQL (Structured Query Language) databases are relational they use fixed schemas and tables. NoSQL databases are non-relational they store data as documents, key-value pairs, graphs, or wide columns. SQL is better for structured, consistent data; NoSQL is better for unstructured, large-scale, or rapidly changing data.
 
 :::scenario
 A bank uses SQL (MySQL/PostgreSQL) to store account transactions data must be consistent and structured. Instagram uses NoSQL (Cassandra) to store millions of posts per second flexible, high-speed writes are more important than rigid structure.
@@ -55,9 +46,7 @@ A bank uses SQL (MySQL/PostgreSQL) to store account transactions data must be co
 
 ## 4. Tables, Rows, and Columns
 
-In a relational database, data is stored in tables. A table is like a spreadsheet. Each column defines a
-field (attribute) and each row is one record (entity). For example, a 'students' table has columns like id,
-name, age, and email and each student is stored as a row.
+In a relational database, data is stored in tables. A table is like a spreadsheet. Each column defines a field (attribute) and each row is one record (entity). For example, a 'students' table has columns like id, name, age, and email and each student is stored as a row.
 
 **Sample Students Table:**
 
@@ -82,16 +71,11 @@ name, age, and email and each student is stored as a row.
 
   2: `# Database Installation & Setup
 
-Before writing SQL, you need a working database environment. This topic covers installing MySQL and
-PostgreSQL, connecting via GUI tools (MySQL Workbench and pgAdmin), and using the command-line
-interface (CLI). Understanding your environment is essential before writing any queries.
+Before writing SQL, you need a working database environment. This topic covers installing MySQL and PostgreSQL, connecting via GUI tools (MySQL Workbench and pgAdmin), and using the command-line interface (CLI). Understanding your environment is essential before writing any queries.
 
 ## 1. Installing MySQL
 
-MySQL is one of the world's most popular open-source relational databases, widely used in web
-applications. Download MySQL Community Server from mysql.com. During installation, you set a root
-password remember it, as this is the administrator account. MySQL runs as a background service on
-your computer.
+MySQL is one of the world's most popular open-source relational databases, widely used in web applications. Download MySQL Community Server from mysql.com. During installation, you set a root password remember it, as this is the administrator account. MySQL runs as a background service on your computer.
 - Download from: https://dev.mysql.com/downloads/
 - Choose MySQL Community Server (free version)
 - Set a root password during installation
@@ -122,9 +106,7 @@ EXIT; -- logout
 
 ## 2. Installing PostgreSQL
 
-PostgreSQL (often called Postgres) is a powerful, enterprise-grade open-source database known for
-advanced features. Download from postgresql.org. During installation, you create a default superuser
-called 'postgres'. pgAdmin is the official GUI tool and installs alongside PostgreSQL.
+PostgreSQL (often called Postgres) is a powerful, enterprise-grade open-source database known for advanced features. Download from postgresql.org. During installation, you create a default superuser called 'postgres'. pgAdmin is the official GUI tool and installs alongside PostgreSQL.
 - Download from: https://www.postgresql.org/download/
 - Creates default superuser: 'postgres'
 - Default port: 5432
@@ -155,9 +137,7 @@ Basic psql commands:
 
 ## 3. MySQL Workbench GUI Tool
 
-MySQL Workbench is a visual tool that allows you to manage databases, write queries, view table
-structures, and design schemas all without memorizing every command. It is ideal for beginners because
-you can see your tables and data visually.
+MySQL Workbench is a visual tool that allows you to manage databases, write queries, view table structures, and design schemas all without memorizing every command. It is ideal for beginners because you can see your tables and data visually.
 
 :::scenario
 A data analyst at a retail company uses MySQL Workbench daily. She connects to the company's MySQL server, browses the 'sales' database, writes SELECT queries in the query editor, and exports results to Excel all without touching the command line.
@@ -170,9 +150,7 @@ A data analyst at a retail company uses MySQL Workbench daily. She connects to t
 
 ## 4. Creating Your First Database
 
-Once connected, you can create a database (also called a schema) which acts as a container for all your
-tables. Use CREATE DATABASE to create one and USE to switch to it in MySQL, or \\c in PostgreSQL.
-MySQL Create and select a database:
+Once connected, you can create a database (also called a schema) which acts as a container for all your tables. Use CREATE DATABASE to create one and USE to switch to it in MySQL, or \\c in PostgreSQL. MySQL Create and select a database:
 
 \`\`\`sql
 CREATE DATABASE school_db;
@@ -203,15 +181,11 @@ DROP DATABASE school_db; -- permanently deletes everything!
 
   3: `# Basic SQL Syntax
 
-SQL (Structured Query Language) uses simple, English-like commands to interact with databases. The
-most fundamental query is SELECT, which retrieves data. Understanding the structure and order of SQL
-clauses is the foundation for everything that follows.
+SQL (Structured Query Language) uses simple, English-like commands to interact with databases. The most fundamental query is SELECT, which retrieves data. Understanding the structure and order of SQL clauses is the foundation for everything that follows.
 
 ## 1. The SELECT Statement
 
-SELECT is the most-used SQL command. It retrieves data from one or more tables. You specify which
-columns you want (or use * for all columns) and which table to pull from using FROM. SQL is not case-
-sensitive for keywords, but writing keywords in UPPERCASE is a best practice for readability.
+SELECT is the most-used SQL command. It retrieves data from one or more tables. You specify which columns you want (or use * for all columns) and which table to pull from using FROM. SQL is not case-sensitive for keywords, but writing keywords in UPPERCASE is a best practice for readability.
 
 :::scenario
 An HR manager wants to see all employee names and their salaries. She runs: SELECT name, salary FROM employees; the database returns exactly those two columns for every employee instantly, even if the table has 10,000 rows.
@@ -243,12 +217,9 @@ WHERE filters rows based on a condition. Only rows where the condition is TRUE a
 use comparison operators:
 \`\`\`
 
-= (equals),
-!= or <> (not equals),
+= (equals), != or <> (not equals),
 > (greater than),
-< (less than),
->= (greater than or equal),
-<= (less than or equal).
+< (less than), >= (greater than or equal), <= (less than or equal).
 
 :::scenario
 A bank analyst needs to find all accounts with a balance below 1000 (low-balance alert). Query: SELECT account_number, customer_name, balance FROM accounts WHERE balance < 1000;
@@ -275,10 +246,7 @@ SELECT * FROM employees WHERE status != 'inactive';
 
 ## 3. ORDER BY Sorting Results
 
-ORDER BY sorts the query results. ASC (ascending) is the default it sorts lowest to highest (A to Z, 0
-to 9). DESC (descending) sorts highest to lowest (Z to A, 9 to 0).
-You can sort by multiple columns the second column is used as a tiebreaker when the first column has
-equal values.
+ORDER BY sorts the query results. ASC (ascending) is the default it sorts lowest to highest (A to Z, 0 to 9). DESC (descending) sorts highest to lowest (Z to A, 9 to 0). You can sort by multiple columns the second column is used as a tiebreaker when the first column has equal values.
 
 :::scenario
 An e-commerce platform wants to show products sorted from cheapest to most expensive. Query: SELECT product_name, price FROM products ORDER BY price ASC; customers see the budget options first.
@@ -307,8 +275,7 @@ ORDER BY department ASC, salary DESC;
 
 ## 4. LIMIT Restricting Row Count
 
-LIMIT (MySQL) or FETCH FIRST n ROWS ONLY (PostgreSQL standard) restricts how many rows are
-returned. This is essential for large tables you rarely want all millions of rows. LIMIT is also used with
+LIMIT (MySQL) or FETCH FIRST n ROWS ONLY (PostgreSQL standard) restricts how many rows are returned. This is essential for large tables you rarely want all millions of rows. LIMIT is also used with
 ORDER BY for Top-N queries (e.g., top 10 best-selling products).
 
 :::scenario
@@ -340,9 +307,7 @@ SELECT * FROM products LIMIT 5 OFFSET 10;
 ## 5. SQL Statement Structure & Rules
 
 SQL statements follow a specific clause order. Writing them in the wrong order causes errors. Key rules:
-always end statements with a semicolon (;), keywords are case-insensitive but conventionally
-UPPERCASE, and string values must be in single quotes.
-Correct clause order:
+always end statements with a semicolon (;), keywords are case-insensitive but conventionally UPPERCASE, and string values must be in single quotes. Correct clause order:
 
 \`\`\`sql
 SELECT column1, column2
@@ -372,88 +337,58 @@ LIMIT 10;
 
   4: `# Data Types in SQL
 
-Every column in a database table must have a data type that defines what kind of data it can store.
-Choosing the correct data type is critical it affects storage space, performance, and data integrity. Using
-the wrong type (e.g., storing phone numbers as INT) causes errors and data loss.
+Every column in a database table must have a data type that defines what kind of data it can store. Choosing the correct data type is critical it affects storage space, performance, and data integrity. Using the wrong type (e.g., storing phone numbers as INT) causes errors and data loss.
 
 ## 1. Numeric Data Types
 
-Numeric types store numbers. INT (or INTEGER) stores whole numbers without decimals perfect for
-IDs, ages, and counts. DECIMAL (or NUMERIC) stores exact decimal numbers and is essential for
-money/prices where precision matters. FLOAT and DOUBLE store approximate decimals and are used
-for scientific data.
+Numeric types store numbers. INT (or INTEGER) stores whole numbers without decimals perfect for IDs, ages, and counts. DECIMAL (or NUMERIC) stores exact decimal numbers and is essential for money/prices where precision matters. FLOAT and DOUBLE store approximate decimals and are used for scientific data.
 
 :::scenario
 An online store uses INT for product quantity (you can't have 2.5 items in stock) and DECIMAL(10,2) for price (e.g., 499.99 10 total digits, 2 after the decimal point). Using FLOAT for price would cause rounding errors like 499.9999999 instead of 500.00.
 :::
 
 Numeric type examples:
-age INT -- 25, 30, 100
-quantity INT -- 1, 50, 1000
-price DECIMAL(10,2) -- 499.99, 1299.00
-discount_pct DECIMAL(5,2) -- 12.50 (percentage)
-rating FLOAT -- 4.7, 3.14159
-population BIGINT -- 1400000000 (large numbers)
+age INT -- 25, 30, 100 quantity INT -- 1, 50, 1000 price DECIMAL(10,2) -- 499.99, 1299.00 discount_pct DECIMAL(5,2) -- 12.50 (percentage) rating FLOAT -- 4.7, 3.14159 population BIGINT -- 1400000000 (large numbers)
 
 ## 2. String / Text Data Types
 
-VARCHAR(n) stores variable-length strings up to n characters it only uses as much space as the actual
-data. CHAR(n) stores fixed-length strings always uses exactly n characters (padded with spaces if
-shorter). TEXT stores very long text with no length limit. VARCHAR is the most commonly used string
-type.
+VARCHAR(n) stores variable-length strings up to n characters it only uses as much space as the actual data. CHAR(n) stores fixed-length strings always uses exactly n characters (padded with spaces if shorter). TEXT stores very long text with no length limit. VARCHAR is the most commonly used string type.
 
 :::scenario
 A user profile table: username VARCHAR(50) because usernames vary in length. gender CHAR(1) because it's always exactly 'M' or 'F'. bio TEXT because users can write any length of bio. Using CHAR for username wastes space a 5-character username 'Alice' would be padded to 50 characters.
 :::
 
 String type examples:
-username VARCHAR(50) -- 'alice123', 'john_doe'
-country_code CHAR(2) -- 'IN', 'US', 'UK' (always 2 chars)
-email VARCHAR(255) -- 'alice@gmail.com'
-description TEXT -- long paragraphs, article body
-gender CHAR(1) -- 'M' or 'F'
+username VARCHAR(50) -- 'alice123', 'john_doe' country_code CHAR(2) -- 'IN', 'US', 'UK' (always 2 chars) email VARCHAR(255) -- 'alice@gmail.com' description TEXT -- long paragraphs, article body gender CHAR(1) -- 'M' or 'F'
 
 ## 3. Date and Time Data Types
 
-DATE stores only the calendar date (YYYY-MM-DD).
-TIME stores only time (HH:MM:SS).
-DATETIME / TIMESTAMP stores both date and time.
-TIMESTAMP in PostgreSQL is highly flexible. Use DATE for birthdates or event dates,
-DATETIME/TIMESTAMP for when something was created or modified.
+DATE stores only the calendar date (YYYY-MM-DD). TIME stores only time (HH:MM:SS). DATETIME / TIMESTAMP stores both date and time. TIMESTAMP in PostgreSQL is highly flexible. Use DATE for birthdates or event dates, DATETIME/TIMESTAMP for when something was created or modified.
 
 :::scenario
 An e-commerce order table: order_date DATE to store which day the order was placed, created_at TIMESTAMP to store the exact second it was created (useful for auditing and time-zone-aware reporting).
 :::
 
 Date/time type examples:
-dob DATE -- '1999-05-15'
-order_date DATE -- '2024-11-20'
-login_time TIME -- '09:30:00'
-created_at DATETIME -- '2024-11-20 09:30:00' (MySQL)
-updated_at TIMESTAMP -- auto-updates on row change
+dob DATE -- '1999-05-15' order_date DATE -- '2024-11-20' login_time TIME -- '09:30:00' created_at DATETIME -- '2024-11-20 09:30:00' (MySQL) updated_at TIMESTAMP -- auto-updates on row change
 
 ## 4. Boolean and Other Types
 
-BOOLEAN stores TRUE or FALSE. In MySQL, it's stored as TINYINT(1) where 1=TRUE and 0=FALSE.
-PostgreSQL has a native BOOLEAN type. Useful for flags like is_active, is_verified, is_deleted. ENUM
-constrains a column to a specific list of allowed values.
+BOOLEAN stores TRUE or FALSE. In MySQL, it's stored as TINYINT(1) where 1=TRUE and 0=FALSE. PostgreSQL has a native BOOLEAN type. Useful for flags like is_active, is_verified, is_deleted. ENUM constrains a column to a specific list of allowed values.
 
 :::scenario
 A user management system: is_active BOOLEAN tracks whether the account is active or suspended. is_email_verified BOOLEAN tracks email confirmation. Using VARCHAR for these would allow invalid values like 'maybe' or 'yes' BOOLEAN ensures only valid true/false values.
 :::
 
 Boolean and ENUM examples:
-is_active BOOLEAN -- TRUE or FALSE
-is_verified BOOLEAN -- TRUE or FALSE
+is_active BOOLEAN -- TRUE or FALSE is_verified BOOLEAN -- TRUE or FALSE
 
 \`\`\`sql
 -- MySQL ENUM:
 status ENUM('pending','active','cancelled') -- only these 3 values
 \`\`\`
 
-allowed
-gender ENUM('Male','Female','Other')
-Full realistic table definition:
+allowed gender ENUM('Male','Female','Other') Full realistic table definition:
 
 \`\`\`sql
 CREATE TABLE users (
@@ -484,9 +419,7 @@ status ENUM('active','suspended','deleted')
 
   5: `# DDL Commands
 
-DDL (Data Definition Language) commands define and manage the structure of a database the
-databases, tables, and their columns. DDL commands do not manipulate data; they shape the containers
-that hold data. Understanding DDL is fundamental before inserting any data.
+DDL (Data Definition Language) commands define and manage the structure of a database the databases, tables, and their columns. DDL commands do not manipulate data; they shape the containers that hold data. Understanding DDL is fundamental before inserting any data.
 
 ## 1. CREATE Building Databases and Tables
 
@@ -495,8 +428,7 @@ that hold data. Understanding DDL is fundamental before inserting any data.
 CREATE DATABASE creates a new database container. CREATE TABLE defines a new table with its
 \`\`\`
 
-columns and data types. You can also define constraints (NOT NULL, PRIMARY KEY, etc.) directly in
-the CREATE TABLE statement. CREATE is the starting point for any database project.
+columns and data types. You can also define constraints (NOT NULL, PRIMARY KEY, etc.) directly in the CREATE TABLE statement. CREATE is the starting point for any database project.
 
 :::scenario
 A startup is building a food delivery app. The developer first creates a database 'foodapp_db', then creates tables: 'restaurants', 'menus', 'orders', 'customers'. Each table is created once, then data is inserted into it.
@@ -533,8 +465,7 @@ category VARCHAR(50)
 ALTER TABLE lets you modify a table after it has been created add new columns, remove columns,
 \`\`\`
 
-change data types, or rename columns. This is common when business requirements change after the
-database is already in use. ALTER does not affect existing data (unless you drop a column).
+change data types, or rename columns. This is common when business requirements change after the database is already in use. ALTER does not affect existing data (unless you drop a column).
 
 :::scenario
 A company's HR database originally didn't have a 'LinkedIn URL' column for employees. Six months later, management wants to track LinkedIn profiles. The DBA runs
@@ -545,8 +476,7 @@ A company's HR database originally didn't have a 'LinkedIn URL' column for emplo
 ALTER TABLE employees ADD COLUMN linkedin_url VARCHAR(255); existing employee rows now
 \`\`\`
 
-have NULL in this column, no data is lost.
-Add a new column:
+have NULL in this column, no data is lost. Add a new column:
 
 \`\`\`sql
 ALTER TABLE employees ADD COLUMN linkedin_url VARCHAR(255);
@@ -584,8 +514,7 @@ ALTER TABLE old_name RENAME TO new_name;
 DROP TABLE permanently deletes a table including all its data, constraints, and indexes it cannot be
 \`\`\`
 
-undone. DROP DATABASE deletes an entire database with all its tables. Always use DROP with extreme
-caution in production environments.
+undone. DROP DATABASE deletes an entire database with all its tables. Always use DROP with extreme caution in production environments.
 
 :::scenario
 A developer accidentally runs DROP TABLE orders; in a production database millions of order records are gone permanently. This is why production databases have daily backups and access controls. Never run DROP without confirming you're on the right database.
@@ -598,8 +527,7 @@ DROP TABLE temp_data; -- deletes table and all data
 DROP TABLE IF EXISTS temp_data; -- safe version, no error if table doesn't
 \`\`\`
 
-exist
-Drop a database:
+exist Drop a database:
 
 \`\`\`sql
 DROP DATABASE test_db; -- DANGER: deletes everything inside!
@@ -613,8 +541,7 @@ DROP DATABASE test_db; -- DANGER: deletes everything inside!
 TRUNCATE TABLE removes all rows from a table but keeps the table structure (columns, data types,
 \`\`\`
 
-constraints) intact. It is faster than DELETE for clearing large tables because it doesn't log individual row
-deletions. Unlike DROP, you can still use the table after TRUNCATE.
+constraints) intact. It is faster than DELETE for clearing large tables because it doesn't log individual row deletions. Unlike DROP, you can still use the table after TRUNCATE.
 
 :::scenario
 A testing team needs to reset the database after each test run. Instead of dropping and recreating tables, they TRUNCATE them the structure is preserved so the application keeps working, but all test data is cleared instantly.
@@ -643,9 +570,7 @@ TRUNCATE TABLE test_orders; -- removes rows, keeps structure
 
   6: `# DML Commands
 
-DML (Data Manipulation Language) commands work with the actual data inside tables. Once tables are
-created with DDL, you use DML to insert new records, retrieve data, update existing records, and delete
-records. These are the commands used most frequently in day-to-day database work.
+DML (Data Manipulation Language) commands work with the actual data inside tables. Once tables are created with DDL, you use DML to insert new records, retrieve data, update existing records, and delete records. These are the commands used most frequently in day-to-day database work.
 
 ## 1. INSERT Adding New Records
 
@@ -655,8 +580,7 @@ INSERT INTO adds one or more new rows to a table. You specify the table name, th
 (recommended), and the VALUES to insert. If you skip column names, you must provide values for ALL
 \`\`\`
 
-columns in the exact order they were defined. Always specify column names to avoid errors when table
-structure changes.
+columns in the exact order they were defined. Always specify column names to avoid errors when table structure changes.
 
 :::scenario
 A new employee joins a company. The HR system runs an INSERT query to add their details to the employees table. The database immediately makes the record available the employee can now log in, get payroll processed, and appear in reports.
@@ -681,9 +605,7 @@ NOW());
 
 ## 2. UPDATE Modifying Existing Records
 
-UPDATE modifies data in existing rows. You specify the table, which column(s) to change, the new
-value(s), and a WHERE condition to identify which rows to update. ALWAYS include a WHERE clause
-without it, UPDATE changes ALL rows in the table, which is almost never what you want.
+UPDATE modifies data in existing rows. You specify the table, which column(s) to change, the new value(s), and a WHERE condition to identify which rows to update. ALWAYS include a WHERE clause without it, UPDATE changes ALL rows in the table, which is almost never what you want.
 
 :::scenario
 An employee gets promoted and their salary increases from 60000 to
@@ -692,8 +614,7 @@ An employee gets promoted and their salary increases from 60000 to
 
 ## 75000. The HR system runs: UPDATE employees SET salary = 75000 WHERE employee_id = 1042;
 
-only that one employee's record is updated.
-Update one column:
+only that one employee's record is updated. Update one column:
 
 \`\`\`sql
 UPDATE employees SET salary = 75000 WHERE id = 1042;
@@ -711,8 +632,7 @@ WHERE department = 'IT';
 ## 3. DELETE Removing Records
 
 DELETE removes rows from a table. Like UPDATE, always use a WHERE clause to target specific rows.
-DELETE without WHERE removes ALL rows (same effect as TRUNCATE but slower). Unlike
-TRUNCATE, DELETE can be rolled back if wrapped in a transaction (we cover this in intermediate).
+DELETE without WHERE removes ALL rows (same effect as TRUNCATE but slower). Unlike TRUNCATE, DELETE can be rolled back if wrapped in a transaction (we cover this in intermediate).
 
 :::scenario
 A user deletes their account on a platform. The system runs: DELETE FROM users WHERE user_id = 5521; only that user's record is removed. Their orders might be kept in the orders table (foreign key constraint decisions matter here).
@@ -731,10 +651,7 @@ WHERE is_active = FALSE AND created_at < '2022-01-01';
 
 ## 4. The Danger of UPDATE and DELETE Without WHERE
 
-One of the most common and most devastating mistakes in SQL is running UPDATE or DELETE
-without a WHERE clause. This modifies or deletes every single row in the table. In production databases,
-this can cause irreversible data loss.
-DANGEROUS updates ALL employees:
+One of the most common and most devastating mistakes in SQL is running UPDATE or DELETE without a WHERE clause. This modifies or deletes every single row in the table. In production databases, this can cause irreversible data loss. DANGEROUS updates ALL employees:
 
 \`\`\`sql
 UPDATE employees SET salary = 0; -- Wipes all salaries!
@@ -764,28 +681,18 @@ DELETE FROM customers WHERE id = 123; -- Safe
 
   7: `# Filtering & Sorting
 
-Filtering and sorting are what make SQL queries powerful and useful. The WHERE clause lets you extract
-exactly the data you need from millions of rows. Logical operators (AND, OR, NOT) combine multiple
-conditions. Special operators like BETWEEN, IN, and LIKE make filtering more expressive and readable.
+Filtering and sorting are what make SQL queries powerful and useful. The WHERE clause lets you extract exactly the data you need from millions of rows. Logical operators (AND, OR, NOT) combine multiple conditions. Special operators like BETWEEN, IN, and LIKE make filtering more expressive and readable.
 
 ## 1. Comparison Operators in WHERE
 
-WHERE uses comparison operators to filter rows. Each operator tests a condition for each row if TRUE,
-the row is included in results.
-All comparison operators:
-= equal: WHERE city = 'Hyderabad'
-!= not equal: WHERE status != 'cancelled'
-<> not equal (alt): WHERE status <> 'cancelled'
+WHERE uses comparison operators to filter rows. Each operator tests a condition for each row if TRUE, the row is included in results. All comparison operators:
+= equal: WHERE city = 'Hyderabad' != not equal: WHERE status != 'cancelled' <> not equal (alt): WHERE status <> 'cancelled'
 > greater than: WHERE salary > 50000
-< less than: WHERE age < 25
->= greater or equal: WHERE experience >= 3
-<= less or equal: WHERE price <= 999
+< less than: WHERE age < 25 >= greater or equal: WHERE experience >= 3 <= less or equal: WHERE price <= 999
 
 ## 2. AND, OR, NOT Combining Conditions
 
-AND requires ALL conditions to be true. OR requires AT LEAST ONE condition to be true. NOT negates
-a condition. Use parentheses to control the order of evaluation AND has higher precedence than OR,
-just like multiplication vs addition in math.
+AND requires ALL conditions to be true. OR requires AT LEAST ONE condition to be true. NOT negates a condition. Use parentheses to control the order of evaluation AND has higher precedence than OR, just like multiplication vs addition in math.
 
 :::scenario
 A recruitment platform filters candidates: must be in IT department AND have 3+ years experience AND (live in Mumbai OR Pune). Without correct parentheses, the logic could accidentally include all Pune residents regardless of department.
@@ -820,9 +727,7 @@ AND salary > 60000;
 
 ## 3. BETWEEN Range Filtering
 
-BETWEEN filters rows within an inclusive range (includes both endpoints). It works with numbers, dates,
-and even strings. BETWEEN a AND b is equivalent to >= a AND <= b. You can negate it with NOT
-BETWEEN.
+BETWEEN filters rows within an inclusive range (includes both endpoints). It works with numbers, dates, and even strings. BETWEEN a AND b is equivalent to >= a AND <= b. You can negate it with NOT BETWEEN.
 
 :::scenario
 An e-commerce platform wants to show 'mid-range' laptops priced between 40,000 and 80,000 to a customer. Using BETWEEN gives a clean, readable query instead of using >= and <=.
@@ -848,9 +753,7 @@ SELECT * FROM products WHERE price NOT BETWEEN 100 AND 500;
 
 ## 4. IN and NOT IN List Filtering
 
-IN checks if a column value matches any value in a list. It is cleaner than multiple OR conditions. NOT
-IN excludes rows that match any value in the list. Be cautious with NOT IN when the list might contain
-NULL values this can produce unexpected results.
+IN checks if a column value matches any value in a list. It is cleaner than multiple OR conditions. NOT IN excludes rows that match any value in the list. Be cautious with NOT IN when the list might contain NULL values this can produce unexpected results.
 
 :::scenario
 A logistics company needs to process orders from specific cities: Mumbai, Delhi, Chennai, Bangalore. Using IN is much cleaner than writing 4 OR conditions.
@@ -867,14 +770,11 @@ WHERE department NOT IN ('Admin', 'Housekeeping', 'Security');
 \`\`\`
 
 Equivalent without IN (less readable):
-WHERE city = 'Mumbai' OR city = 'Delhi' OR city = 'Chennai' OR city =
-'Bangalore'
+WHERE city = 'Mumbai' OR city = 'Delhi' OR city = 'Chennai' OR city = 'Bangalore'
 
 ## 5. LIKE Pattern Matching
 
-LIKE is used with WHERE to search for patterns in text columns. % matches any sequence of characters
-(zero or more). _ (underscore) matches exactly one character. LIKE is case-insensitive in MySQL by
-default. Use ILIKE in PostgreSQL for case-insensitive matching.
+LIKE is used with WHERE to search for patterns in text columns. % matches any sequence of characters (zero or more). _ (underscore) matches exactly one character. LIKE is case-insensitive in MySQL by default. Use ILIKE in PostgreSQL for case-insensitive matching.
 
 :::scenario
 A customer support team needs to find all customers whose email is from '@gmail.com'. Using LIKE '%@gmail.com' instantly filters all Gmail users from the customers table.
@@ -911,15 +811,11 @@ WHERE name LIKE '_a%'
 
   8: `# Aggregate Functions
 
-Aggregate functions perform calculations on a set of rows and return a single summary value. They are
-the foundation of data analysis in SQL allowing you to count records, sum values, calculate averages,
-and find extremes. These are used constantly in reporting and business intelligence.
+Aggregate functions perform calculations on a set of rows and return a single summary value. They are the foundation of data analysis in SQL allowing you to count records, sum values, calculate averages, and find extremes. These are used constantly in reporting and business intelligence.
 
 ## 1. COUNT Counting Rows
 
-COUNT(*) counts all rows including those with NULL values. COUNT(column_name) counts non-NULL
-values in that column. COUNT(DISTINCT column) counts unique non-NULL values. COUNT is the most
-commonly used aggregate function.
+COUNT(*) counts all rows including those with NULL values. COUNT(column_name) counts non-NULL values in that column. COUNT(DISTINCT column) counts unique non-NULL values. COUNT is the most commonly used aggregate function.
 
 :::scenario
 An HR dashboard shows: 'Total Employees: 342', 'Employees with LinkedIn profiles: 218'. These come from COUNT(*) and COUNT(linkedin_url) respectively COUNT(linkedin_url) automatically skips NULLs.
@@ -939,8 +835,7 @@ SELECT COUNT(DISTINCT city) AS unique_cities FROM employees;
 
 ## 2. SUM, AVG Totals and Averages
 
-SUM adds all numeric values in a column. AVG calculates the arithmetic mean (ignores NULLs). Both
-are essential for financial reporting total revenue, average order value, total payroll, etc.
+SUM adds all numeric values in a column. AVG calculates the arithmetic mean (ignores NULLs). Both are essential for financial reporting total revenue, average order value, total payroll, etc.
 
 :::scenario
 A finance team runs monthly payroll reports: SUM(salary) gives total payroll cost. AVG(salary) helps compare to industry benchmarks. Both can be filtered with WHERE to get department-specific numbers.
@@ -964,9 +859,7 @@ WHERE order_date >= '2024-11-01';
 
 ## 3. MIN and MAX Extremes
 
-MIN returns the smallest value in a column. MAX returns the largest. Both work on numbers, dates, and
-strings (alphabetically for strings). They help identify outliers the cheapest product, the latest hire date,
-the highest score.
+MIN returns the smallest value in a column. MAX returns the largest. Both work on numbers, dates, and strings (alphabetically for strings). They help identify outliers the cheapest product, the latest hire date, the highest score.
 
 :::scenario
 A retail company uses: SELECT MIN(price), MAX(price) FROM products WHERE category='Phones'; to display the price range '₹8,999 to ₹1,49,999' on their website.
@@ -987,20 +880,14 @@ FROM employees;
 
 ## 4. Combining Multiple Aggregate Functions
 
-You can use multiple aggregate functions in a single SELECT statement. This is powerful for creating
-summary reports with a single query.
+You can use multiple aggregate functions in a single SELECT statement. This is powerful for creating summary reports with a single query.
 
 :::scenario
 An e-commerce manager wants a quick daily dashboard: total orders, total revenue, average order value, smallest order, largest order all in one query.
 :::
 
 Complete sales dashboard query:
-SELECT
-COUNT(*) AS total_orders,
-SUM(total_amount) AS total_revenue,
-ROUND(AVG(total_amount), 2) AS avg_order_value,
-MIN(total_amount) AS smallest_order,
-MAX(total_amount) AS largest_order
+SELECT COUNT(*) AS total_orders, SUM(total_amount) AS total_revenue, ROUND(AVG(total_amount), 2) AS avg_order_value, MIN(total_amount) AS smallest_order, MAX(total_amount) AS largest_order
 FROM orders
 WHERE order_date = CURDATE();
 
@@ -1025,15 +912,11 @@ WHERE order_date = CURDATE();
 
   9: `# GROUP BY & HAVING
 
-GROUP BY is one of the most powerful features in SQL for data analysis. It groups rows with the same
-values into summary rows, allowing you to run aggregate functions per group. HAVING then filters those
-groups working like WHERE but for grouped/aggregated data.
+GROUP BY is one of the most powerful features in SQL for data analysis. It groups rows with the same values into summary rows, allowing you to run aggregate functions per group. HAVING then filters those groups working like WHERE but for grouped/aggregated data.
 
 ## 1. GROUP BY Grouping Data
 
-GROUP BY collapses multiple rows with the same value in a specified column into one summary row.
-Every column in your SELECT must either be in GROUP BY or inside an aggregate function otherwise
-SQL doesn't know which value to display for that column.
+GROUP BY collapses multiple rows with the same value in a specified column into one summary row. Every column in your SELECT must either be in GROUP BY or inside an aggregate function otherwise SQL doesn't know which value to display for that column.
 
 :::scenario
 A sales manager wants a report: 'How many orders did each salesperson close this month?' The orders table has one row per order. GROUP BY salesperson_id collapses all orders per person into one row with a COUNT.
@@ -1048,12 +931,7 @@ GROUP BY department;
 -- Output:
 \`\`\`
 
-department employee_count
-IT 45
-Finance 28
-HR 15
-Sales 62
-Total revenue per product category:
+department employee_count IT 45 Finance 28 HR 15 Sales 62 Total revenue per product category:
 
 \`\`\`sql
 SELECT category, SUM(amount) AS total_revenue, COUNT(*) AS orders
@@ -1065,9 +943,7 @@ ORDER BY total_revenue DESC;
 
 ## 2. HAVING Filtering Groups
 
-HAVING filters groups after aggregation. Think of it as WHERE for groups. WHERE cannot use
-aggregate functions, so HAVING was introduced for this purpose. HAVING comes after GROUP BY in
-the query.
+HAVING filters groups after aggregation. Think of it as WHERE for groups. WHERE cannot use aggregate functions, so HAVING was introduced for this purpose. HAVING comes after GROUP BY in the query.
 
 :::scenario
 A business intelligence analyst wants to find only the departments where total payroll exceeds 5 million departments below this threshold should be excluded from the report. HAVING SUM(salary) > 5000000 filters after the grouping happens.
@@ -1084,9 +960,7 @@ HAVING COUNT(*) > 20;
 -- Output:
 \`\`\`
 
-department emp_count
-IT 45
-Sales 62
+department emp_count IT 45 Sales 62
 HAVING with AVG:
 
 \`\`\`sql
@@ -1100,9 +974,7 @@ HAVING AVG(price) > 1000;
 
 ## 3. WHERE vs HAVING Critical Difference
 
-WHERE filters rows BEFORE grouping (works on individual rows). HAVING filters groups AFTER
-aggregation (works on group summaries). You can use both in the same query WHERE reduces the
-data first, then GROUP BY groups it, then HAVING filters the groups.
+WHERE filters rows BEFORE grouping (works on individual rows). HAVING filters groups AFTER aggregation (works on group summaries). You can use both in the same query WHERE reduces the data first, then GROUP BY groups it, then HAVING filters the groups.
 WHERE + GROUP BY + HAVING together:
 
 \`\`\`sql
@@ -1112,8 +984,7 @@ WHERE + GROUP BY + HAVING together:
 SELECT department,
 \`\`\`
 
-COUNT(*) AS emp_count,
-AVG(salary) AS avg_salary
+COUNT(*) AS emp_count, AVG(salary) AS avg_salary
 FROM employees
 WHERE status = 'active' -- filter rows first
 GROUP BY department -- then group
@@ -1133,15 +1004,11 @@ ORDER BY avg_salary DESC;
 
   10: `# NULL Handling
 
-NULL in SQL represents missing, unknown, or inapplicable data. Understanding NULL is critical because
-it behaves differently from regular values comparing NULL with = always returns UNKNOWN (not TRUE
-or FALSE). Mishandling NULLs causes subtle bugs in queries and reports.
+NULL in SQL represents missing, unknown, or inapplicable data. Understanding NULL is critical because it behaves differently from regular values comparing NULL with = always returns UNKNOWN (not TRUE or FALSE). Mishandling NULLs causes subtle bugs in queries and reports.
 
 ## 1. What is NULL?
 
-NULL is not zero, not an empty string, and not 'false'. It means 'no value' or 'unknown'. A phone column
-being NULL means we don't know the phone number it's different from knowing the number is empty.
-NULL propagates in calculations: any arithmetic with NULL returns NULL.
+NULL is not zero, not an empty string, and not 'false'. It means 'no value' or 'unknown'. A phone column being NULL means we don't know the phone number it's different from knowing the number is empty. NULL propagates in calculations: any arithmetic with NULL returns NULL.
 
 :::scenario
 A school records database: a student's 'guardian_phone' column is NULL because the student is an orphan the data is not missing by accident, it truly doesn't exist. The school's query for 'students without a guardian contact' uses IS NULL to find these students.
@@ -1184,9 +1051,7 @@ SELECT name FROM employees WHERE department_id != NULL; -- WRONG!
 
 ## 3. COALESCE Replacing NULLs
 
-COALESCE(val1, val2, val3, ...) returns the first non-NULL value from its arguments. It is the standard
-SQL way to provide a default value when a column might be NULL. Extremely useful in reports where
-NULL would confuse end users.
+COALESCE(val1, val2, val3, ...) returns the first non-NULL value from its arguments. It is the standard SQL way to provide a default value when a column might be NULL. Extremely useful in reports where NULL would confuse end users.
 
 :::scenario
 A customer report shows the 'preferred contact number' for each customer. Some customers have a mobile number, some have only a landline, some have neither. COALESCE(mobile, landline, 'No contact') returns the best available option.
@@ -1209,10 +1074,7 @@ FROM employees;
 
 ## 4. IFNULL and NULLIF
 
-IFNULL(expr, fallback) is MySQL-specific returns fallback if expr is NULL, otherwise returns expr.
-NULLIF(val1, val2) returns NULL if val1 equals val2, otherwise returns val1. NULLIF is useful to avoid
-division-by-zero errors.
-IFNULL (MySQL specific):
+IFNULL(expr, fallback) is MySQL-specific returns fallback if expr is NULL, otherwise returns expr. NULLIF(val1, val2) returns NULL if val1 equals val2, otherwise returns val1. NULLIF is useful to avoid division-by-zero errors. IFNULL (MySQL specific):
 
 \`\`\`sql
 SELECT name, IFNULL(bonus, 0) AS bonus FROM employees;
@@ -1226,9 +1088,7 @@ NULLIF avoid division by zero:
 SELECT
 \`\`\`
 
-orders,
-visits,
-orders / NULLIF(visits, 0) AS conversion_rate
+orders, visits, orders / NULLIF(visits, 0) AS conversion_rate
 
 \`\`\`sql
 -- If visits = 0, NULLIF returns NULL instead of causing a division error
@@ -1249,14 +1109,11 @@ FROM campaign_stats;
 
   11: `# String Functions
 
-SQL provides a rich set of built-in functions to manipulate and transform text data. These are essential
-for data cleaning, formatting output for reports, and building search features. String functions are
-evaluated for each row in the result set.
+SQL provides a rich set of built-in functions to manipulate and transform text data. These are essential for data cleaning, formatting output for reports, and building search features. String functions are evaluated for each row in the result set.
 
 ## 1. CONCAT and LENGTH
 
-CONCAT joins two or more strings together. LENGTH returns the number of characters in a string. These
-are foundational for formatting output. In PostgreSQL, you can also use the || operator for concatenation.
+CONCAT joins two or more strings together. LENGTH returns the number of characters in a string. These are foundational for formatting output. In PostgreSQL, you can also use the || operator for concatenation.
 
 :::scenario
 A report generator needs to display employee full names (combining first_name and last_name) and also flag names longer than 30 characters as 'long names' for a UI width issue.
@@ -1278,9 +1135,7 @@ WHERE LENGTH(name) > 20;
 
 ## 2. UPPER, LOWER, TRIM
 
-UPPER converts text to all uppercase. LOWER converts to all lowercase. TRIM removes leading and
-trailing spaces from a string. LTRIM removes only left (leading) spaces. RTRIM removes only right
-(trailing) spaces. These are commonly used for data normalization.
+UPPER converts text to all uppercase. LOWER converts to all lowercase. TRIM removes leading and trailing spaces from a string. LTRIM removes only left (leading) spaces. RTRIM removes only right (trailing) spaces. These are commonly used for data normalization.
 
 :::scenario
 A login system stores emails. Users sometimes type 'ALICE@Gmail.COM' the system normalizes it to lowercase before comparing: WHERE LOWER(email) = LOWER('ALICE@Gmail.COM'). TRIM is used when importing CSV data that often has extra spaces.
@@ -1301,9 +1156,7 @@ UPDATE customers SET city = TRIM(city);
 
 ## 3. SUBSTRING and REPLACE
 
-SUBSTRING(str, start, length) extracts part of a string starting at position 'start' for 'length' characters.
-Position starts at 1 in SQL. REPLACE(str, find, replacement) replaces all occurrences of a substring with
-another string.
+SUBSTRING(str, start, length) extracts part of a string starting at position 'start' for 'length' characters. Position starts at 1 in SQL. REPLACE(str, find, replacement) replaces all occurrences of a substring with another string.
 
 :::scenario
 A telecom company stores phone numbers as '91-98765-43210'. The billing system needs just the 10-digit number without the country code. SUBSTRING(phone, 4, 10) extracts the last 10 digits.
@@ -1325,9 +1178,7 @@ SELECT SUBSTRING(phone, 1, 3) AS area_code FROM offices;
 
 ## 4. LIKE Pattern Matching in WHERE
 
-LIKE is technically a comparison operator but is categorized here as it works with string patterns. %
-matches zero or more characters. _ matches exactly one character. Combine them for powerful search
-patterns.
+LIKE is technically a comparison operator but is categorized here as it works with string patterns. % matches zero or more characters. _ matches exactly one character. Combine them for powerful search patterns.
 
 :::scenario
 A job portal's search feature allows users to search for job titles. Typing 'data' in the search box translates to: WHERE job_title LIKE '%data%' matching 'Data Analyst', 'Data Engineer', 'Senior Data Scientist', etc.
@@ -1360,9 +1211,7 @@ SELECT * FROM contacts WHERE phone LIKE '98%';
 
   12: `# Date & Time Functions
 
-Date and time functions are critical in real-world databases. Almost every business application tracks
-when records were created, modified, or processed. SQL provides powerful functions to get the current
-date/time, calculate differences, extract parts (year, month, day), and format dates for display.
+Date and time functions are critical in real-world databases. Almost every business application tracks when records were created, modified, or processed. SQL provides powerful functions to get the current date/time, calculate differences, extract parts (year, month, day), and format dates for display.
 
 ## 1. Getting Current Date and Time
 
@@ -1372,8 +1221,7 @@ NOW() returns the current date AND time. CURDATE() (MySQL) / CURRENT_DATE (Postg
 returns only today's date. CURTIME() returns only the current time. These are used for inserting
 \`\`\`
 
-timestamps, calculating ages, and filtering recent records.
-Current date/time functions:
+timestamps, calculating ages, and filtering recent records. Current date/time functions:
 SELECT NOW(); -- '2024-11-20 14:35:22'
 SELECT CURDATE(); -- '2024-11-20' (MySQL)
 
@@ -1389,9 +1237,7 @@ SELECT * FROM orders WHERE DATE(order_date) = CURDATE();
 
 ## 2. DATEDIFF Date Differences
 
-DATEDIFF(date1, date2) in MySQL returns the number of days between two dates (date1 - date2). In
-PostgreSQL, you subtract dates directly: date1 - date2. This is used to calculate age, days overdue,
-subscription duration, etc.
+DATEDIFF(date1, date2) in MySQL returns the number of days between two dates (date1 - date2). In PostgreSQL, you subtract dates directly: date1 - date2. This is used to calculate age, days overdue, subscription duration, etc.
 
 :::scenario
 A lending app calculates how many days a loan has been overdue: DATEDIFF(CURDATE(), due_date). If this returns more than 0, the loan is overdue. They then send automated SMS reminders to borrowers.
@@ -1414,9 +1260,7 @@ SELECT name, CURRENT_DATE - join_date AS days_employed FROM employees;
 
 ## 3. EXTRACT / DATE_FORMAT Extracting and Formatting
 
-EXTRACT(part FROM date) pulls out a specific part of a date (YEAR, MONTH, DAY, HOUR, etc.).
-DATE_FORMAT(date, format) in MySQL formats a date for display. TO_CHAR(date, format) is the
-PostgreSQL equivalent.
+EXTRACT(part FROM date) pulls out a specific part of a date (YEAR, MONTH, DAY, HOUR, etc.). DATE_FORMAT(date, format) in MySQL formats a date for display. TO_CHAR(date, format) is the PostgreSQL equivalent.
 
 :::scenario
 A financial reporting system needs to group sales by month and year. EXTRACT(YEAR FROM order_date) and EXTRACT(MONTH FROM order_date) are used in GROUP BY to create monthly sales reports.
@@ -1431,12 +1275,10 @@ SELECT EXTRACT(MONTH FROM order_date) AS order_month FROM orders;
 SELECT EXTRACT(YEAR FROM order_date) AS yr,
 \`\`\`
 
-EXTRACT(MONTH FROM order_date) AS mo,
-SUM(amount) AS monthly_total
+EXTRACT(MONTH FROM order_date) AS mo, SUM(amount) AS monthly_total
 FROM orders
 GROUP BY yr, mo
-ORDER BY yr, mo;
-DATE_FORMAT (MySQL):
+ORDER BY yr, mo; DATE_FORMAT (MySQL):
 
 \`\`\`sql
 SELECT DATE_FORMAT(order_date, '%d-%m-%Y') AS formatted_date FROM orders;
@@ -1448,8 +1290,7 @@ SELECT DATE_FORMAT(NOW(), '%W, %M %d %Y') AS today;
 
 ## 4. Date Arithmetic with INTERVAL
 
-You can add or subtract time intervals from dates using INTERVAL. This is useful for finding records
-within the last N days, calculating expiry dates, or scheduling future events.
+You can add or subtract time intervals from dates using INTERVAL. This is useful for finding records within the last N days, calculating expiry dates, or scheduling future events.
 
 :::scenario
 An e-commerce website shows 'New Arrivals' products added in the last 30 days. The query: WHERE created_at >= NOW() - INTERVAL 30 DAY automatically shows only recently added products without hardcoding any date.
@@ -1482,15 +1323,11 @@ SELECT DATE_ADD('2024-01-15', INTERVAL 1 YEAR); -- '2025-01-15'
 
   13: `# Aliases
 
-Aliases give temporary, readable names to columns or tables within a query. They do not change the
-actual database structure they only affect how results appear or how you reference objects within that
-query. Aliases make complex queries cleaner and output more user-friendly.
+Aliases give temporary, readable names to columns or tables within a query. They do not change the actual database structure they only affect how results appear or how you reference objects within that query. Aliases make complex queries cleaner and output more user-friendly.
 
 ## 1. Column Aliases
 
-Column aliases rename a column in the output using the AS keyword (AS is optional but recommended
-for clarity). They are essential when using calculated columns or aggregate functions the default column
-name for SUM(salary) would be 'SUM(salary)', which is ugly in reports.
+Column aliases rename a column in the output using the AS keyword (AS is optional but recommended for clarity). They are essential when using calculated columns or aggregate functions the default column name for SUM(salary) would be 'SUM(salary)', which is ugly in reports.
 
 :::scenario
 A payroll system generates a monthly report. The raw query output would show 'salary * 12' and 'SUM(salary)' as column headers confusing to managers. Column aliases rename them to 'annual_salary' and 'total_payroll' for the report.
@@ -1514,9 +1351,7 @@ SELECT salary * 12 annual_salary FROM employees; -- Works too
 
 ## 2. Table Aliases
 
-Table aliases give a short nickname to a table in a query. They are especially useful in JOIN queries
-(covered in intermediate) where you reference multiple tables typing the full table name every time is
-tedious. Table aliases also enable self-joins (a table joining itself).
+Table aliases give a short nickname to a table in a query. They are especially useful in JOIN queries (covered in intermediate) where you reference multiple tables typing the full table name every time is tedious. Table aliases also enable self-joins (a table joining itself).
 
 :::scenario
 An employee table has a 'manager_id' column that references another employee's id. To find employee-manager pairs, the table is joined to itself (self-join). Aliases 'e' (employee) and 'm' (manager) make the query readable.
@@ -1544,10 +1379,8 @@ JOIN employees AS m ON e.manager_id = m.id;
 
 ## 3. Aliases in Different Clauses
 
-Aliases defined in SELECT cannot be used in the WHERE clause WHERE is evaluated before SELECT.
-However, aliases CAN be used in ORDER BY and HAVING (in most databases). To use an alias in
-WHERE, wrap the query in a subquery.
-Alias in ORDER BY (valid):
+Aliases defined in SELECT cannot be used in the WHERE clause WHERE is evaluated before SELECT. However, aliases CAN be used in ORDER BY and HAVING (in most databases). To use an alias in
+WHERE, wrap the query in a subquery. Alias in ORDER BY (valid):
 
 \`\`\`sql
 SELECT name, salary * 12 AS annual_salary
@@ -1582,15 +1415,11 @@ WHERE salary * 12 > 600000;
 
   14: `# DISTINCT & LIMIT
 
-DISTINCT eliminates duplicate rows from query results, returning only unique values. LIMIT controls how
-many rows are returned, which is critical for performance with large datasets. These two features are
-among the most frequently used in everyday SQL queries.
+DISTINCT eliminates duplicate rows from query results, returning only unique values. LIMIT controls how many rows are returned, which is critical for performance with large datasets. These two features are among the most frequently used in everyday SQL queries.
 
 ## 1. DISTINCT Unique Values Only
 
-DISTINCT removes duplicate rows from the result set. Without DISTINCT, if 50 customers are from
-Mumbai, 'Mumbai' appears 50 times. With DISTINCT, it appears once. When DISTINCT is applied to
-multiple columns, it returns unique combinations of all those columns.
+DISTINCT removes duplicate rows from the result set. Without DISTINCT, if 50 customers are from Mumbai, 'Mumbai' appears 50 times. With DISTINCT, it appears once. When DISTINCT is applied to multiple columns, it returns unique combinations of all those columns.
 
 :::scenario
 A marketing team wants to know which cities they have customers in not how many per city. SELECT DISTINCT city FROM customers; returns a clean list: ['Mumbai', 'Delhi', 'Hyderabad', 'Pune'] even if thousands of customers are from the same city.
@@ -1624,9 +1453,7 @@ SELECT COUNT(DISTINCT city) AS unique_cities FROM customers;
 
 ## 2. LIMIT and OFFSET Pagination
 
-LIMIT n returns only the first n rows. Combined with ORDER BY, it creates Top-N queries. OFFSET n
-skips the first n rows before returning results. LIMIT + OFFSET together implement pagination page 1,
-page 2, page 3 of results. PostgreSQL also supports FETCH FIRST n ROWS ONLY syntax.
+LIMIT n returns only the first n rows. Combined with ORDER BY, it creates Top-N queries. OFFSET n skips the first n rows before returning results. LIMIT + OFFSET together implement pagination page 1, page 2, page 3 of results. PostgreSQL also supports FETCH FIRST n ROWS ONLY syntax.
 
 :::scenario
 A product listing page shows 12 products per page. Page 1: LIMIT 12 OFFSET 0. Page 2: LIMIT 12 OFFSET 12. Page 3: LIMIT 12 OFFSET 24. This way, loading 1 million products into memory at once is avoided.
@@ -1658,18 +1485,14 @@ SELECT * FROM products ORDER BY price DESC FETCH FIRST 5 ROWS ONLY;
 
 ## 3. Combining DISTINCT with Aggregates
 
-DISTINCT inside aggregate functions like COUNT gives you the count of unique values. This is different
-from SELECT DISTINCT it counts unique values within an aggregate context.
+DISTINCT inside aggregate functions like COUNT gives you the count of unique values. This is different from SELECT DISTINCT it counts unique values within an aggregate context.
 
 :::scenario
 An analytics dashboard shows: 'Total orders: 5,847' and 'Unique customers who ordered: 1,204'. The first uses COUNT(*), the second uses COUNT(DISTINCT customer_id) because one customer can place many orders.
 :::
 
 DISTINCT in aggregates:
-SELECT
-COUNT(*) AS total_orders,
-COUNT(DISTINCT customer_id) AS unique_customers,
-COUNT(DISTINCT product_id) AS unique_products_sold
+SELECT COUNT(*) AS total_orders, COUNT(DISTINCT customer_id) AS unique_customers, COUNT(DISTINCT product_id) AS unique_products_sold
 FROM orders
 WHERE order_date >= '2024-01-01';
 
@@ -1686,17 +1509,11 @@ WHERE order_date >= '2024-01-01';
 
   15: `# Basic Constraints
 
-Constraints are rules applied to columns that enforce data integrity. They prevent invalid data from being
-inserted and ensure consistency across the database. Constraints are defined when creating a table and
-are enforced automatically by the database engine your application doesn't need to add extra validation
-code.
+Constraints are rules applied to columns that enforce data integrity. They prevent invalid data from being inserted and ensure consistency across the database. Constraints are defined when creating a table and are enforced automatically by the database engine your application doesn't need to add extra validation code.
 
 ## 1. PRIMARY KEY Unique Identifier
 
-A PRIMARY KEY uniquely identifies each row in a table. It must be: UNIQUE (no two rows can have the
-same PK) and NOT NULL (cannot be empty). Each table can have only one primary key. Typically an
-auto-incrementing integer ID column. It is the backbone of relational databases used to link tables
-together.
+A PRIMARY KEY uniquely identifies each row in a table. It must be: UNIQUE (no two rows can have the same PK) and NOT NULL (cannot be empty). Each table can have only one primary key. Typically an auto-incrementing integer ID column. It is the backbone of relational databases used to link tables together.
 
 :::scenario
 Every student in a university gets a unique student_id (e.g., 2024001). This is the PRIMARY KEY. Even if two students have the same name 'Rahul Sharma', their student_ids are different the system can always tell them apart.
@@ -1727,8 +1544,7 @@ PRIMARY KEY (student_id, course_id)
 
 ## 2. NOT NULL Mandatory Fields
 
-NOT NULL ensures a column always has a value it cannot be left empty. Use it for fields that are
-essential to the record's meaning. Without NOT NULL, columns default to accepting NULLs.
+NOT NULL ensures a column always has a value it cannot be left empty. Use it for fields that are essential to the record's meaning. Without NOT NULL, columns default to accepting NULLs.
 
 :::scenario
 A bank account table: account_number NOT NULL (an account must have a number), customer_name NOT NULL, but nominee_name can be NULL (optional). If a developer forgets to include customer_name when inserting, the database rejects the INSERT protecting data quality.
@@ -1753,10 +1569,7 @@ INSERT INTO employees (id, department, salary) VALUES (1, 'IT', 50000);
 
 ## 3. UNIQUE No Duplicates
 
-UNIQUE ensures all values in a column are different. Unlike PRIMARY KEY, a table can have multiple
-UNIQUE columns, and UNIQUE columns CAN contain NULL (multiple NULLs are allowed in most
-databases, as NULL != NULL). Perfect for email addresses, phone numbers, usernames fields that must
-be unique but aren't the primary identifier.
+UNIQUE ensures all values in a column are different. Unlike PRIMARY KEY, a table can have multiple UNIQUE columns, and UNIQUE columns CAN contain NULL (multiple NULLs are allowed in most databases, as NULL != NULL). Perfect for email addresses, phone numbers, usernames fields that must be unique but aren't the primary identifier.
 
 :::scenario
 A user registration system: email must be UNIQUE. If Alice already registered with 'alice@gmail.com' and Bob tries to register with the same email, the database automatically rejects it no duplicate accounts possible.
@@ -1779,8 +1592,7 @@ INSERT INTO users (username, email) VALUES ('alice2', 'alice@gmail.com');
 
 ## 4. DEFAULT Automatic Values
 
-DEFAULT sets an automatic value for a column when no value is provided during INSERT. Common
-uses: status defaults to 'active', created_at defaults to NOW(), is_active defaults to TRUE. This reduces
+DEFAULT sets an automatic value for a column when no value is provided during INSERT. Common uses: status defaults to 'active', created_at defaults to NOW(), is_active defaults to TRUE. This reduces
 INSERT complexity and ensures sensible defaults.
 
 :::scenario
@@ -1803,9 +1615,7 @@ INSERT INTO orders (customer_id, amount) VALUES (101, 1499.00);
 -- Row stored as:
 \`\`\`
 
-amount status
-id customer_id is_paid created_at
-1 101 FALSE 2024-11-
+amount status id customer_id is_paid created_at 1 101 FALSE 2024-11-
 
 ### 1499.00 pending 20
 
@@ -1813,9 +1623,7 @@ id customer_id is_paid created_at
 
 ## 5. Using Multiple Constraints Together
 
-In real tables, columns often have multiple constraints combined. A well-designed table uses constraints
-to enforce business rules automatically, reducing the need for application-level validation code.
-Real-world table with multiple constraints:
+In real tables, columns often have multiple constraints combined. A well-designed table uses constraints to enforce business rules automatically, reducing the need for application-level validation code. Real-world table with multiple constraints:
 
 \`\`\`sql
 CREATE TABLE products (
@@ -1837,23 +1645,18 @@ created_at DATETIME DEFAULT NOW()
 |---|---|---|---|
 | 1 | Create a 'users' table with: auto-increment primary key, username (unique, not null), email (unique, not null), password (not null), created_at (default now), is_active (default true). | Easy | Practical |
 | 2 | Try to insert two users with the same email into your users table. Document the exact error message and explain what it means. | Easy | Practical |
-| 3 | Create an 'orders' table where status defaults to 'pending', payment_method defaults to 'COD', and created_at auto- timestamps. Insert 3 orders without specifying these default columns. Verify defaults were applied. | Medium | Practical |
+| 3 | Create an 'orders' table where status defaults to 'pending', payment_method defaults to 'COD', and created_at auto-timestamps. Insert 3 orders without specifying these default columns. Verify defaults were applied. | Medium | Practical |
 | 4 | Design a 'courses' table for an online learning platform with appropriate constraints: every course must have a title, a unique course_code, a price that defaults to 0, and an is_published flag that defaults to false. | Medium | Design |
 | 5 | Explain the complete difference between PRIMARY KEY, UNIQUE, and NOT NULL with a real-world hospital database example. Which constraint would you apply to: patient_id, aadhaar_number, patient_name, blood_group, and admission_date? | Hard | Written |
 `,
 
   16: `# Joins
 
-Joins combine rows from two or more tables based on a related column between them. This is the heart
-of relational databases instead of storing everything in one giant table (which causes redundancy), data
-is split into related tables and joined when needed. Mastering joins is essential for any real-world SQL
-work.
+Joins combine rows from two or more tables based on a related column between them. This is the heart of relational databases instead of storing everything in one giant table (which causes redundancy), data is split into related tables and joined when needed. Mastering joins is essential for any real-world SQL work.
 
 ## 1. INNER JOIN Matching Rows Only
 
-INNER JOIN returns only rows that have matching values in both tables. If a row in the left table has no
-match in the right table (or vice versa), it is excluded from the result. This is the most commonly used join
-type.
+INNER JOIN returns only rows that have matching values in both tables. If a row in the left table has no match in the right table (or vice versa), it is excluded from the result. This is the most commonly used join type.
 
 :::scenario
 An e-commerce platform has two tables: 'orders' and 'customers'. An INNER JOIN returns only orders that have a matching customer. If an order has an invalid customer_id (orphaned record), it won't appear INNER JOIN automatically filters out unmatched rows.
@@ -1886,9 +1689,7 @@ ORDER BY o.amount DESC;
 
 ## 2. LEFT JOIN All Left + Matching Right
 
-LEFT JOIN (also called LEFT OUTER JOIN) returns ALL rows from the left table, plus matching rows
-from the right table. If there is no match on the right, the right side columns show NULL. Use LEFT JOIN
-when you want to keep all records from the main table regardless of whether a related record exists.
+LEFT JOIN (also called LEFT OUTER JOIN) returns ALL rows from the left table, plus matching rows from the right table. If there is no match on the right, the right side columns show NULL. Use LEFT JOIN when you want to keep all records from the main table regardless of whether a related record exists.
 
 :::scenario
 A sales manager wants a list of ALL customers, including those who have never placed an order. An INNER JOIN would hide non-ordering customers. A LEFT JOIN shows everyone customers without orders show NULL in order columns.
@@ -1921,8 +1722,7 @@ WHERE o.order_id IS NULL;
 ## 3. RIGHT JOIN All Right + Matching Left
 
 RIGHT JOIN returns ALL rows from the right table plus matching rows from the left. It is the mirror of
-LEFT JOIN. In practice, RIGHT JOIN is rarely used the same result can be achieved by swapping the
-table order in a LEFT JOIN. Most developers rewrite RIGHT JOINs as LEFT JOINs for consistency.
+LEFT JOIN. In practice, RIGHT JOIN is rarely used the same result can be achieved by swapping the table order in a LEFT JOIN. Most developers rewrite RIGHT JOINs as LEFT JOINs for consistency.
 RIGHT JOIN example:
 
 \`\`\`sql
@@ -1943,8 +1743,7 @@ LEFT JOIN customers AS c ON o.customer_id = c.id;
 
 ## 4. FULL OUTER JOIN All Rows from Both Tables
 
-FULL OUTER JOIN returns all rows from both tables. Where there is no match, NULLs fill the missing
-side. MySQL does NOT support FULL OUTER JOIN natively you simulate it with a LEFT JOIN UNION
+FULL OUTER JOIN returns all rows from both tables. Where there is no match, NULLs fill the missing side. MySQL does NOT support FULL OUTER JOIN natively you simulate it with a LEFT JOIN UNION
 RIGHT JOIN. PostgreSQL supports it directly.
 
 :::scenario
@@ -1965,8 +1764,7 @@ MySQL simulation using UNION:
 SELECT c.name, o.order_id FROM customers c LEFT JOIN orders o ON c.id =
 \`\`\`
 
-o.customer_id
-UNION
+o.customer_id UNION
 
 \`\`\`sql
 SELECT c.name, o.order_id FROM customers c RIGHT JOIN orders o ON c.id =
@@ -1976,18 +1774,14 @@ o.customer_id;
 
 ## 5. SELF JOIN A Table Joining Itself
 
-A SELF JOIN joins a table to itself. This is used when rows in a table have a relationship with other rows
-in the same table. The classic example is an employee-manager hierarchy where manager_id references
-another row's employee_id in the same table.
+A SELF JOIN joins a table to itself. This is used when rows in a table have a relationship with other rows in the same table. The classic example is an employee-manager hierarchy where manager_id references another row's employee_id in the same table.
 
 :::scenario
 An organizational chart tool needs to display 'Employee Reports To Manager' for every employee. Both employees and managers are in the same 'employees' table. A SELF JOIN using two aliases allows fetching both employee and manager names in one query.
 :::
 
 SELF JOIN employee and manager:
-SELECT
-e.name AS employee,
-m.name AS manager
+SELECT e.name AS employee, m.name AS manager
 FROM employees AS e
 LEFT JOIN employees AS m ON e.manager_id = m.id;
 
@@ -2003,10 +1797,7 @@ LEFT JOIN employees AS m ON e.manager_id = m.id;
 
 ## 6. CROSS JOIN Cartesian Product
 
-CROSS JOIN returns every combination of rows from two tables (Cartesian product). If table A has 5
-rows and table B has 4 rows, CROSS JOIN returns 20 rows. Use carefully on large tables this creates
-massive result sets. Useful for generating all combinations (e.g., all size-colour combinations for a
-product).
+CROSS JOIN returns every combination of rows from two tables (Cartesian product). If table A has 5 rows and table B has 4 rows, CROSS JOIN returns 20 rows. Use carefully on large tables this creates massive result sets. Useful for generating all combinations (e.g., all size-colour combinations for a product).
 CROSS JOIN example product variants:
 
 \`\`\`sql
@@ -2033,15 +1824,11 @@ CROSS JOIN colours AS c;
   17: `# Subqueries
 
 A subquery is a query nested inside another query. It is enclosed in parentheses and can appear in
-SELECT, FROM, WHERE, or HAVING clauses. Subqueries allow you to break complex problems into
-smaller, logical steps solving one question with the result of another. They are fundamental to
-intermediate SQL.
+SELECT, FROM, WHERE, or HAVING clauses. Subqueries allow you to break complex problems into smaller, logical steps solving one question with the result of another. They are fundamental to intermediate SQL.
 
 ## 1. Subquery in WHERE Clause
 
-The most common use of subqueries is inside WHERE to dynamically compute a filter value. Instead of
-hardcoding a number, the inner query calculates it. The inner query runs first and its result is passed to
-the outer query.
+The most common use of subqueries is inside WHERE to dynamically compute a filter value. Instead of hardcoding a number, the inner query calculates it. The inner query runs first and its result is passed to the outer query.
 
 :::scenario
 An HR manager wants to find employees who earn more than the company average but the average changes every time someone joins or leaves. A subquery computes the average dynamically: WHERE salary > (SELECT AVG(salary) FROM employees).
@@ -2062,9 +1849,7 @@ WHERE price = (SELECT MAX(price) FROM products);
 
 ## 2. Subquery in FROM Clause (Derived Table)
 
-A subquery in the FROM clause acts as a temporary table (also called derived table or inline view). You
-give it an alias and query it like a regular table. This is useful when you need to filter or aggregate on a
-computed result.
+A subquery in the FROM clause acts as a temporary table (also called derived table or inline view). You give it an alias and query it like a regular table. This is useful when you need to filter or aggregate on a computed result.
 
 :::scenario
 A sales analyst needs the average number of orders per customer, but only for customers who ordered more than 3 times. The inner query computes order counts per customer, the outer query then averages those counts with a filter.
@@ -2085,26 +1870,19 @@ WHERE avg_salary > 60000;
 
 ## 3. Subquery in SELECT Clause (Scalar Subquery)
 
-A scalar subquery in SELECT returns exactly one value per row. It runs once for each row in the outer
-query. Use sparingly on large tables it can be slow, but is very readable for small lookups.
-Scalar subquery in SELECT:
+A scalar subquery in SELECT returns exactly one value per row. It runs once for each row in the outer query. Use sparingly on large tables it can be slow, but is very readable for small lookups. Scalar subquery in SELECT:
 
 \`\`\`sql
 -- Show each employee's salary and the company average side by side:
 SELECT
 \`\`\`
 
-name,
-salary,
-(SELECT AVG(salary) FROM employees) AS company_avg,
-salary - (SELECT AVG(salary) FROM employees) AS diff_from_avg
+name, salary, (SELECT AVG(salary) FROM employees) AS company_avg, salary - (SELECT AVG(salary) FROM employees) AS diff_from_avg
 FROM employees;
 
 ## 4. IN, NOT IN, EXISTS with Subqueries
 
-IN with a subquery checks if a value matches any value in the subquery result set. NOT IN excludes
-those matches. EXISTS checks if the subquery returns any rows at all it is faster than IN for large
-datasets because it stops at the first match.
+IN with a subquery checks if a value matches any value in the subquery result set. NOT IN excludes those matches. EXISTS checks if the subquery returns any rows at all it is faster than IN for large datasets because it stops at the first match.
 
 :::scenario
 A marketing team wants to email customers who have ordered a specific product. Subquery: SELECT customer_id FROM orders WHERE product_id = 55 then the outer query finds those customers' contact details.
@@ -2142,15 +1920,11 @@ WHERE o.customer_id = c.id AND o.amount > 5000
 
   18: `# UNION & UNION ALL
 
-UNION and UNION ALL combine result sets from two or more SELECT queries vertically (stacking rows).
-Unlike JOINs which combine horizontally (adding columns), UNION stacks rows from multiple queries
-into one result. The queries must have the same number of columns with compatible data types.
+UNION and UNION ALL combine result sets from two or more SELECT queries vertically (stacking rows). Unlike JOINs which combine horizontally (adding columns), UNION stacks rows from multiple queries into one result. The queries must have the same number of columns with compatible data types.
 
 ## 1. UNION Combining Without Duplicates
 
-UNION combines results from two queries and automatically removes duplicate rows. It performs a
-DISTINCT internally, which makes it slightly slower than UNION ALL. Use UNION when you need unique
-results from multiple sources.
+UNION combines results from two queries and automatically removes duplicate rows. It performs a DISTINCT internally, which makes it slightly slower than UNION ALL. Use UNION when you need unique results from multiple sources.
 
 :::scenario
 A retailer has two databases: 'current_customers' from the new system and 'legacy_customers' from the old system. To build a master mailing list without duplicates, UNION combines both tables and automatically removes customers who appear in both.
@@ -2177,9 +1951,7 @@ ORDER BY order_id;
 
 ## 2. UNION ALL Combining With Duplicates
 
-UNION ALL combines results from multiple queries but keeps ALL rows including duplicates. It is faster
-than UNION because it skips the deduplication step. Use UNION ALL when you know there are no
-duplicates or when duplicates are meaningful (e.g., counting total transactions from multiple tables).
+UNION ALL combines results from multiple queries but keeps ALL rows including duplicates. It is faster than UNION because it skips the deduplication step. Use UNION ALL when you know there are no duplicates or when duplicates are meaningful (e.g., counting total transactions from multiple tables).
 
 :::scenario
 A finance team has separate monthly transaction tables (jan_transactions, feb_transactions, etc.) for performance. To calculate total annual sales, they UNION ALL all 12 monthly tables duplicates are impossible since each table covers a different month.
@@ -2211,10 +1983,7 @@ SELECT 'Q4', SUM(amount) FROM sales WHERE month IN (10,11,12);
 
 ## 3. UNION Rules and Ordering
 
-Both SELECT statements in a UNION must have the same number of columns. Column data types must
-be compatible. Column names in the final result come from the first SELECT. ORDER BY applies to the
-entire UNION result (not individual queries) and is placed at the very end.
-Rules demonstration:
+Both SELECT statements in a UNION must have the same number of columns. Column data types must be compatible. Column names in the final result come from the first SELECT. ORDER BY applies to the entire UNION result (not individual queries) and is placed at the very end. Rules demonstration:
 
 \`\`\`sql
 -- Column count MUST match:
@@ -2242,16 +2011,11 @@ ORDER BY name ASC;
 
   19: `# Foreign Keys & Referential Integrity
 
-A Foreign Key (FK) is a column that creates a link between two tables by referencing the Primary Key of
-another table. Foreign keys enforce referential integrity ensuring that relationships between records
-remain valid. They prevent orphaned records and accidental data corruption.
+A Foreign Key (FK) is a column that creates a link between two tables by referencing the Primary Key of another table. Foreign keys enforce referential integrity ensuring that relationships between records remain valid. They prevent orphaned records and accidental data corruption.
 
 ## 1. What is a Foreign Key?
 
-A foreign key in one table (child) references a primary key in another table (parent). The FK column in
-the child table can only contain values that already exist in the parent table's PK column or NULL (if the
-column is nullable). This guarantees that every order belongs to a real customer, every employee is in a
-real department, etc.
+A foreign key in one table (child) references a primary key in another table (parent). The FK column in the child table can only contain values that already exist in the parent table's PK column or NULL (if the column is nullable). This guarantees that every order belongs to a real customer, every employee is in a real department, etc.
 
 :::scenario
 An order management system: orders.customer_id is a FK referencing customers.id. If you try to insert an order with customer_id = 9999 but no customer with id = 9999 exists, the database REJECTS the insert. This prevents ghost orders orders with no traceable customer.
@@ -2280,15 +2044,11 @@ Adding FK to existing table:
 ALTER TABLE orders
 \`\`\`
 
-ADD CONSTRAINT fk_order_customer
-FOREIGN KEY (customer_id) REFERENCES customers(id);
+ADD CONSTRAINT fk_order_customer FOREIGN KEY (customer_id) REFERENCES customers(id);
 
 ## 2. CASCADE Actions
 
-CASCADE defines what happens to child rows when a parent row is updated or deleted. ON DELETE
-CASCADE automatically deletes child rows when the parent is deleted. ON UPDATE CASCADE
-propagates changes to the FK column. ON DELETE SET NULL sets FK to NULL when parent is deleted.
-ON DELETE RESTRICT (default) prevents deletion if child rows exist.
+CASCADE defines what happens to child rows when a parent row is updated or deleted. ON DELETE CASCADE automatically deletes child rows when the parent is deleted. ON UPDATE CASCADE propagates changes to the FK column. ON DELETE SET NULL sets FK to NULL when parent is deleted. ON DELETE RESTRICT (default) prevents deletion if child rows exist.
 
 :::scenario
 A blog platform: deleting a user account should delete all their posts and comments too. ON DELETE CASCADE on posts.user_id and comments.user_id handles this automatically no need for the application to manually delete related records.
@@ -2316,11 +2076,7 @@ ON DELETE RESTRICT
 
 ## 3. Multi-Table Relationships
 
-Real databases have multiple FK relationships creating a network of linked tables. A many-to-many
-relationship requires a junction/bridge table with two foreign keys (one to each parent table). For example,
-students can enroll in many courses, and courses can have many students the 'enrollments' table
-bridges them.
-Many-to-many with junction table:
+Real databases have multiple FK relationships creating a network of linked tables. A many-to-many relationship requires a junction/bridge table with two foreign keys (one to each parent table). For example, students can enroll in many courses, and courses can have many students the 'enrollments' table bridges them. Many-to-many with junction table:
 
 \`\`\`sql
 CREATE TABLE students (
@@ -2356,17 +2112,11 @@ FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 
   20: `# Indexes
 
-An index is a data structure that speeds up data retrieval in a table. Without an index, every query does
-a full table scan reading every row. With an index, the database can jump directly to matching rows.
-Indexes dramatically improve query performance on large tables but come with tradeoffs: they use disk
-space and slow down INSERT/UPDATE/DELETE.
+An index is a data structure that speeds up data retrieval in a table. Without an index, every query does a full table scan reading every row. With an index, the database can jump directly to matching rows. Indexes dramatically improve query performance on large tables but come with tradeoffs: they use disk space and slow down INSERT/UPDATE/DELETE.
 
 ## 1. How Indexes Work
 
-Think of a database index like the index at the back of a textbook. Without it, you'd read every page to
-find a topic. With it, you look up the topic alphabetically, find the page number, and jump straight there.
-The most common index type is B-Tree (Balanced Tree) it stores sorted values with pointers to the
-actual row locations.
+Think of a database index like the index at the back of a textbook. Without it, you'd read every page to find a topic. With it, you look up the topic alphabetically, find the page number, and jump straight there. The most common index type is B-Tree (Balanced Tree) it stores sorted values with pointers to the actual row locations.
 
 :::scenario
 A users table with 10 million rows. Without an index on email: SELECT * FROM users WHERE email = 'alice@gmail.com' scans all 10 million rows (takes seconds). With an index on email: the database finds 'alice@gmail.com' in the B-Tree in microseconds and jumps directly to that row.
@@ -2389,10 +2139,7 @@ DROP INDEX idx_email; -- PostgreSQL
 
 ## 2. Types of Indexes
 
-B-Tree indexes are the default and work for equality (=), range (<, >, BETWEEN), and ORDER BY
-queries. Hash indexes (PostgreSQL) are faster for exact equality but don't support range queries. Full-
-text indexes enable text search. Primary keys and UNIQUE constraints automatically create indexes.
-Checking existing indexes:
+B-Tree indexes are the default and work for equality (=), range (<, >, BETWEEN), and ORDER BY queries. Hash indexes (PostgreSQL) are faster for exact equality but don't support range queries. Full-text indexes enable text search. Primary keys and UNIQUE constraints automatically create indexes. Checking existing indexes:
 
 \`\`\`sql
 -- MySQL:
@@ -2416,11 +2163,7 @@ WHERE salary > 50000
 
 ## 3. When to Use Indexes
 
-Add indexes on columns frequently used in WHERE, JOIN ON, and ORDER BY. However, do not over-
-index each index slows down INSERT, UPDATE, DELETE because the index must also be updated.
-Small tables rarely need indexes. Columns with very few distinct values (like gender) are poor candidates
-for standard indexes.
-Good index candidates:
+Add indexes on columns frequently used in WHERE, JOIN ON, and ORDER BY. However, do not over-index each index slows down INSERT, UPDATE, DELETE because the index must also be updated. Small tables rarely need indexes. Columns with very few distinct values (like gender) are poor candidates for standard indexes. Good index candidates:
 
 \`\`\`sql
 -- High cardinality (many unique values): GOOD
@@ -2453,9 +2196,7 @@ EXPLAIN SELECT * FROM orders WHERE customer_id = 101;
 
   21: `# Views
 
-A View is a saved SQL query stored in the database with a name, which you can query like a regular
-table. Views don't store data themselves they are virtual tables. They simplify complex queries, provide
-a security layer (hiding sensitive columns), and make the database easier to use for non-technical users.
+A View is a saved SQL query stored in the database with a name, which you can query like a regular table. Views don't store data themselves they are virtual tables. They simplify complex queries, provide a security layer (hiding sensitive columns), and make the database easier to use for non-technical users.
 
 ## 1. Creating and Using Views
 
@@ -2464,8 +2205,7 @@ a security layer (hiding sensitive columns), and make the database easier to use
 CREATE VIEW defines a named query. Once created, you query a view just like a table using SELECT.
 \`\`\`
 
-The view re-executes its underlying query each time it is accessed (unlike materialized views which cache
-results). Views can also be used in JOINs, subqueries, and other views.
+The view re-executes its underlying query each time it is accessed (unlike materialized views which cache results). Views can also be used in JOINs, subqueries, and other views.
 
 :::scenario
 A retail company's sales analysts need daily sales data but should not access the raw orders table directly (it contains sensitive payment info). The DBA creates a view 'v_daily_sales' that shows only order_id, product, quantity, and date analysts query the view safely.
@@ -2478,11 +2218,7 @@ CREATE VIEW v_employee_summary AS
 SELECT
 \`\`\`
 
-e.id,
-e.name,
-d.dept_name,
-e.salary,
-e.join_date
+e.id, e.name, d.dept_name, e.salary, e.join_date
 FROM employees e
 JOIN departments d ON e.dept_id = d.id;
 
@@ -2500,8 +2236,7 @@ SELECT name, salary FROM v_employee_summary ORDER BY salary DESC LIMIT 10;
 CREATE OR REPLACE VIEW updates an existing view's definition without dropping it first. DROP VIEW
 \`\`\`
 
-removes the view (not the underlying data). ALTER VIEW (PostgreSQL) can rename or modify a view.
-Modifying and dropping views:
+removes the view (not the underlying data). ALTER VIEW (PostgreSQL) can rename or modify a view. Modifying and dropping views:
 
 \`\`\`sql
 -- Replace an existing view:
@@ -2517,11 +2252,7 @@ DROP VIEW IF EXISTS v_employee_summary; -- safe version
 
 ## 3. Updatable Views and Use Cases
 
-Simple views (single table, no aggregates, no DISTINCT, no GROUP BY) can be updatable you can
-run INSERT, UPDATE, DELETE on them and it affects the underlying table. Complex views are read-
-only. Key use cases: security (hide sensitive columns), simplification (hide complex JOINs), consistency
-(standard report definitions).
-Security view hide salary:
+Simple views (single table, no aggregates, no DISTINCT, no GROUP BY) can be updatable you can run INSERT, UPDATE, DELETE on them and it affects the underlying table. Complex views are read-only. Key use cases: security (hide sensitive columns), simplification (hide complex JOINs), consistency (standard report definitions). Security view hide salary:
 
 \`\`\`sql
 -- Only expose non-sensitive columns to junior staff:
@@ -2563,10 +2294,7 @@ GROUP BY customer ORDER BY SUM(amount) DESC;
 
   22: `# Stored Procedures
 
-A Stored Procedure is a named block of precompiled SQL code stored in the database that can be called
-by name. Think of it as a function for your database. Procedures can accept input parameters, execute
-complex logic (including loops, conditionals, and multiple queries), and are used for encapsulating
-business logic, batch processing, and reducing network overhead.
+A Stored Procedure is a named block of precompiled SQL code stored in the database that can be called by name. Think of it as a function for your database. Procedures can accept input parameters, execute complex logic (including loops, conditionals, and multiple queries), and are used for encapsulating business logic, batch processing, and reducing network overhead.
 
 ## 1. Creating and Calling Procedures
 
@@ -2575,8 +2303,7 @@ business logic, batch processing, and reducing network overhead.
 CREATE PROCEDURE defines a stored procedure. CALL executes it. The DELIMITER command in
 \`\`\`
 
-MySQL changes the statement terminator temporarily so the procedure body (which contains
-semicolons) doesn't get executed prematurely. In PostgreSQL, procedures use PL/pgSQL syntax.
+MySQL changes the statement terminator temporarily so the procedure body (which contains semicolons) doesn't get executed prematurely. In PostgreSQL, procedures use PL/pgSQL syntax.
 
 :::scenario
 An e-commerce platform processes end-of-day reports: calculating totals, archiving old orders, updating product stock levels, and sending summary data to a reporting table. All this logic is wrapped in a stored procedure sp_eod_processing that runs every night one CALL triggers everything.
@@ -2602,19 +2329,14 @@ CALL sp_get_dept_employees('Finance');
 
 ## 2. IN, OUT, and INOUT Parameters
 
-IN parameters pass values into a procedure (read-only inside). OUT parameters return values back to
-the caller (write-only inside). INOUT parameters both receive and return values. OUT parameters are
-how procedures return computed results to the calling application.
-Procedure with OUT parameter:
+IN parameters pass values into a procedure (read-only inside). OUT parameters return values back to the caller (write-only inside). INOUT parameters both receive and return values. OUT parameters are how procedures return computed results to the calling application. Procedure with OUT parameter:
 
 \`\`\`sql
 DELIMITER //
 CREATE PROCEDURE sp_get_employee_count(
 \`\`\`
 
-IN dept_name VARCHAR(50),
-OUT emp_count INT
-)
+IN dept_name VARCHAR(50), OUT emp_count INT )
 
 \`\`\`sql
 BEGIN
@@ -2631,18 +2353,14 @@ SELECT @count AS it_employee_count;
 
 ## 3. Conditional Logic and Variables
 
-Stored procedures support IF/ELSEIF/ELSE conditional logic and CASE statements. You can declare
-variables with DECLARE. This allows complex business logic to run entirely inside the database.
-Procedure with IF logic:
+Stored procedures support IF/ELSEIF/ELSE conditional logic and CASE statements. You can declare variables with DECLARE. This allows complex business logic to run entirely inside the database. Procedure with IF logic:
 
 \`\`\`sql
 DELIMITER //
 CREATE PROCEDURE sp_apply_discount(
 \`\`\`
 
-IN order_id INT,
-IN customer_id INT
-)
+IN order_id INT, IN customer_id INT )
 
 \`\`\`sql
 BEGIN
@@ -2653,10 +2371,7 @@ IF order_total > 10000 THEN
 SET discount_pct = 15.0;
 \`\`\`
 
-ELSEIF order_total > 5000 THEN
-SET discount_pct = 10.0;
-ELSEIF order_total > 1000 THEN
-SET discount_pct = 5.0;
+ELSEIF order_total > 5000 THEN SET discount_pct = 10.0; ELSEIF order_total > 1000 THEN SET discount_pct = 5.0;
 
 \`\`\`sql
 END IF;
@@ -2682,15 +2397,11 @@ DELIMITER ;
 
   23: `# User Defined Functions
 
-User Defined Functions (UDFs) are custom functions created in SQL that can be called within queries,
-just like built-in functions (SUM, LENGTH, etc.). Unlike stored procedures, functions always return a value
-and can be used inline in SELECT, WHERE, or any expression. They are ideal for encapsulating reusable
-calculations.
+User Defined Functions (UDFs) are custom functions created in SQL that can be called within queries, just like built-in functions (SUM, LENGTH, etc.). Unlike stored procedures, functions always return a value and can be used inline in SELECT, WHERE, or any expression. They are ideal for encapsulating reusable calculations.
 
 ## 1. Creating Scalar Functions
 
-A scalar function returns a single value. You define the return type, parameters, and the computation
-logic. Once created, call it in any SQL query just like a built-in function.
+A scalar function returns a single value. You define the return type, parameters, and the computation logic. Once created, call it in any SQL query just like a built-in function.
 
 :::scenario
 A HR system frequently calculates years of experience from a join date. Instead of writing DATEDIFF(CURDATE(), join_date)/365 everywhere, a function fn_years_experience(join_date) is created and reused across dozens of queries and reports.
@@ -2722,9 +2433,7 @@ WHERE fn_years_experience(join_date) >= 5;
 
 ## 2. Functions with Conditional Logic
 
-Functions can contain IF/ELSE or CASE logic to compute context-dependent values. This is useful for
-grading, categorization, tax calculations, and pricing rules.
-Function with CASE logic:
+Functions can contain IF/ELSE or CASE logic to compute context-dependent values. This is useful for grading, categorization, tax calculations, and pricing rules. Function with CASE logic:
 
 \`\`\`sql
 DELIMITER //
@@ -2754,11 +2463,7 @@ FROM student_scores;
 
 ## 3. Functions vs Stored Procedures
 
-Functions MUST return a value and can be used inline in queries. Procedures can return multiple values
-(via OUT params) but cannot be used inline. Functions cannot perform DML
-(INSERT/UPDATE/DELETE) in most databases. Procedures can perform any SQL operation. Use
-functions for reusable calculations; use procedures for complex workflows.
-Key differences:
+Functions MUST return a value and can be used inline in queries. Procedures can return multiple values (via OUT params) but cannot be used inline. Functions cannot perform DML (INSERT/UPDATE/DELETE) in most databases. Procedures can perform any SQL operation. Use functions for reusable calculations; use procedures for complex workflows. Key differences:
 
 \`\`\`sql
 -- Function: called inline in SELECT
@@ -2783,16 +2488,11 @@ CALL sp_process_payroll(2024, 11);
 
   24: `# Triggers
 
-A Trigger is a special stored procedure that automatically executes in response to a specific database
-event INSERT, UPDATE, or DELETE on a table. Triggers fire automatically without being called
-explicitly. They are used for audit logging, data validation, automatic calculations, and enforcing complex
-business rules.
+A Trigger is a special stored procedure that automatically executes in response to a specific database event INSERT, UPDATE, or DELETE on a table. Triggers fire automatically without being called explicitly. They are used for audit logging, data validation, automatic calculations, and enforcing complex business rules.
 
 ## 1. BEFORE and AFTER Triggers
 
-BEFORE triggers fire before the database operation is executed useful for validation or modifying data
-before it is saved. AFTER triggers fire after the operation useful for audit logs, cascading updates to
-other tables, or notifications.
+BEFORE triggers fire before the database operation is executed useful for validation or modifying data before it is saved. AFTER triggers fire after the operation useful for audit logs, cascading updates to other tables, or notifications.
 
 :::scenario
 An inventory system uses an AFTER UPDATE trigger on the 'orders' table: whenever an order's status changes to 'shipped', the trigger automatically updates the 'inventory' table to reduce stock quantity no application code needed.
@@ -2811,8 +2511,7 @@ DELIMITER //
 CREATE TRIGGER trg_employee_after_insert
 \`\`\`
 
-AFTER INSERT ON employees
-FOR EACH ROW
+AFTER INSERT ON employees FOR EACH ROW
 
 \`\`\`sql
 BEGIN
@@ -2825,18 +2524,14 @@ DELIMITER ;
 
 ## 2. NEW and OLD References
 
-Inside a trigger, NEW refers to the new row values (available in INSERT and UPDATE). OLD refers to
-the old row values before modification (available in UPDATE and DELETE). For BEFORE triggers, you
-can modify NEW values to change what gets saved.
-BEFORE UPDATE auto-set updated_at:
+Inside a trigger, NEW refers to the new row values (available in INSERT and UPDATE). OLD refers to the old row values before modification (available in UPDATE and DELETE). For BEFORE triggers, you can modify NEW values to change what gets saved. BEFORE UPDATE auto-set updated_at:
 
 \`\`\`sql
 DELIMITER //
 CREATE TRIGGER trg_set_updated_at
 \`\`\`
 
-BEFORE UPDATE ON employees
-FOR EACH ROW
+BEFORE UPDATE ON employees FOR EACH ROW
 
 \`\`\`sql
 BEGIN
@@ -2852,8 +2547,7 @@ DELIMITER //
 CREATE TRIGGER trg_salary_change_log
 \`\`\`
 
-AFTER UPDATE ON employees
-FOR EACH ROW
+AFTER UPDATE ON employees FOR EACH ROW
 
 \`\`\`sql
 BEGIN
@@ -2868,34 +2562,28 @@ DELIMITER ;
 
 ## 3. BEFORE INSERT Validation Trigger
 
-BEFORE triggers can validate data and raise an error to reject invalid inserts. Use SIGNAL SQLSTATE
-in MySQL to raise custom errors. This enforces business rules at the database level even if the
-application has a bug, the database won't accept bad data.
-Validation trigger:
+BEFORE triggers can validate data and raise an error to reject invalid inserts. Use SIGNAL SQLSTATE in MySQL to raise custom errors. This enforces business rules at the database level even if the application has a bug, the database won't accept bad data. Validation trigger:
 
 \`\`\`sql
 DELIMITER //
 CREATE TRIGGER trg_validate_salary
 \`\`\`
 
-BEFORE INSERT ON employees
-FOR EACH ROW
+BEFORE INSERT ON employees FOR EACH ROW
 
 \`\`\`sql
 BEGIN
 IF NEW.salary < 0 THEN
 \`\`\`
 
-SIGNAL SQLSTATE '45000'
-SET MESSAGE_TEXT = 'Salary cannot be negative';
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Salary cannot be negative';
 
 \`\`\`sql
 END IF;
 IF NEW.salary > 10000000 THEN
 \`\`\`
 
-SIGNAL SQLSTATE '45000'
-SET MESSAGE_TEXT = 'Salary exceeds maximum allowed';
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Salary exceeds maximum allowed';
 
 \`\`\`sql
 END IF;
@@ -2917,16 +2605,11 @@ DELIMITER ;
 
   25: `# Transactions & ACID
 
-A transaction is a sequence of SQL operations treated as a single unit of work either ALL operations
-succeed together, or NONE of them do. Transactions are essential in banking, e-commerce, and any
-system where partial updates would corrupt data. ACID properties define the guarantees a transaction
-provides.
+A transaction is a sequence of SQL operations treated as a single unit of work either ALL operations succeed together, or NONE of them do. Transactions are essential in banking, e-commerce, and any system where partial updates would corrupt data. ACID properties define the guarantees a transaction provides.
 
 ## 1. ACID Properties Explained
 
-ACID stands for four properties every reliable transaction must have: Atomicity (all or nothing),
-Consistency (data remains valid before and after), Isolation (concurrent transactions don't interfere), and
-Durability (committed data survives crashes). These properties together ensure database reliability.
+ACID stands for four properties every reliable transaction must have: Atomicity (all or nothing), Consistency (data remains valid before and after), Isolation (concurrent transactions don't interfere), and Durability (committed data survives crashes). These properties together ensure database reliability.
 
 :::scenario
 Online bank transfer: deduct 5000 from Account A AND add 5000 to Account B. Without transactions, if the deduction succeeds but the addition crashes, money disappears. With ACID transactions, either both happen or neither does.
@@ -2945,10 +2628,7 @@ ACID breakdown:
 ## 2. BEGIN, COMMIT, ROLLBACK
 
 BEGIN (or START TRANSACTION) starts a transaction. COMMIT permanently saves all changes.
-ROLLBACK undoes all changes back to the beginning of the transaction. SAVEPOINT creates a
-checkpoint within a transaction ROLLBACK TO SAVEPOINT undoes changes back to that checkpoint
-only.
-Bank transfer with transaction:
+ROLLBACK undoes all changes back to the beginning of the transaction. SAVEPOINT creates a checkpoint within a transaction ROLLBACK TO SAVEPOINT undoes changes back to that checkpoint only. Bank transfer with transaction:
 
 \`\`\`sql
 START TRANSACTION;
@@ -2974,10 +2654,7 @@ COMMIT;
 
 ## 3. Autocommit and Transaction Modes
 
-By default, MySQL runs in autocommit mode every single SQL statement is automatically committed.
-To group multiple statements into one transaction, use START TRANSACTION explicitly or turn off
-autocommit. PostgreSQL defaults to transaction mode (BEGIN/COMMIT wraps all statements).
-Autocommit control:
+By default, MySQL runs in autocommit mode every single SQL statement is automatically committed. To group multiple statements into one transaction, use START TRANSACTION explicitly or turn off autocommit. PostgreSQL defaults to transaction mode (BEGIN/COMMIT wraps all statements). Autocommit control:
 
 \`\`\`sql
 -- Check autocommit (MySQL):
@@ -3005,30 +2682,18 @@ COMMIT;
 
   26: `# Window Functions
 
-Window functions perform calculations across a set of rows related to the current row without collapsing
-them into a single result like GROUP BY does. They are among the most powerful features in SQL for
-analytics, rankings, running totals, and comparing rows. They were introduced in SQL:2003 and are
-supported in both MySQL 8+ and PostgreSQL.
+Window functions perform calculations across a set of rows related to the current row without collapsing them into a single result like GROUP BY does. They are among the most powerful features in SQL for analytics, rankings, running totals, and comparing rows. They were introduced in SQL:2003 and are supported in both MySQL 8+ and PostgreSQL.
 
 ## 1. OVER() Clause The Foundation
 
-All window functions use the OVER() clause to define the 'window' (set of rows) the function operates on.
-PARTITION BY divides rows into groups (like GROUP BY but without collapsing rows). ORDER BY within
-OVER defines the sequence for running calculations.
+All window functions use the OVER() clause to define the 'window' (set of rows) the function operates on. PARTITION BY divides rows into groups (like GROUP BY but without collapsing rows). ORDER BY within OVER defines the sequence for running calculations.
 
 :::scenario
 A sales report needs each salesperson's individual monthly sales AND the total sales for the whole company in the same row impossible with GROUP BY (which collapses to one row per group). Window functions achieve this elegantly.
 :::
 
 SUM as window function:
-SELECT
-name,
-department,
-salary,
-SUM(salary) OVER() AS company_total,
-SUM(salary) OVER(PARTITION BY department) AS dept_total,
-ROUND(salary * 100.0 / SUM(salary) OVER(PARTITION BY department), 2) AS
-pct_of_dept
+SELECT name, department, salary, SUM(salary) OVER() AS company_total, SUM(salary) OVER(PARTITION BY department) AS dept_total, ROUND(salary * 100.0 / SUM(salary) OVER(PARTITION BY department), 2) AS pct_of_dept
 FROM employees;
 
 \`\`\`sql
@@ -3043,20 +2708,14 @@ FROM employees;
 
 ## 2. ROW_NUMBER, RANK, DENSE_RANK
 
-These functions assign rankings to rows. ROW_NUMBER assigns unique sequential integers (no ties).
-RANK assigns the same rank for ties but skips numbers after ties (1,1,3). DENSE_RANK assigns the
-same rank for ties without skipping (1,1,2).
+These functions assign rankings to rows. ROW_NUMBER assigns unique sequential integers (no ties). RANK assigns the same rank for ties but skips numbers after ties (1,1,3). DENSE_RANK assigns the same rank for ties without skipping (1,1,2).
 
 :::scenario
 An HR system ranks employees by salary within each department. Using DENSE_RANK: two employees with the same salary both get rank 1, and the next employee gets rank 2 no rank is skipped. Useful for 'top 3 earners per department' reports.
 :::
 
 Ranking functions comparison:
-SELECT
-name, department, salary,
-ROW_NUMBER() OVER(PARTITION BY department ORDER BY salary DESC) AS row_num,
-RANK() OVER(PARTITION BY department ORDER BY salary DESC) AS rank_num,
-DENSE_RANK() OVER(PARTITION BY department ORDER BY salary DESC) AS dense_rank
+SELECT name, department, salary, ROW_NUMBER() OVER(PARTITION BY department ORDER BY salary DESC) AS row_num, RANK() OVER(PARTITION BY department ORDER BY salary DESC) AS rank_num, DENSE_RANK() OVER(PARTITION BY department ORDER BY salary DESC) AS dense_rank
 FROM employees;
 
 \`\`\`sql
@@ -3075,26 +2734,19 @@ SELECT name, department, salary,
 \`\`\`
 
 ROW_NUMBER() OVER(PARTITION BY department ORDER BY salary DESC) AS rn
-FROM employees
-) ranked
+FROM employees ) ranked
 WHERE rn <= 2;
 
 ## 3. LAG and LEAD Accessing Adjacent Rows
 
-LAG(column, n) accesses the value from n rows BEFORE the current row. LEAD(column, n) accesses
-the value from n rows AFTER. These are invaluable for month-over-month comparisons, detecting
-trends, and calculating differences without self-joins.
+LAG(column, n) accesses the value from n rows BEFORE the current row. LEAD(column, n) accesses the value from n rows AFTER. These are invaluable for month-over-month comparisons, detecting trends, and calculating differences without self-joins.
 
 :::scenario
 An analytics team tracks monthly revenue. Using LAG, they calculate growth: current month's revenue minus last month's revenue in a single query. No need to join the table to itself.
 :::
 
 LAG for month-over-month comparison:
-SELECT
-month,
-revenue,
-LAG(revenue, 1) OVER(ORDER BY month) AS prev_month_revenue,
-revenue - LAG(revenue, 1) OVER(ORDER BY month) AS growth
+SELECT month, revenue, LAG(revenue, 1) OVER(ORDER BY month) AS prev_month_revenue, revenue - LAG(revenue, 1) OVER(ORDER BY month) AS growth
 FROM monthly_sales
 ORDER BY month;
 
@@ -3110,14 +2762,8 @@ ORDER BY month;
 
 ## 4. Running Totals with SUM OVER ORDER BY
 
-A running total (cumulative sum) adds up values row by row. With window functions, this is achieved by
-combining SUM with OVER(ORDER BY). The ORDER BY inside OVER defines the sequence, and the
-default frame includes all rows from the beginning up to the current row.
-Running total:
-SELECT
-order_date,
-daily_sales,
-SUM(daily_sales) OVER(ORDER BY order_date) AS running_total
+A running total (cumulative sum) adds up values row by row. With window functions, this is achieved by combining SUM with OVER(ORDER BY). The ORDER BY inside OVER defines the sequence, and the default frame includes all rows from the beginning up to the current row. Running total:
+SELECT order_date, daily_sales, SUM(daily_sales) OVER(ORDER BY order_date) AS running_total
 FROM daily_sales_summary
 ORDER BY order_date;
 
@@ -3134,16 +2780,11 @@ ORDER BY order_date;
 
   27: `# CTEs (Common Table Expressions)
 
-A CTE (Common Table Expression) is a named temporary result set defined using the WITH clause,
-valid only for the duration of the query. CTEs make complex queries more readable by breaking them
-into logical named steps. They can reference themselves (recursive CTEs) for hierarchical data like org
-charts and category trees.
+A CTE (Common Table Expression) is a named temporary result set defined using the WITH clause, valid only for the duration of the query. CTEs make complex queries more readable by breaking them into logical named steps. They can reference themselves (recursive CTEs) for hierarchical data like org charts and category trees.
 
 ## 1. Basic CTE Syntax
 
-The WITH clause names a subquery so it can be referenced by name in the main query. Unlike
-subqueries repeated in multiple places, a CTE is defined once and can be referenced multiple times.
-CTEs dramatically improve readability of complex queries.
+The WITH clause names a subquery so it can be referenced by name in the main query. Unlike subqueries repeated in multiple places, a CTE is defined once and can be referenced multiple times. CTEs dramatically improve readability of complex queries.
 
 :::scenario
 A business analyst writes a complex query: first get monthly sales, then calculate running totals, then add rankings. Without CTEs this is a nested mess. With CTEs, each step is a named block reading like a recipe: step 1 is monthly_sales, step 2 is ranked_sales, step 3 is the final output.
@@ -3163,8 +2804,7 @@ GROUP BY department;
 \`\`\`
 
 Multiple CTEs chained:
-WITH
-dept_totals AS (
+WITH dept_totals AS (
 
 \`\`\`sql
 SELECT department, SUM(salary) AS total_salary
@@ -3174,10 +2814,8 @@ GROUP BY department
 \`\`\`
 
 dept_ranks AS (
-SELECT department, total_salary,
-RANK() OVER(ORDER BY total_salary DESC) AS rank_num
-FROM dept_totals
-)
+SELECT department, total_salary, RANK() OVER(ORDER BY total_salary DESC) AS rank_num
+FROM dept_totals )
 
 \`\`\`sql
 SELECT * FROM dept_ranks WHERE rank_num <= 3;
@@ -3186,9 +2824,7 @@ SELECT * FROM dept_ranks WHERE rank_num <= 3;
 
 ## 2. Recursive CTEs Hierarchical Data
 
-A recursive CTE references itself to process hierarchical data. It has two parts: an anchor (base case)
-and a recursive member (which builds on the previous result). Recursive CTEs are used for
-organizational hierarchies, category trees, bill-of-materials, and graph traversal.
+A recursive CTE references itself to process hierarchical data. It has two parts: an anchor (base case) and a recursive member (which builds on the previous result). Recursive CTEs are used for organizational hierarchies, category trees, bill-of-materials, and graph traversal.
 
 :::scenario
 A company org chart is stored in an employees table where each employee has a manager_id. A recursive CTE starting from the CEO can traverse down all levels of the hierarchy finding all direct and indirect reports of any manager.
@@ -3216,10 +2852,7 @@ ORDER BY level, name;
 
 ## 3. CTE vs Subquery vs View
 
-CTEs, subqueries, and views all create temporary named result sets, but differ in scope and use. A CTE
-exists only for one query. A subquery is inline and anonymous. A view is permanent and stored in the
-database. Use CTEs for query readability; views for reusability across multiple queries.
-Same logic as CTE vs subquery:
+CTEs, subqueries, and views all create temporary named result sets, but differ in scope and use. A CTE exists only for one query. A subquery is inline and anonymous. A view is permanent and stored in the database. Use CTEs for query readability; views for reusability across multiple queries. Same logic as CTE vs subquery:
 
 \`\`\`sql
 -- Subquery style (harder to read):
@@ -3227,8 +2860,7 @@ SELECT dept, avg_sal FROM (
 SELECT department AS dept, AVG(salary) AS avg_sal FROM employees GROUP BY
 \`\`\`
 
-department
-) AS dept_avg WHERE avg_sal > 60000;
+department ) AS dept_avg WHERE avg_sal > 60000;
 
 \`\`\`sql
 -- CTE style (readable):
@@ -3253,71 +2885,39 @@ SELECT dept, avg_sal FROM dept_avg WHERE avg_sal > 60000;
 
   28: `# CASE Statements
 
-The CASE statement adds conditional logic to SQL queries similar to IF/ELSE in programming
-languages. CASE can appear in SELECT, WHERE, ORDER BY, GROUP BY, and even UPDATE
-statements. It transforms raw data into human-readable labels, creates custom groupings, and enables
-complex conditional aggregations.
+The CASE statement adds conditional logic to SQL queries similar to IF/ELSE in programming languages. CASE can appear in SELECT, WHERE, ORDER BY, GROUP BY, and even UPDATE statements. It transforms raw data into human-readable labels, creates custom groupings, and enables complex conditional aggregations.
 
 ## 1. Simple CASE and Searched CASE
 
-Simple CASE compares a single expression to multiple values (like a switch statement). Searched CASE
-evaluates separate boolean conditions for each WHEN clause (like an if/elseif chain). Searched CASE
-is more flexible and more commonly used.
+Simple CASE compares a single expression to multiple values (like a switch statement). Searched CASE evaluates separate boolean conditions for each WHEN clause (like an if/elseif chain). Searched CASE is more flexible and more commonly used.
 
 :::scenario
 A payroll report needs to show employee grades: Executive (>200K), Senior (100K-200K), Mid (50K-100K), Junior (<50K). Instead of multiple queries, a single CASE in SELECT handles all categorization inline.
 :::
 
 Searched CASE in SELECT:
-SELECT
-name,
-salary,
-CASE
-WHEN salary >= 200000 THEN 'Executive'
-WHEN salary >= 100000 THEN 'Senior'
-WHEN salary >= 50000 THEN 'Mid-Level'
-ELSE 'Junior'
-END AS salary_grade
-FROM employees;
-Simple CASE (value matching):
-SELECT
-order_id,
-CASE status
-WHEN 'P' THEN 'Pending'
-WHEN 'S' THEN 'Shipped'
-WHEN 'D' THEN 'Delivered'
-WHEN 'C' THEN 'Cancelled'
-ELSE 'Unknown'
-END AS order_status
+SELECT name, salary, CASE WHEN salary >= 200000 THEN 'Executive' WHEN salary >= 100000 THEN 'Senior' WHEN salary >= 50000 THEN 'Mid-Level' ELSE 'Junior' END AS salary_grade
+FROM employees; Simple CASE (value matching):
+SELECT order_id, CASE status WHEN 'P' THEN 'Pending' WHEN 'S' THEN 'Shipped' WHEN 'D' THEN 'Delivered' WHEN 'C' THEN 'Cancelled' ELSE 'Unknown' END AS order_status
 FROM orders;
 
 ## 2. CASE with Aggregates Pivot Tables
 
-One of the most powerful uses of CASE is inside aggregate functions to create pivot tables turning row
-values into columns. This is how SQL transforms a vertical data layout into a horizontal one without a
-PIVOT function.
+One of the most powerful uses of CASE is inside aggregate functions to create pivot tables turning row values into columns. This is how SQL transforms a vertical data layout into a horizontal one without a PIVOT function.
 
 :::scenario
 A sales report needs monthly totals as columns: Jan_Sales, Feb_Sales, Mar_Sales. The data is stored as rows (one row per month). CASE + SUM pivots the rows into columns dynamically.
 :::
 
 Pivot table using CASE + SUM:
-SELECT
-product,
-SUM(CASE WHEN month = 1 THEN sales ELSE 0 END) AS Jan_Sales,
-SUM(CASE WHEN month = 2 THEN sales ELSE 0 END) AS Feb_Sales,
-SUM(CASE WHEN month = 3 THEN sales ELSE 0 END) AS Mar_Sales,
-SUM(sales) AS Total_Sales
+SELECT product, SUM(CASE WHEN month = 1 THEN sales ELSE 0 END) AS Jan_Sales, SUM(CASE WHEN month = 2 THEN sales ELSE 0 END) AS Feb_Sales, SUM(CASE WHEN month = 3 THEN sales ELSE 0 END) AS Mar_Sales, SUM(sales) AS Total_Sales
 FROM monthly_product_sales
 WHERE year = 2024
 GROUP BY product;
 
 ## 3. CASE in ORDER BY and WHERE
 
-CASE in ORDER BY enables custom sort orders beyond simple ASC/DESC. For example, sort status
-by business priority ('urgent' first, then 'normal', then 'low'). CASE in WHERE enables conditional filtering
-logic.
-CASE in ORDER BY for custom sort:
+CASE in ORDER BY enables custom sort orders beyond simple ASC/DESC. For example, sort status by business priority ('urgent' first, then 'normal', then 'low'). CASE in WHERE enables conditional filtering logic. CASE in ORDER BY for custom sort:
 
 \`\`\`sql
 SELECT order_id, priority, customer
@@ -3336,12 +2936,7 @@ UPDATE orders
 SET discount =
 \`\`\`
 
-CASE
-WHEN amount > 10000 THEN 0.15
-WHEN amount > 5000 THEN 0.10
-WHEN amount > 1000 THEN 0.05
-ELSE 0.00
-END;
+CASE WHEN amount > 10000 THEN 0.15 WHEN amount > 5000 THEN 0.10 WHEN amount > 1000 THEN 0.05 ELSE 0.00 END;
 
 ## Assignment Tasks
 
@@ -3356,16 +2951,11 @@ END;
 
   29: `# Normalization
 
-Normalization is the process of organizing a relational database to reduce data redundancy and improve
-data integrity. It involves decomposing large tables into smaller, related tables. Normalization is guided
-by Normal Forms (1NF, 2NF, 3NF, BCNF). A poorly normalized database leads to update anomalies,
-insertion anomalies, and deletion anomalies.
+Normalization is the process of organizing a relational database to reduce data redundancy and improve data integrity. It involves decomposing large tables into smaller, related tables. Normalization is guided by Normal Forms (1NF, 2NF, 3NF, BCNF). A poorly normalized database leads to update anomalies, insertion anomalies, and deletion anomalies.
 
 ## 1. Why Normalization Matters Anomalies
 
-Without normalization, databases suffer from update anomaly (changing one fact requires updating many
-rows), insertion anomaly (can't add data without other unrelated data), and deletion anomaly (deleting
-one piece of data accidentally deletes related facts). Normalization eliminates these problems.
+Without normalization, databases suffer from update anomaly (changing one fact requires updating many rows), insertion anomaly (can't add data without other unrelated data), and deletion anomaly (deleting one piece of data accidentally deletes related facts). Normalization eliminates these problems.
 
 :::scenario
 A single un-normalized table stores: order_id, customer_name, customer_email, product_name, product_price, quantity. If the customer changes their email, you must update it in EVERY row of every order they've placed. Miss one row and your data is inconsistent. Normalization puts customer info in a separate customers table update once, reflected everywhere.
@@ -3390,10 +2980,7 @@ orders_flat:
 
 ## 2. First Normal Form (1NF)
 
-1NF requires: each column contains atomic (indivisible) values no multiple values in one cell. Each row
-is unique (has a primary key). No repeating groups or arrays in columns. Violating 1NF: storing
-'Maths,Science,English' in a single subjects column.
-1NF violation and fix:
+1NF requires: each column contains atomic (indivisible) values no multiple values in one cell. Each row is unique (has a primary key). No repeating groups or arrays in columns. Violating 1NF: storing 'Maths,Science,English' in a single subjects column. 1NF violation and fix:
 
 \`\`\`sql
 -- VIOLATES 1NF (multiple values in subjects column):
@@ -3415,10 +3002,7 @@ is unique (has a primary key). No repeating groups or arrays in columns. Violati
 
 ## 3. Second Normal Form (2NF)
 
-2NF requires: the table is in 1NF AND every non-key column is fully dependent on the ENTIRE primary
-key (not just part of it). 2NF only matters when there's a composite primary key. Partial dependency = a
-non-key column depends on only part of the composite key.
-2NF violation and fix:
+2NF requires: the table is in 1NF AND every non-key column is fully dependent on the ENTIRE primary key (not just part of it). 2NF only matters when there's a composite primary key. Partial dependency = a non-key column depends on only part of the composite key. 2NF violation and fix:
 
 \`\`\`sql
 -- VIOLATES 2NF (product_name depends only on product_id, not full PK):
@@ -3433,14 +3017,11 @@ order_items: PK = (order_id, product_id)
 -- FIX: Separate products table:
 \`\`\`
 
-products: id, name, price
-order_items: order_id, product_id(FK), quantity
+products: id, name, price order_items: order_id, product_id(FK), quantity
 
 ## 4. Third Normal Form (3NF)
 
-3NF requires: the table is in 2NF AND there are no transitive dependencies non-key columns must
-depend only on the primary key, not on other non-key columns.
-3NF violation and fix:
+3NF requires: the table is in 2NF AND there are no transitive dependencies non-key columns must depend only on the primary key, not on other non-key columns. 3NF violation and fix:
 
 \`\`\`sql
 -- VIOLATES 3NF (zip_code → city is a transitive dependency):
@@ -3453,8 +3034,7 @@ employees: id, name, zip_code, city
 -- FIX: Separate zip_codes table:
 \`\`\`
 
-zip_codes: zip_code(PK), city, state
-employees: id, name, zip_code(FK)
+zip_codes: zip_code(PK), city, state employees: id, name, zip_code(FK)
 
 ## Assignment Tasks
 
@@ -3469,33 +3049,22 @@ employees: id, name, zip_code(FK)
 
   30: `# ER Diagrams & Schema Design
 
-An Entity-Relationship (ER) diagram is a visual blueprint of a database. It shows entities (tables), their
-attributes (columns), and relationships between entities. Schema design is the process of translating
-business requirements into a well-structured database. Good schema design prevents problems that are
-very costly to fix later.
+An Entity-Relationship (ER) diagram is a visual blueprint of a database. It shows entities (tables), their attributes (columns), and relationships between entities. Schema design is the process of translating business requirements into a well-structured database. Good schema design prevents problems that are very costly to fix later.
 
 ## 1. Entities, Attributes, and Relationships
 
-An Entity represents a real-world object or concept stored in the database (e.g., Customer, Product,
-Order). An Attribute is a property of an entity (Customer: name, email, phone). A Relationship defines
-how entities are connected. Relationships have cardinality: one-to-one (1:1), one-to-many (1:N), or many-
-to-many (M:N).
+An Entity represents a real-world object or concept stored in the database (e.g., Customer, Product, Order). An Attribute is a property of an entity (Customer: name, email, phone). A Relationship defines how entities are connected. Relationships have cardinality: one-to-one (1:1), one-to-many (1:N), or many-to-many (M:N).
 
 :::scenario
 A hospital system has entities: Patient, Doctor, Ward, and Appointment. The relationship between Patient and Doctor through Appointment is many-to-many (one patient sees many doctors; one doctor treats many patients). This must be represented with an Appointments junction table.
 :::
 
 Cardinality types:
-1:1 -- One user has one profile (User → Profile)
-1:N -- One customer has many orders (Customer → Orders)
-M:N -- Students enroll in many courses; courses have many students
+1:1 -- One user has one profile (User → Profile) 1:N -- One customer has many orders (Customer → Orders) M:N -- Students enroll in many courses; courses have many students
 
 ## 2. Translating ER to SQL Tables
 
-Each entity becomes a table. Each attribute becomes a column. 1:N relationships are implemented with
-a FK in the 'many' side. M:N relationships require a junction/bridge table with FKs to both parent tables.
-1:1 relationships can use a FK in either table (often the 'weaker' entity).
-E-commerce schema example:
+Each entity becomes a table. Each attribute becomes a column. 1:N relationships are implemented with a FK in the 'many' side. M:N relationships require a junction/bridge table with FKs to both parent tables. 1:1 relationships can use a FK in either table (often the 'weaker' entity). E-commerce schema example:
 
 \`\`\`sql
 -- Entities: Customer, Product, Order, OrderItem (junction for Order-Product)
@@ -3530,11 +3099,7 @@ FOREIGN KEY (product_id) REFERENCES products(id)
 
 ## 3. Schema Design Best Practices
 
-Good schema design follows key principles: always define a primary key, use appropriate data types,
-apply NOT NULL to required fields, use FK constraints for relationships, name tables and columns
-consistently (snake_case or camelCase pick one), avoid storing calculated values, and think about
-query patterns when designing indexes.
-Naming conventions:
+Good schema design follows key principles: always define a primary key, use appropriate data types, apply NOT NULL to required fields, use FK constraints for relationships, name tables and columns consistently (snake_case or camelCase pick one), avoid storing calculated values, and think about query patterns when designing indexes. Naming conventions:
 
 \`\`\`sql
 -- Table names: plural, snake_case
@@ -3552,8 +3117,7 @@ customers.id or customers.customer_id
 -- Foreign keys: referenced_table_id
 \`\`\`
 
-orders.customer_id (references customers.id)
-order_items.order_id (references orders.id)
+orders.customer_id (references customers.id) order_items.order_id (references orders.id)
 
 \`\`\`sql
 -- Timestamps: created_at, updated_at
@@ -3574,15 +3138,11 @@ order_items.order_id (references orders.id)
 
   31: `# Import & Export Data
 
-Real databases constantly receive and send data. Importing data from CSV files, Excel exports, or other
-databases is a routine task. Exporting data for analysis, reporting, or migration is equally common. Both
-MySQL and PostgreSQL have built-in commands for bulk data operations.
+Real databases constantly receive and send data. Importing data from CSV files, Excel exports, or other databases is a routine task. Exporting data for analysis, reporting, or migration is equally common. Both MySQL and PostgreSQL have built-in commands for bulk data operations.
 
 ## 1. Importing CSV Data
 
-CSV (Comma-Separated Values) is the most common format for data exchange. MySQL uses LOAD
-DATA INFILE to import CSVs directly into tables. PostgreSQL uses the COPY command. Both are
-extremely fast much faster than inserting row by row with INSERT statements.
+CSV (Comma-Separated Values) is the most common format for data exchange. MySQL uses LOAD DATA INFILE to import CSVs directly into tables. PostgreSQL uses the COPY command. Both are extremely fast much faster than inserting row by row with INSERT statements.
 
 :::scenario
 A retail company receives a weekly supplier inventory update as a CSV file with 50,000 product records. Using LOAD DATA INFILE, all 50,000 rows are loaded into the staging table in seconds doing it with individual INSERT statements would take hours.
@@ -3607,10 +3167,7 @@ WITH (FORMAT CSV, HEADER TRUE, DELIMITER ',');
 
 ## 2. Exporting Data
 
-Exporting query results to CSV is useful for sharing with Excel users, running external analysis, or
-generating reports. MySQL uses SELECT ... INTO OUTFILE. PostgreSQL uses COPY TO. Both tools
-(Workbench, pgAdmin) also support GUI-based export.
-MySQL export to CSV:
+Exporting query results to CSV is useful for sharing with Excel users, running external analysis, or generating reports. MySQL uses SELECT ... INTO OUTFILE. PostgreSQL uses COPY TO. Both tools (Workbench, pgAdmin) also support GUI-based export. MySQL export to CSV:
 
 \`\`\`sql
 SELECT id, name, salary, department
@@ -3623,16 +3180,14 @@ LINES TERMINATED BY '\\n';
 \`\`\`
 
 PostgreSQL COPY TO:
-COPY (SELECT id, name, salary FROM employees WHERE status='active')
-TO '/tmp/active_employees.csv'
+COPY (SELECT id, name, salary FROM employees WHERE status='active') TO '/tmp/active_employees.csv'
 WITH (FORMAT CSV, HEADER TRUE);
 
 ## 3. Database Dump and Restore
 
 
 mysqldump and pg_dump create full SQL dump files containing CREATE TABLE statements and
-INSERT data used for backups and migrations. pg_restore / mysql < dump.sql restores them.
-MySQL dump and restore:
+INSERT data used for backups and migrations. pg_restore / mysql < dump.sql restores them. MySQL dump and restore:
 
 \`\`\`sql
 -- Create backup:
@@ -3666,17 +3221,11 @@ psql -U postgres school_db < school_db_backup.sql
 
   32: `# DCL Commands
 
-DCL (Data Control Language) manages access and permissions in a database. GRANT gives users
-specific permissions. REVOKE removes them. In a production database, no one should have unrestricted
-access different roles (developer, analyst, app user, DBA) get different permissions. Proper access
-control is critical for security and compliance.
+DCL (Data Control Language) manages access and permissions in a database. GRANT gives users specific permissions. REVOKE removes them. In a production database, no one should have unrestricted access different roles (developer, analyst, app user, DBA) get different permissions. Proper access control is critical for security and compliance.
 
 ## 1. User Management CREATE and DROP USER
 
-Before granting permissions, create user accounts. Each user account is identified by username@host
-the host specifies from where the user can connect. 'localhost' means only from the same machine. '%'
-means from any host.
-Create and manage users (MySQL):
+Before granting permissions, create user accounts. Each user account is identified by username@host the host specifies from where the user can connect. 'localhost' means only from the same machine. '%' means from any host. Create and manage users (MySQL):
 
 \`\`\`sql
 -- Create a new user (local access only):
@@ -3701,8 +3250,7 @@ DROP USER analyst;
 ## 2. GRANT Giving Permissions
 
 GRANT gives users specific privileges on databases, tables, or columns. Privileges include: SELECT,
-INSERT, UPDATE, DELETE, CREATE, DROP, EXECUTE, ALL PRIVILEGES. Granting minimal
-necessary permissions is the principle of least privilege a core security principle.
+INSERT, UPDATE, DELETE, CREATE, DROP, EXECUTE, ALL PRIVILEGES. Granting minimal necessary permissions is the principle of least privilege a core security principle.
 
 :::scenario
 A company's data analyst should only be able to read data (SELECT) never modify it. The reporting app user needs SELECT and INSERT (to log report runs). The DBA gets ALL PRIVILEGES. Granting only what's needed limits damage if credentials are compromised.
@@ -3726,9 +3274,7 @@ FLUSH PRIVILEGES;
 
 ## 3. REVOKE Removing Permissions
 
-REVOKE removes previously granted permissions. The syntax mirrors GRANT. After revoking
-permissions, FLUSH PRIVILEGES in MySQL applies the changes. In PostgreSQL, changes take effect
-immediately.
+REVOKE removes previously granted permissions. The syntax mirrors GRANT. After revoking permissions, FLUSH PRIVILEGES in MySQL applies the changes. In PostgreSQL, changes take effect immediately.
 REVOKE examples:
 
 \`\`\`sql
@@ -3758,16 +3304,11 @@ WHERE grantee = 'analyst';
 
   33: `# MySQL vs PostgreSQL Differences
 
-MySQL and PostgreSQL are both excellent open-source relational databases, but they have meaningful
-differences in features, syntax, and philosophy. Understanding these differences helps you choose the
-right tool and write compatible code. PostgreSQL is generally more feature-rich and standards-compliant;
-MySQL is traditionally simpler and faster for web applications.
+MySQL and PostgreSQL are both excellent open-source relational databases, but they have meaningful differences in features, syntax, and philosophy. Understanding these differences helps you choose the right tool and write compatible code. PostgreSQL is generally more feature-rich and standards-compliant; MySQL is traditionally simpler and faster for web applications.
 
 ## 1. Key Syntax Differences
 
-Several common operations have different syntax between MySQL and PostgreSQL. Knowing these
-differences prevents frustration when switching between databases.
-Syntax comparison table:
+Several common operations have different syntax between MySQL and PostgreSQL. Knowing these differences prevents frustration when switching between databases. Syntax comparison table:
 
 | Feature | MySQL | PostgreSQL |
 |---|---|---|
@@ -3785,10 +3326,7 @@ Syntax comparison table:
 
 ## 2. Data Type Differences
 
-PostgreSQL has more data types than MySQL, especially for complex data. PostgreSQL natively
-supports JSON/JSONB (binary JSON), arrays, UUID, geometric types, and custom types. MySQL added
-JSON support in version 5.7 but it is less powerful than PostgreSQL's JSONB.
-Data type differences:
+PostgreSQL has more data types than MySQL, especially for complex data. PostgreSQL natively supports JSON/JSONB (binary JSON), arrays, UUID, geometric types, and custom types. MySQL added JSON support in version 5.7 but it is less powerful than PostgreSQL's JSONB. Data type differences:
 
 \`\`\`sql
 -- UUID (universally unique identifier):
@@ -3807,11 +3345,7 @@ SELECT settings->>'theme' FROM configs WHERE id = 1;
 
 ## 3. Feature Differences
 
-PostgreSQL supports materialized views (cached views), table inheritance, more advanced window
-functions, and stricter SQL standard compliance. MySQL is known for ease of setup, wide hosting
-support, and speed in simple read-heavy workloads. MySQL powers most of the web (WordPress,
-Drupal); PostgreSQL powers financial, geospatial, and complex analytical systems.
-Materialized view (PostgreSQL only):
+PostgreSQL supports materialized views (cached views), table inheritance, more advanced window functions, and stricter SQL standard compliance. MySQL is known for ease of setup, wide hosting support, and speed in simple read-heavy workloads. MySQL powers most of the web (WordPress, Drupal); PostgreSQL powers financial, geospatial, and complex analytical systems. Materialized view (PostgreSQL only):
 
 \`\`\`sql
 -- PostgreSQL materialized view (caches results):
@@ -3855,17 +3389,11 @@ Use PostgreSQL when:
 
   34: `# Query Optimization
 
-Query optimization is the art and science of making SQL queries run faster on large datasets. A poorly
-written query on a table with 100 million rows can take minutes; an optimized version takes milliseconds.
-Understanding how the database engine executes queries — and using EXPLAIN/EXPLAIN ANALYZE
-to diagnose problems — is a core skill for any serious SQL practitioner.
+Query optimization is the art and science of making SQL queries run faster on large datasets. A poorly written query on a table with 100 million rows can take minutes; an optimized version takes milliseconds. Understanding how the database engine executes queries — and using EXPLAIN/EXPLAIN ANALYZE to diagnose problems — is a core skill for any serious SQL practitioner.
 
 ## 1. How the Query Optimizer Works
 
-The database query optimizer is an internal engine component that analyzes your SQL and decides the
-most efficient execution plan. It considers: available indexes, table statistics, estimated row counts, join
-order, and available memory. The optimizer generates multiple possible plans and picks the one with the
-lowest estimated cost. Understanding this helps you write queries the optimizer can execute efficiently.
+The database query optimizer is an internal engine component that analyzes your SQL and decides the most efficient execution plan. It considers: available indexes, table statistics, estimated row counts, join order, and available memory. The optimizer generates multiple possible plans and picks the one with the lowest estimated cost. Understanding this helps you write queries the optimizer can execute efficiently.
 
 :::scenario
 A query joining 3 tables can be executed in 6 different join orders (3! = 6). The optimizer evaluates each, estimates the cost of each based on table sizes and indexes, and picks the cheapest. Rewriting the query or adding an index can dramatically change which plan is chosen.
@@ -3894,10 +3422,7 @@ WHERE e.salary > 80000;
 
 ## 2. Reading EXPLAIN Output
 
-EXPLAIN output reveals how the database actually processes your query. The 'type' column in MySQL
-is the most critical — from best to worst: system > const > eq_ref > ref > range > index > ALL. 'ALL'
-means a full table scan — every row is read — which is disastrous on large tables. 'Using filesort' means
-an in-memory sort that couldn't use an index.
+EXPLAIN output reveals how the database actually processes your query. The 'type' column in MySQL is the most critical — from best to worst: system > const > eq_ref > ref > range > index > ALL. 'ALL' means a full table scan — every row is read — which is disastrous on large tables. 'Using filesort' means an in-memory sort that couldn't use an index.
 
 :::scenario
 A reporting query that previously returned results in 2 seconds starts taking 45 seconds after the data grows. Running EXPLAIN reveals type=ALL on the orders table with 8 million rows. Adding a composite index on (order_date, status) changes type from ALL to range — query drops back to under 1 second.
@@ -3909,16 +3434,13 @@ EXPLAIN output comparison:
 -- BEFORE index (BAD):
 \`\`\`
 
-id | type | key | rows | Extra
-1 | ALL | NULL | 8,000,000 | Using where
+id | type | key | rows | Extra 1 | ALL | NULL | 8,000,000 | Using where
 
 \`\`\`sql
 -- AFTER adding index on (order_date, status) (GOOD):
 \`\`\`
 
-id | type | key | rows | Extra
-1 | range | idx_date_status | 1420 | Using index condition
-Slow query log (MySQL) — find expensive queries:
+id | type | key | rows | Extra 1 | range | idx_date_status | 1420 | Using index condition Slow query log (MySQL) — find expensive queries:
 
 \`\`\`sql
 -- Enable slow query log:
@@ -3931,11 +3453,7 @@ SHOW VARIABLES LIKE 'slow_query_log_file';
 
 ## 3. Query Rewriting for Performance
 
-Often the same logical result can be achieved with different SQL patterns — some much faster than
-others. Key rewrites: avoid SELECT *, use EXISTS instead of IN for large subqueries, avoid functions on
-indexed columns in WHERE, push filters as early as possible (filter before join, not after), and avoid
-correlated subqueries that run once per row.
-Avoid functions on indexed columns in WHERE:
+Often the same logical result can be achieved with different SQL patterns — some much faster than others. Key rewrites: avoid SELECT *, use EXISTS instead of IN for large subqueries, avoid functions on indexed columns in WHERE, push filters as early as possible (filter before join, not after), and avoid correlated subqueries that run once per row. Avoid functions on indexed columns in WHERE:
 
 \`\`\`sql
 -- BAD: function prevents index use
@@ -3964,10 +3482,7 @@ SELECT id, name, price FROM products WHERE category = 'Electronics';
 
 ## 4. Query Plan Hints and Optimizer Controls
 
-Sometimes the optimizer makes a suboptimal choice. MySQL allows hints like FORCE INDEX, USE
-INDEX, IGNORE INDEX to override index selection. PostgreSQL allows SET enable_seqscan = off to
-force index scans during testing. Use hints sparingly — they can become stale as data grows.
-Index hints (MySQL):
+Sometimes the optimizer makes a suboptimal choice. MySQL allows hints like FORCE INDEX, USE INDEX, IGNORE INDEX to override index selection. PostgreSQL allows SET enable_seqscan = off to force index scans during testing. Use hints sparingly — they can become stale as data grows. Index hints (MySQL):
 
 \`\`\`sql
 -- Force use of specific index:
@@ -3992,16 +3507,11 @@ WHERE status = 'pending';
 
   35: `# Advanced Indexing
 
-Beyond basic single-column indexes, advanced indexing strategies can make the difference between a
-query taking 10 seconds versus 10 milliseconds on large production databases. Composite indexes,
-covering indexes, partial indexes (PostgreSQL), and proper index maintenance are essential skills for
-database performance engineering.
+Beyond basic single-column indexes, advanced indexing strategies can make the difference between a query taking 10 seconds versus 10 milliseconds on large production databases. Composite indexes, covering indexes, partial indexes (PostgreSQL), and proper index maintenance are essential skills for database performance engineering.
 
 ## 1. Composite Indexes — Column Order Matters
 
-A composite index covers multiple columns. The leftmost prefix rule is critical: the index is usable only if
-the query includes the leftmost column(s) of the index. Think of it like a phone book sorted by (last_name,
-first_name) — you can look up by last name alone, or by last + first name, but not by first name alone.
+A composite index covers multiple columns. The leftmost prefix rule is critical: the index is usable only if the query includes the leftmost column(s) of the index. Think of it like a phone book sorted by (last_name, first_name) — you can look up by last name alone, or by last + first name, but not by first name alone.
 
 :::scenario
 An e-commerce platform has an orders table. The most common query filters by customer_id AND order_date. A composite index on (customer_id, order_date) is 10x faster than separate indexes because the database finds the customer's rows first (narrow set), then applies the date filter within that narrow set.
@@ -4023,9 +3533,7 @@ WHERE status = 'shipped'
 
 ## 2. Covering Indexes
 
-A covering index includes ALL columns needed by a query — the database can satisfy the query entirely
-from the index without accessing the actual table rows at all. This eliminates expensive random I/O
-lookups and is one of the most powerful performance techniques for read-heavy workloads.
+A covering index includes ALL columns needed by a query — the database can satisfy the query entirely from the index without accessing the actual table rows at all. This eliminates expensive random I/O lookups and is one of the most powerful performance techniques for read-heavy workloads.
 
 :::scenario
 A reporting query: SELECT customer_id, order_date, amount FROM orders WHERE customer_id = 101. A covering index on (customer_id, order_date, amount) means the query is answered entirely from the index — the orders table rows are never touched. EXPLAIN shows 'Using index' — the best possible outcome.
@@ -4045,9 +3553,7 @@ CREATE INDEX idx_covering ON orders(customer_id, order_date, amount);
 
 ## 3. Partial Indexes (PostgreSQL)
 
-A partial index is an index built on only a subset of table rows — defined by a WHERE condition. This
-makes indexes smaller and faster. Most useful when queries consistently filter on a column with a specific
-value (e.g., only active records, only unprocessed orders).
+A partial index is an index built on only a subset of table rows — defined by a WHERE condition. This makes indexes smaller and faster. Most useful when queries consistently filter on a column with a specific value (e.g., only active records, only unprocessed orders).
 
 :::scenario
 An orders table has 50 million rows but only 100,000 are in 'pending' status — the ones your application queries constantly. A partial index on pending orders is 500x smaller than a full index on status, fits entirely in memory, and is blazing fast.
@@ -4068,11 +3574,7 @@ SELECT * FROM orders WHERE customer_id = 101; -- does NOT use partial index
 
 ## 4. Index Maintenance and Statistics
 
-Indexes need maintenance. Over time, heavy INSERT/UPDATE/DELETE activity causes index
-fragmentation — the index becomes disorganized and slower. Updating statistics tells the optimizer the
-current data distribution so it makes better plan choices. Unused indexes should be dropped — they slow
-down writes with no benefit.
-Index maintenance commands:
+Indexes need maintenance. Over time, heavy INSERT/UPDATE/DELETE activity causes index fragmentation — the index becomes disorganized and slower. Updating statistics tells the optimizer the current data distribution so it makes better plan choices. Unused indexes should be dropped — they slow down writes with no benefit. Index maintenance commands:
 
 \`\`\`sql
 -- MySQL: Analyze table to update statistics:
@@ -4103,17 +3605,11 @@ WHERE idx_scan = 0 AND schemaname = 'public';
 
   36: `# Partitioning
 
-Table partitioning divides a large table into smaller, more manageable physical segments (partitions)
-while appearing as a single table to the application. Partitioning is a major performance and manageability
-tool for tables with hundreds of millions of rows — common in data warehouses, logging systems, and
-time-series databases.
+Table partitioning divides a large table into smaller, more manageable physical segments (partitions) while appearing as a single table to the application. Partitioning is a major performance and manageability tool for tables with hundreds of millions of rows — common in data warehouses, logging systems, and time-series databases.
 
 ## 1. Why Partition? Partition Pruning
 
-Without partitioning, a query on a 500-million-row table must scan all partitions. With partitioning and a
-matching WHERE clause, the database performs partition pruning — only scanning the relevant
-partitions. A query for 'orders in Q1 2024' scans only the Q1 partition (maybe 5 million rows) instead of
-the entire 500-million-row table.
+Without partitioning, a query on a 500-million-row table must scan all partitions. With partitioning and a matching WHERE clause, the database performs partition pruning — only scanning the relevant partitions. A query for 'orders in Q1 2024' scans only the Q1 partition (maybe 5 million rows) instead of the entire 500-million-row table.
 
 :::scenario
 A telecom company stores call detail records — 2 billion rows spanning 5 years. Querying last month's calls on a non-partitioned table takes 8 minutes. After partitioning by month, each partition holds ~33 million rows, and last month's query takes 12 seconds — a 40x improvement.
@@ -4133,10 +3629,7 @@ WHERE order_date BETWEEN '2024-01-01' AND '2024-03-31';
 
 ## 2. RANGE Partitioning
 
-RANGE partitioning assigns rows to partitions based on a column value falling within a defined range.
-Most commonly used with dates — partition by year, quarter, or month. Excellent for time-series data
-where old data is rarely queried and can be archived or dropped by dropping the partition.
-RANGE partition by year (MySQL):
+RANGE partitioning assigns rows to partitions based on a column value falling within a defined range. Most commonly used with dates — partition by year, quarter, or month. Excellent for time-series data where old data is rarely queried and can be archived or dropped by dropping the partition. RANGE partition by year (MySQL):
 
 \`\`\`sql
 CREATE TABLE orders (
@@ -4148,12 +3641,7 @@ order_date DATE NOT NULL
 PARTITION BY RANGE (YEAR(order_date)) (
 \`\`\`
 
-PARTITION p_2021 VALUES LESS THAN (2022),
-PARTITION p_2022 VALUES LESS THAN (2023),
-PARTITION p_2023 VALUES LESS THAN (2024),
-PARTITION p_2024 VALUES LESS THAN (2025),
-PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+PARTITION p_2021 VALUES LESS THAN (2022), PARTITION p_2022 VALUES LESS THAN (2023), PARTITION p_2023 VALUES LESS THAN (2024), PARTITION p_2024 VALUES LESS THAN (2025), PARTITION p_future VALUES LESS THAN MAXVALUE );
 
 \`\`\`sql
 -- Drop old partition instantly (no DELETE needed):
@@ -4163,10 +3651,7 @@ ALTER TABLE orders DROP PARTITION p_2021;
 
 ## 3. LIST and HASH Partitioning
 
-LIST partitioning assigns rows based on matching specific values in a list — useful for categorical data
-like region or country. HASH partitioning distributes rows evenly across a fixed number of partitions based
-on a hash of a column value — useful for even distribution when no natural range exists.
-LIST partitioning by region:
+LIST partitioning assigns rows based on matching specific values in a list — useful for categorical data like region or country. HASH partitioning distributes rows evenly across a fixed number of partitions based on a hash of a column value — useful for even distribution when no natural range exists. LIST partitioning by region:
 
 \`\`\`sql
 CREATE TABLE customers (
@@ -4177,12 +3662,7 @@ region VARCHAR(20) NOT NULL
 PARTITION BY LIST COLUMNS(region) (
 \`\`\`
 
-PARTITION p_north VALUES IN ('Delhi','Chandigarh','Amritsar'),
-PARTITION p_south VALUES IN ('Chennai','Bangalore','Hyderabad'),
-PARTITION p_west VALUES IN ('Mumbai','Pune','Ahmedabad'),
-PARTITION p_east VALUES IN ('Kolkata','Bhubaneswar','Patna')
-);
-HASH partitioning for even distribution:
+PARTITION p_north VALUES IN ('Delhi','Chandigarh','Amritsar'), PARTITION p_south VALUES IN ('Chennai','Bangalore','Hyderabad'), PARTITION p_west VALUES IN ('Mumbai','Pune','Ahmedabad'), PARTITION p_east VALUES IN ('Kolkata','Bhubaneswar','Patna') ); HASH partitioning for even distribution:
 
 \`\`\`sql
 CREATE TABLE user_sessions (
@@ -4197,20 +3677,14 @@ PARTITIONS 8; -- distributes rows evenly across 8 partitions
 
 ## 4. Partition Management
 
-Partitions can be added, dropped, split, or merged without affecting the rest of the table. Dropping a
-partition is near-instantaneous — much faster than DELETE for archiving old data. This is a major
-operational advantage for large time-series tables.
-Partition management commands:
+Partitions can be added, dropped, split, or merged without affecting the rest of the table. Dropping a partition is near-instantaneous — much faster than DELETE for archiving old data. This is a major operational advantage for large time-series tables. Partition management commands:
 
 \`\`\`sql
 -- Add a new partition for 2025:
 ALTER TABLE orders
 \`\`\`
 
-REORGANIZE PARTITION p_future INTO (
-PARTITION p_2025 VALUES LESS THAN (2026),
-PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+REORGANIZE PARTITION p_future INTO ( PARTITION p_2025 VALUES LESS THAN (2026), PARTITION p_future VALUES LESS THAN MAXVALUE );
 
 \`\`\`sql
 -- View all partitions and their row counts:
@@ -4233,17 +3707,11 @@ WHERE table_name = 'orders';
 
   37: `# Replication
 
-Database replication copies data from one database server (primary/master) to one or more other servers
-(replicas/slaves) in near real-time. Replication enables high availability, read scaling, geographic
-distribution, and disaster recovery. It is a foundational concept for any production database system
-handling real traffic.
+Database replication copies data from one database server (primary/master) to one or more other servers (replicas/slaves) in near real-time. Replication enables high availability, read scaling, geographic distribution, and disaster recovery. It is a foundational concept for any production database system handling real traffic.
 
 ## 1. How Replication Works — Binlog
 
-MySQL replication uses the binary log (binlog) — a file that records every data-changing SQL statement
-or row change on the primary. Replicas connect to the primary, receive binlog events, and apply them in
-the same order. This keeps the replica in sync. There is typically a small replication lag — the replica is
-slightly behind the primary.
+MySQL replication uses the binary log (binlog) — a file that records every data-changing SQL statement or row change on the primary. Replicas connect to the primary, receive binlog events, and apply them in the same order. This keeps the replica in sync. There is typically a small replication lag — the replica is slightly behind the primary.
 
 :::scenario
 A high-traffic news website has 1 primary MySQL server handling all writes (article creation, comment submission) and 4 replica servers handling reads (article display, search). This distributes read load across 5 servers — 5x the read capacity — while all writes go to the single primary.
@@ -4255,10 +3723,7 @@ MySQL replication setup (primary side):
 -- In my.cnf (primary server):
 \`\`\`
 
-[mysqld]
-server-id = 1 -- unique server ID
-log_bin = mysql-bin -- enable binary logging
-binlog_format = ROW -- log actual row changes (most reliable)
+[mysqld] server-id = 1 -- unique server ID log_bin = mysql-bin -- enable binary logging binlog_format = ROW -- log actual row changes (most reliable)
 
 \`\`\`sql
 -- Create replication user:
@@ -4275,20 +3740,13 @@ Replica configuration:
 -- In my.cnf (replica server):
 \`\`\`
 
-[mysqld]
-server-id = 2 -- different ID from primary
+[mysqld] server-id = 2 -- different ID from primary
 
 \`\`\`sql
 -- Configure replica to follow primary:
 \`\`\`
 
-CHANGE MASTER TO
-MASTER_HOST = '192.168.1.100',
-MASTER_USER = 'replicator',
-MASTER_PASSWORD = 'ReplPass123!',
-MASTER_LOG_FILE = 'mysql-bin.000001',
-MASTER_LOG_POS = 154;
-START SLAVE;
+CHANGE MASTER TO MASTER_HOST = '192.168.1.100', MASTER_USER = 'replicator', MASTER_PASSWORD = 'ReplPass123!', MASTER_LOG_FILE = 'mysql-bin.000001', MASTER_LOG_POS = 154; START SLAVE;
 
 \`\`\`sql
 SHOW SLAVE STATUS\\G -- check Seconds_Behind_Master
@@ -4297,26 +3755,15 @@ SHOW SLAVE STATUS\\G -- check Seconds_Behind_Master
 
 ## 2. Replication Topologies
 
-Primary-Replica (Master-Slave) is the most common setup: one primary accepts writes, multiple replicas
-handle reads. Primary-Primary (Multi-Master) allows writes on two servers simultaneously — complex to
-manage due to conflict resolution. Cascading replication chains replicas: primary → replica1 → replica2
-(replica1 acts as both replica and primary).
-Topologies overview:
+Primary-Replica (Master-Slave) is the most common setup: one primary accepts writes, multiple replicas handle reads. Primary-Primary (Multi-Master) allows writes on two servers simultaneously — complex to manage due to conflict resolution. Cascading replication chains replicas: primary → replica1 → replica2 (replica1 acts as both replica and primary). Topologies overview:
 PRIMARY-REPLICA (most common):
-[Primary] ──→ [Replica1] (read traffic)
-──→ [Replica2] (read traffic)
-──→ [Replica3] (backup/reporting)
-PRIMARY-PRIMARY:
-[Primary1] ←──→ [Primary2] (both accept writes — conflict risk)
-CASCADING:
+[Primary] ──→ [Replica1] (read traffic) ──→ [Replica2] (read traffic) ──→ [Replica3] (backup/reporting) PRIMARY-PRIMARY:
+[Primary1] ←──→ [Primary2] (both accept writes — conflict risk) CASCADING:
 [Primary] → [Replica1] → [Replica2] → [Replica3]
 
 ## 3. PostgreSQL Streaming Replication
 
-PostgreSQL uses streaming replication where the replica receives a continuous stream of WAL (Write-
-Ahead Log) records from the primary. It supports synchronous (primary waits for replica to confirm before
-committing) and asynchronous (primary doesn't wait — faster but tiny data loss risk on failover) modes.
-PostgreSQL streaming replication config:
+PostgreSQL uses streaming replication where the replica receives a continuous stream of WAL (Write-Ahead Log) records from the primary. It supports synchronous (primary waits for replica to confirm before committing) and asynchronous (primary doesn't wait — faster but tiny data loss risk on failover) modes. PostgreSQL streaming replication config:
 
 \`\`\`sql
 -- postgresql.conf (primary):
@@ -4340,10 +3787,7 @@ primary_conninfo = 'host=192.168.1.100 user=replicator'
 
 ## 4. Monitoring Replication Lag
 
-Replication lag is the delay between a write on the primary and it appearing on the replica. High lag
-means stale reads on replicas. Monitoring lag is critical — if a replica falls too far behind, it may not be
-useful as a failover target. Applications that read from replicas must tolerate some lag.
-Monitor replication lag:
+Replication lag is the delay between a write on the primary and it appearing on the replica. High lag means stale reads on replicas. Monitoring lag is critical — if a replica falls too far behind, it may not be useful as a failover target. Applications that read from replicas must tolerate some lag. Monitor replication lag:
 
 \`\`\`sql
 -- MySQL — check replica lag:
@@ -4353,11 +3797,7 @@ SHOW SLAVE STATUS\\G
 SELECT
 \`\`\`
 
-client_addr,
-state,
-sent_lsn,
-replay_lsn,
-(sent_lsn - replay_lsn) AS lag_bytes
+client_addr, state, sent_lsn, replay_lsn, (sent_lsn - replay_lsn) AS lag_bytes
 FROM pg_stat_replication;
 
 ## Assignment Tasks
@@ -4373,16 +3813,11 @@ FROM pg_stat_replication;
 
   38: `# Sharding
 
-Sharding is a database architecture pattern that horizontally partitions data across multiple independent
-database servers (shards). Unlike replication (which copies the same data to multiple servers), sharding
-splits the data — each shard holds a unique subset. Sharding is used by the world's largest applications
-— Facebook, Twitter, Uber — to scale beyond what a single database server can handle.
+Sharding is a database architecture pattern that horizontally partitions data across multiple independent database servers (shards). Unlike replication (which copies the same data to multiple servers), sharding splits the data — each shard holds a unique subset. Sharding is used by the world's largest applications — Facebook, Twitter, Uber — to scale beyond what a single database server can handle.
 
 ## 1. Vertical vs Horizontal Scaling
 
-Vertical scaling adds more CPU/RAM/disk to one server — has a physical ceiling. Horizontal scaling
-(sharding) adds more servers, each holding a portion of the data — theoretically unlimited. Sharding is a
-horizontal scaling strategy for write-heavy workloads that exceed what a single server can handle.
+Vertical scaling adds more CPU/RAM/disk to one server — has a physical ceiling. Horizontal scaling (sharding) adds more servers, each holding a portion of the data — theoretically unlimited. Sharding is a horizontal scaling strategy for write-heavy workloads that exceed what a single server can handle.
 
 :::scenario
 WhatsApp delivers 100 billion messages per day. No single database server can store or process that volume. Messages are sharded by user_id — User #1-10M is on Shard 1, User #10M-20M is on Shard 2, etc. Each shard is an independent MySQL or Cassandra cluster.
@@ -4390,29 +3825,18 @@ WhatsApp delivers 100 billion messages per day. No single database server can st
 
 Comparison:
 VERTICAL SCALING (Scale Up):
-One server: 32 cores → 64 cores → 128 cores
-Limit: Most powerful server today ≈ 224 cores, 24TB RAM
-Cost: Exponentially expensive at top end
-HORIZONTAL SCALING (Sharding):
-10 commodity servers → 100 servers → 1000 servers
-Limit: Practically unlimited
-Cost: Linear scaling with commodity hardware
+One server: 32 cores → 64 cores → 128 cores Limit: Most powerful server today ≈ 224 cores, 24TB RAM Cost: Exponentially expensive at top end HORIZONTAL SCALING (Sharding):
+10 commodity servers → 100 servers → 1000 servers Limit: Practically unlimited Cost: Linear scaling with commodity hardware
 
 ## 2. Sharding Strategies
 
-Range sharding assigns rows based on value ranges (user_id 1-1M to shard 1, 1M-2M to shard 2). Hash
-sharding applies a hash function to a key and uses the modulus to determine the shard — distributes
-evenly. Directory sharding uses a lookup table mapping each key to its shard — most flexible but the
-lookup table becomes a bottleneck.
-Sharding strategies:
+Range sharding assigns rows based on value ranges (user_id 1-1M to shard 1, 1M-2M to shard 2). Hash sharding applies a hash function to a key and uses the modulus to determine the shard — distributes evenly. Directory sharding uses a lookup table mapping each key to its shard — most flexible but the lookup table becomes a bottleneck. Sharding strategies:
 
 \`\`\`sql
 -- Range sharding:
 \`\`\`
 
-Shard 1: user_id 1 to 1,000,000
-Shard 2: user_id 1,000,001 to 2,000,000
-Pro: Range queries efficient Con: Uneven data if users are not uniform
+Shard 1: user_id 1 to 1,000,000 Shard 2: user_id 1,000,001 to 2,000,000 Pro: Range queries efficient Con: Uneven data if users are not uniform
 
 \`\`\`sql
 -- Hash sharding:
@@ -4426,16 +3850,11 @@ Pro: Even distribution Con: Range queries require all shards
 -- Directory/lookup sharding:
 \`\`\`
 
-shard_map: {user_id → shard_id} stored in a central lookup table
-Pro: Flexible, can rebalance Con: Lookup table is a single point of failure
+shard_map: {user_id → shard_id} stored in a central lookup table Pro: Flexible, can rebalance Con: Lookup table is a single point of failure
 
 ## 3. Sharding Challenges
 
-Sharding introduces significant complexity. Cross-shard joins are impossible — data from two shards
-cannot be joined in a single SQL query. Cross-shard transactions require distributed transaction
-protocols. Resharding (adding more shards when data grows) requires migrating large amounts of data.
-Schema changes must be applied to every shard individually.
-Application-level sharding logic:
+Sharding introduces significant complexity. Cross-shard joins are impossible — data from two shards cannot be joined in a single SQL query. Cross-shard transactions require distributed transaction protocols. Resharding (adding more shards when data grows) requires migrating large amounts of data. Schema changes must be applied to every shard individually. Application-level sharding logic:
 
 \`\`\`sql
 -- Application determines shard for a given user_id:
@@ -4464,24 +3883,18 @@ conn.execute('INSERT INTO messages (user_id, content) VALUES (12345, ...)')
 |---|---|---|---|
 | 1 | Design a sharding strategy for a messaging app with 500 million users. Choose a shard key, sharding method, and number of shards. Justify your choices. | Medium | Design |
 | 2 | Simulate application-level sharding: create 4 MySQL databases (shard_0 to shard_3). Write a Python/Node script that routes inserts and selects to the correct shard based on user_id % 4. | Hard | Practical |
-| 3 | Explain the 'hot shard' problem in range sharding with a real- world example. How would you detect and fix it? | Medium | Written |
+| 3 | Explain the 'hot shard' problem in range sharding with a real-world example. How would you detect and fix it? | Medium | Written |
 | 4 | Compare sharding vs table partitioning. List 5 differences. When would you use sharding vs when would partitioning be sufficient? | Medium | Written |
 | 5 | Research: How does YouTube or Instagram shard their databases? Find public engineering blog posts documenting their database architecture. | Hard | Research |
 `,
 
   39: `# Concurrency & Locking
 
-In a production database, hundreds or thousands of transactions run simultaneously. Concurrency
-control mechanisms — locks — prevent transactions from interfering with each other and corrupting data.
-Understanding locking, lock types, deadlocks, and optimistic vs pessimistic concurrency is essential for
-building reliable, high-performance database applications.
+In a production database, hundreds or thousands of transactions run simultaneously. Concurrency control mechanisms — locks — prevent transactions from interfering with each other and corrupting data. Understanding locking, lock types, deadlocks, and optimistic vs pessimistic concurrency is essential for building reliable, high-performance database applications.
 
 ## 1. Types of Locks
 
-Row-level locks lock individual rows — other rows in the same table remain accessible. Table-level locks
-lock the entire table — high contention. Shared locks (read locks) allow multiple transactions to read
-simultaneously. Exclusive locks (write locks) block all other access. InnoDB (MySQL's default engine)
-uses row-level locking — much better for concurrency than table-level.
+Row-level locks lock individual rows — other rows in the same table remain accessible. Table-level locks lock the entire table — high contention. Shared locks (read locks) allow multiple transactions to read simultaneously. Exclusive locks (write locks) block all other access. InnoDB (MySQL's default engine) uses row-level locking — much better for concurrency than table-level.
 
 :::scenario
 An airline booking system: two users try to book the last seat simultaneously. Row-level exclusive locking ensures the first transaction to lock the seat row wins. The second transaction waits for the lock to release, then sees the seat is now taken and returns 'Sold Out' — no double-booking.
@@ -4503,11 +3916,7 @@ SELECT * FROM seats WHERE id = 55 FOR UPDATE;
 
 ## 2. Deadlocks — Detection and Prevention
 
-A deadlock occurs when two transactions each hold a lock the other needs, creating a circular wait.
-Neither can proceed. The database detects deadlocks automatically and kills one transaction (the 'victim')
-to break the cycle, returning an error to that transaction's application. Applications should retry on
-deadlock errors.
-Classic deadlock scenario:
+A deadlock occurs when two transactions each hold a lock the other needs, creating a circular wait. Neither can proceed. The database detects deadlocks automatically and kills one transaction (the 'victim') to break the cycle, returning an error to that transaction's application. Applications should retry on deadlock errors. Classic deadlock scenario:
 
 \`\`\`sql
 -- Transaction A (Session 1):
@@ -4543,10 +3952,7 @@ SHOW ENGINE INNODB STATUS; -- shows last deadlock details
 ## 3. Optimistic vs Pessimistic Locking
 
 Pessimistic locking assumes conflicts are common — locks rows immediately when read (SELECT FOR
-UPDATE). Optimistic locking assumes conflicts are rare — doesn't lock on read, but checks for changes
-before committing (using a version counter or timestamp). Optimistic locking is better for high-read, low-
-conflict scenarios; pessimistic for high-conflict scenarios.
-Pessimistic locking:
+UPDATE). Optimistic locking assumes conflicts are rare — doesn't lock on read, but checks for changes before committing (using a version counter or timestamp). Optimistic locking is better for high-read, low-conflict scenarios; pessimistic for high-conflict scenarios. Pessimistic locking:
 
 \`\`\`sql
 -- Lock the row immediately on read:
@@ -4585,62 +3991,40 @@ WHERE id = 55 AND version = 7;
 
   40: `# Isolation Levels
 
-Transaction isolation levels define how much a transaction is isolated from changes made by other
-concurrent transactions. There is a fundamental tradeoff between data consistency and performance —
-higher isolation = more data safety but more contention and lower throughput. SQL standard defines four
-isolation levels, each preventing different types of concurrency anomalies.
+Transaction isolation levels define how much a transaction is isolated from changes made by other concurrent transactions. There is a fundamental tradeoff between data consistency and performance — higher isolation = more data safety but more contention and lower throughput. SQL standard defines four isolation levels, each preventing different types of concurrency anomalies.
 
 ## 1. Concurrency Anomalies
 
-Before understanding isolation levels, understand what problems they prevent: Dirty Read — reading
-uncommitted data from another transaction that may roll back. Non-Repeatable Read — reading the
-same row twice within a transaction and getting different values because another transaction committed
-a change in between. Phantom Read — re-running a range query and getting different rows because
-another transaction inserted/deleted rows.
-Concurrency anomaly examples:
+Before understanding isolation levels, understand what problems they prevent: Dirty Read — reading uncommitted data from another transaction that may roll back. Non-Repeatable Read — reading the same row twice within a transaction and getting different values because another transaction committed a change in between. Phantom Read — re-running a range query and getting different rows because another transaction inserted/deleted rows. Concurrency anomaly examples:
 
 \`\`\`sql
 -- DIRTY READ:
 \`\`\`
 
-T1: UPDATE salary SET amount = 90000 WHERE id=1; (not committed)
-T2: SELECT amount FROM salary WHERE id=1; → reads 90000 (dirty!)
-T1: ROLLBACK; → 90000 was never real
+T1: UPDATE salary SET amount = 90000 WHERE id=1; (not committed) T2: SELECT amount FROM salary WHERE id=1; → reads 90000 (dirty!) T1: ROLLBACK; → 90000 was never real
 
 \`\`\`sql
 -- NON-REPEATABLE READ:
 \`\`\`
 
-T1: SELECT price FROM products WHERE id=55; → 500
-T2: UPDATE products SET price=600 WHERE id=55; COMMIT;
-T1: SELECT price FROM products WHERE id=55; → 600 (changed!)
+T1: SELECT price FROM products WHERE id=55; → 500 T2: UPDATE products SET price=600 WHERE id=55; COMMIT; T1: SELECT price FROM products WHERE id=55; → 600 (changed!)
 
 \`\`\`sql
 -- PHANTOM READ:
 \`\`\`
 
-T1: SELECT COUNT(*) FROM orders WHERE date='2024-01-01'; → 100
-T2: INSERT INTO orders (date,...) VALUES ('2024-01-01',...); COMMIT;
-T1: SELECT COUNT(*) FROM orders WHERE date='2024-01-01'; → 101 (phantom!)
+T1: SELECT COUNT(*) FROM orders WHERE date='2024-01-01'; → 100 T2: INSERT INTO orders (date,...) VALUES ('2024-01-01',...); COMMIT; T1: SELECT COUNT(*) FROM orders WHERE date='2024-01-01'; → 101 (phantom!)
 
 ## 2. The Four Isolation Levels
 
-READ UNCOMMITTED allows dirty reads — the lowest isolation, highest performance. READ
-COMMITTED prevents dirty reads (only reads committed data) — PostgreSQL default. REPEATABLE
-READ prevents dirty reads AND non-repeatable reads — MySQL InnoDB default. SERIALIZABLE
-prevents all anomalies including phantom reads — highest isolation, lowest throughput.
+READ UNCOMMITTED allows dirty reads — the lowest isolation, highest performance. READ COMMITTED prevents dirty reads (only reads committed data) — PostgreSQL default. REPEATABLE READ prevents dirty reads AND non-repeatable reads — MySQL InnoDB default. SERIALIZABLE prevents all anomalies including phantom reads — highest isolation, lowest throughput.
 
 :::scenario
 A financial reporting system requires SERIALIZABLE isolation to ensure a multi-step balance calculation is consistent. An analytics dashboard is fine with READ COMMITTED since slight staleness in aggregate data is acceptable. A real-time bidding system uses READ COMMITTED for speed.
 :::
 
 Isolation levels comparison:
-Level | Dirty | Non-Rep | Phantom | Performance
-─────────────────────┼───────┼─────────┼─────────┼────────────
-READ UNCOMMITTED | YES | YES | YES | Highest
-READ COMMITTED | No | YES | YES | High
-REPEATABLE READ | No | No | YES* | Medium
-SERIALIZABLE | No | No | No | Lowest
+Level | Dirty | Non-Rep | Phantom | Performance ─────────────────────┼───────┼─────────┼─────────┼──────────── READ UNCOMMITTED | YES | YES | YES | Highest READ COMMITTED | No | YES | YES | High REPEATABLE READ | No | No | YES* | Medium SERIALIZABLE | No | No | No | Lowest
 * MySQL InnoDB REPEATABLE READ also prevents phantoms (MVCC)
 Setting isolation level:
 
@@ -4659,11 +4043,7 @@ SELECT @@transaction_isolation;
 
 ## 3. MVCC — Multi-Version Concurrency Control
 
-InnoDB (MySQL) and PostgreSQL use MVCC to implement isolation levels without heavy locking.
-Instead of locking rows for reads, MVCC keeps multiple versions of rows. Readers see a consistent
-snapshot of data as of their transaction start time, without blocking writers. Writers create new versions
-without overwriting old ones. This dramatically improves concurrent read/write performance.
-MVCC concept:
+InnoDB (MySQL) and PostgreSQL use MVCC to implement isolation levels without heavy locking. Instead of locking rows for reads, MVCC keeps multiple versions of rows. Readers see a consistent snapshot of data as of their transaction start time, without blocking writers. Writers create new versions without overwriting old ones. This dramatically improves concurrent read/write performance. MVCC concept:
 
 \`\`\`sql
 -- Row versions stored internally:
@@ -4692,17 +4072,11 @@ Row(id=1): [version1: salary=50000, ts=100] [version2: salary=60000, ts=200]
 
   41: `# Advanced Window Functions
 
-Building on intermediate window function knowledge, advanced window functions include NTILE for
-bucketing, CUME_DIST and PERCENT_RANK for distribution analysis, FIRST_VALUE/LAST_VALUE
-for boundary values, and window frame clauses (ROWS BETWEEN / RANGE BETWEEN) for precise
-control over which rows the function operates on. These are extensively used in data analytics and
-business intelligence.
+Building on intermediate window function knowledge, advanced window functions include NTILE for bucketing, CUME_DIST and PERCENT_RANK for distribution analysis, FIRST_VALUE/LAST_VALUE for boundary values, and window frame clauses (ROWS BETWEEN / RANGE BETWEEN) for precise control over which rows the function operates on. These are extensively used in data analytics and business intelligence.
 
 ## 1. NTILE — Dividing into Buckets
 
-NTILE(n) divides rows into n roughly equal groups (buckets/tiles) and assigns each row a bucket number.
-Common use: quartile analysis (NTILE(4)), decile analysis (NTILE(10)), top 10% identification. When
-rows don't divide evenly, larger buckets come first.
+NTILE(n) divides rows into n roughly equal groups (buckets/tiles) and assigns each row a bucket number. Common use: quartile analysis (NTILE(4)), decile analysis (NTILE(10)), top 10% identification. When rows don't divide evenly, larger buckets come first.
 
 :::scenario
 A sales performance review divides all salespeople into quartiles by revenue: Q1 (top 25%), Q2 (next 25%), Q3 (next 25%), Q4 (bottom 25%). Salespeople in Q4 get extra training; Q1 gets bonuses. NTILE(4) over revenue handles this automatically.
@@ -4715,9 +4089,7 @@ NTILE examples:
 SELECT
 \`\`\`
 
-name,
-total_sales,
-NTILE(4) OVER(ORDER BY total_sales DESC) AS quartile
+name, total_sales, NTILE(4) OVER(ORDER BY total_sales DESC) AS quartile
 FROM salespeople;
 
 \`\`\`sql
@@ -4735,15 +4107,8 @@ FROM salespeople;
 
 ## 2. CUME_DIST and PERCENT_RANK
 
-CUME_DIST (cumulative distribution) returns the proportion of rows with values <= current row's value
-— ranges from 0 to 1. PERCENT_RANK returns the relative rank as a percentage — (rank - 1) / (total
-rows - 1). Both help understand data distribution and identify outliers.
-CUME_DIST and PERCENT_RANK:
-SELECT
-name,
-salary,
-ROUND(CUME_DIST() OVER(ORDER BY salary) * 100, 1) AS percentile,
-ROUND(PERCENT_RANK() OVER(ORDER BY salary) * 100, 1) AS percent_rank
+CUME_DIST (cumulative distribution) returns the proportion of rows with values <= current row's value — ranges from 0 to 1. PERCENT_RANK returns the relative rank as a percentage — (rank - 1) / (total rows - 1). Both help understand data distribution and identify outliers. CUME_DIST and PERCENT_RANK:
+SELECT name, salary, ROUND(CUME_DIST() OVER(ORDER BY salary) * 100, 1) AS percentile, ROUND(PERCENT_RANK() OVER(ORDER BY salary) * 100, 1) AS percent_rank
 FROM employees
 ORDER BY salary;
 
@@ -4755,13 +4120,10 @@ ORDER BY salary;
 
 ## 3. Window Frame Clauses — ROWS BETWEEN
 
-The frame clause (ROWS BETWEEN or RANGE BETWEEN) specifies which rows within the partition
-are included in the window function's calculation relative to the current row. ROWS BETWEEN
-UNBOUNDED PRECEDING AND CURRENT ROW gives running totals. ROWS BETWEEN 2
-PRECEDING AND CURRENT ROW gives 3-row moving average.
+The frame clause (ROWS BETWEEN or RANGE BETWEEN) specifies which rows within the partition are included in the window function's calculation relative to the current row. ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW gives running totals. ROWS BETWEEN 2 PRECEDING AND CURRENT ROW gives 3-row moving average.
 
 :::scenario
-A financial analyst needs a 7-day moving average of stock prices to smooth out daily volatility. ROWS BETWEEN 6 PRECEDING AND CURRENT ROW gives exactly a 7- day window: current day + 6 previous days. This is impossible to express with GROUP BY — only window frames achieve it.
+A financial analyst needs a 7-day moving average of stock prices to smooth out daily volatility. ROWS BETWEEN 6 PRECEDING AND CURRENT ROW gives exactly a 7-day window: current day + 6 previous days. This is impossible to express with GROUP BY — only window frames achieve it.
 :::
 
 Frame clause examples:
@@ -4770,64 +4132,32 @@ Frame clause examples:
 -- Running total (default frame):
 \`\`\`
 
-SUM(amount) OVER(ORDER BY date
-ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+SUM(amount) OVER(ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
 
 \`\`\`sql
 -- 7-day moving average:
 \`\`\`
 
 AVG(close_price) OVER(
-ORDER BY trade_date
-ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-) AS moving_avg_7day
+ORDER BY trade_date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW ) AS moving_avg_7day
 
 \`\`\`sql
 -- 3-row moving sum (current + 1 before + 1 after):
 \`\`\`
 
 SUM(sales) OVER(
-ORDER BY week
-ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING
-) AS rolling_3week
-Complete moving average query:
-SELECT
-trade_date,
-close_price,
-AVG(close_price) OVER(
-ORDER BY trade_date
-ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-) AS ma_7day,
-AVG(close_price) OVER(
-ORDER BY trade_date
-ROWS BETWEEN 29 PRECEDING AND CURRENT ROW
-) AS ma_30day
+ORDER BY week ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING ) AS rolling_3week Complete moving average query:
+SELECT trade_date, close_price, AVG(close_price) OVER(
+ORDER BY trade_date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW ) AS ma_7day, AVG(close_price) OVER(
+ORDER BY trade_date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW ) AS ma_30day
 FROM stock_prices
 WHERE symbol = 'INFY'
 ORDER BY trade_date;
 
 ## 4. FIRST_VALUE, LAST_VALUE, NTH_VALUE
 
-FIRST_VALUE returns the first value in the window frame. LAST_VALUE returns the last value.
-NTH_VALUE returns the nth value. These are used for comparison — showing each row alongside the
-best/worst value in its group.
-FIRST_VALUE and LAST_VALUE:
-SELECT
-name,
-department,
-salary,
-FIRST_VALUE(salary) OVER(
-PARTITION BY department ORDER BY salary DESC
-ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-) AS dept_max_salary,
-LAST_VALUE(salary) OVER(
-PARTITION BY department ORDER BY salary DESC
-ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-) AS dept_min_salary,
-salary - LAST_VALUE(salary) OVER(
-PARTITION BY department ORDER BY salary DESC
-ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-) AS above_min
+FIRST_VALUE returns the first value in the window frame. LAST_VALUE returns the last value. NTH_VALUE returns the nth value. These are used for comparison — showing each row alongside the best/worst value in its group. FIRST_VALUE and LAST_VALUE:
+SELECT name, department, salary, FIRST_VALUE(salary) OVER( PARTITION BY department ORDER BY salary DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS dept_max_salary, LAST_VALUE(salary) OVER( PARTITION BY department ORDER BY salary DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS dept_min_salary, salary - LAST_VALUE(salary) OVER( PARTITION BY department ORDER BY salary DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS above_min
 FROM employees;
 
 ## Assignment Tasks
@@ -4843,17 +4173,11 @@ FROM employees;
 
   42: `# JSON Support
 
-Modern databases support storing and querying JSON (JavaScript Object Notation) data natively. This
-bridges the gap between relational and document-oriented databases. PostgreSQL's JSONB type is
-particularly powerful — it stores JSON in binary format, supports GIN indexing, and enables complex
-JSON queries. MySQL has supported JSON since version 5.7.
+Modern databases support storing and querying JSON (JavaScript Object Notation) data natively. This bridges the gap between relational and document-oriented databases. PostgreSQL's JSONB type is particularly powerful — it stores JSON in binary format, supports GIN indexing, and enables complex JSON queries. MySQL has supported JSON since version 5.7.
 
 ## 1. JSON vs JSONB in PostgreSQL
 
-JSON stores data as text (preserves whitespace, key order). JSONB stores data in binary format
-(deduplicated keys, no whitespace, no order guaranteed). JSONB is almost always preferred: it is faster
-to query, supports indexing (GIN), and uses the same storage as a pre-parsed object. Use JSON only if
-you need exact input preservation.
+JSON stores data as text (preserves whitespace, key order). JSONB stores data in binary format (deduplicated keys, no whitespace, no order guaranteed). JSONB is almost always preferred: it is faster to query, supports indexing (GIN), and uses the same storage as a pre-parsed object. Use JSON only if you need exact input preservation.
 
 :::scenario
 An e-commerce platform stores product attributes as JSON — different product categories have different attributes (phones have RAM/storage, clothing has size/material). Using JSONB allows a single 'attributes' column to handle all categories without creating hundreds of nullable columns.
@@ -4877,10 +4201,7 @@ INSERT INTO products (name, category, attributes) VALUES
 
 ## 2. Querying JSON in PostgreSQL
 
-The -> operator returns a JSON value as JSON. The ->> operator returns as text. #> and #>> navigate
-nested paths. @> checks JSON containment. The ? operator checks key existence. These operators
-combined with regular WHERE clauses make JSON querying very expressive.
-JSON operators:
+The -> operator returns a JSON value as JSON. The ->> operator returns as text. #> and #>> navigate nested paths. @> checks JSON containment. The ? operator checks key existence. These operators combined with regular WHERE clauses make JSON querying very expressive. JSON operators:
 
 \`\`\`sql
 -- Extract value as JSON:
@@ -4903,10 +4224,7 @@ SELECT * FROM products WHERE attributes @> '{"color": "black"}'::jsonb;
 
 ## 3. JSON Indexing with GIN
 
-JSONB supports GIN (Generalized Inverted Index) indexing — this makes containment (@>) and key
-existence (?) queries extremely fast even on tables with millions of rows. Without a GIN index, every
-JSON query does a full table scan.
-GIN index on JSONB:
+JSONB supports GIN (Generalized Inverted Index) indexing — this makes containment (@>) and key existence (?) queries extremely fast even on tables with millions of rows. Without a GIN index, every JSON query does a full table scan. GIN index on JSONB:
 
 \`\`\`sql
 -- Full GIN index (supports @>, ?, ?|, ?&):
@@ -4923,10 +4241,7 @@ WHERE category = 'phones';
 
 ## 4. JSON Functions — Building and Transforming
 
-Both MySQL and PostgreSQL provide functions to build JSON from relational data (JSON_OBJECT,
-JSON_ARRAY, json_build_object) and to expand JSON arrays into rows (JSON_TABLE in MySQL,
-jsonb_array_elements in PostgreSQL). This enables powerful ETL and reporting operations.
-PostgreSQL — build JSON from query:
+Both MySQL and PostgreSQL provide functions to build JSON from relational data (JSON_OBJECT, JSON_ARRAY, json_build_object) and to expand JSON arrays into rows (JSON_TABLE in MySQL, jsonb_array_elements in PostgreSQL). This enables powerful ETL and reporting operations. PostgreSQL — build JSON from query:
 
 \`\`\`sql
 -- Build JSON object per row:
@@ -4942,11 +4257,8 @@ Expand JSON array into rows:
 SELECT
 \`\`\`
 
-o.id AS order_id,
-item ->> 'sku' AS sku,
-item ->> 'qty' AS qty
-FROM orders o,
-jsonb_array_elements(o.items -> 'items') AS item;
+o.id AS order_id, item ->> 'sku' AS sku, item ->> 'qty' AS qty
+FROM orders o, jsonb_array_elements(o.items -> 'items') AS item;
 
 ## Assignment Tasks
 
@@ -4961,18 +4273,11 @@ jsonb_array_elements(o.items -> 'items') AS item;
 
   43: `# Full-Text Search
 
-Full-text search enables natural language search within text columns — finding rows where a column
-contains a word or phrase, ranked by relevance. It is far more powerful than LIKE '%keyword%' which is
-slow and inflexible. MySQL uses MATCH...AGAINST with FULLTEXT indexes. PostgreSQL uses
-tsvector/tsquery with GIN indexes.
+Full-text search enables natural language search within text columns — finding rows where a column contains a word or phrase, ranked by relevance. It is far more powerful than LIKE '%keyword%' which is slow and inflexible. MySQL uses MATCH...AGAINST with FULLTEXT indexes. PostgreSQL uses tsvector/tsquery with GIN indexes.
 
 ## 1. Why Full-Text Search vs LIKE
 
-LIKE '%keyword%' cannot use a regular B-Tree index — it always does a full table scan. Full-text search
-pre-processes text into searchable tokens (stemming, stop words removal), builds an inverted index, and
-ranks results by relevance. It handles multi-word queries, typo tolerance (with extensions), and language-
-aware stemming (e.g., 'running' matches 'run').
-LIKE vs full-text search:
+LIKE '%keyword%' cannot use a regular B-Tree index — it always does a full table scan. Full-text search pre-processes text into searchable tokens (stemming, stop words removal), builds an inverted index, and ranks results by relevance. It handles multi-word queries, typo tolerance (with extensions), and language-aware stemming (e.g., 'running' matches 'run'). LIKE vs full-text search:
 
 \`\`\`sql
 -- LIKE: slow, no ranking, no stemming:
@@ -4988,9 +4293,7 @@ ORDER BY score DESC;
 
 ## 2. MySQL FULLTEXT Search
 
-MySQL supports FULLTEXT indexes on VARCHAR and TEXT columns. MATCH...AGAINST performs
-the search in natural language mode (default), boolean mode (supports +/- operators), or query
-expansion mode (broadens search). FULLTEXT indexes are created with CREATE FULLTEXT INDEX.
+MySQL supports FULLTEXT indexes on VARCHAR and TEXT columns. MATCH...AGAINST performs the search in natural language mode (default), boolean mode (supports +/- operators), or query expansion mode (broadens search). FULLTEXT indexes are created with CREATE FULLTEXT INDEX.
 
 :::scenario
 A job portal needs to search job descriptions for keywords. MATCH(description) AGAINST('+python +django -java' IN BOOLEAN MODE) finds jobs requiring Python AND Django but NOT Java — impossible to express efficiently with LIKE.
@@ -5016,11 +4319,7 @@ AGAINST('+python +machine learning -java' IN BOOLEAN MODE);
 
 ## 3. PostgreSQL Full-Text Search
 
-PostgreSQL uses tsvector (text search vector — a pre-processed, tokenized document) and tsquery (a
-search query with operators). The @@ operator matches a tsvector against a tsquery. to_tsvector()
-converts text to searchable form; to_tsquery() parses a search expression. GIN indexes on tsvectors
-enable fast search.
-PostgreSQL full-text search:
+PostgreSQL uses tsvector (text search vector — a pre-processed, tokenized document) and tsquery (a search query with operators). The @@ operator matches a tsvector against a tsquery. to_tsvector() converts text to searchable form; to_tsquery() parses a search expression. GIN indexes on tsvectors enable fast search. PostgreSQL full-text search:
 
 \`\`\`sql
 -- Convert text to tsvector (tokenized):
@@ -5050,8 +4349,7 @@ CREATE INDEX idx_ts_content ON articles USING GIN(ts_content);
 CREATE TRIGGER tsvector_update BEFORE INSERT OR UPDATE ON articles
 \`\`\`
 
-FOR EACH ROW EXECUTE FUNCTION
-tsvector_update_trigger(ts_content, 'pg_catalog.english', title, content);
+FOR EACH ROW EXECUTE FUNCTION tsvector_update_trigger(ts_content, 'pg_catalog.english', title, content);
 
 ## Assignment Tasks
 
@@ -5066,16 +4364,11 @@ tsvector_update_trigger(ts_content, 'pg_catalog.english', title, content);
 
   44: `# Stored Procedures & PL/pgSQL (Advanced)
 
-PL/pgSQL is PostgreSQL's procedural language for writing stored procedures and functions with full
-programming constructs. Advanced stored procedures handle exception management, complex cursor-
-based row-by-row processing, dynamic SQL generation, and recursive logic. This level covers patterns
-used in production systems: ETL pipelines, financial batch processing, and complex multi-step workflows.
+PL/pgSQL is PostgreSQL's procedural language for writing stored procedures and functions with full programming constructs. Advanced stored procedures handle exception management, complex cursor-based row-by-row processing, dynamic SQL generation, and recursive logic. This level covers patterns used in production systems: ETL pipelines, financial batch processing, and complex multi-step workflows.
 
 ## 1. Exception Handling
 
-Production stored procedures must handle errors gracefully. In MySQL, handlers catch specific SQL
-states. In PostgreSQL's PL/pgSQL, EXCEPTION blocks catch errors, allowing procedures to log, retry,
-or fail gracefully without crashing the entire batch.
+Production stored procedures must handle errors gracefully. In MySQL, handlers catch specific SQL states. In PostgreSQL's PL/pgSQL, EXCEPTION blocks catch errors, allowing procedures to log, retry, or fail gracefully without crashing the entire batch.
 
 :::scenario
 A financial batch procedure processes 10,000 transactions. Without exception handling, one bad transaction crashes the entire batch. With EXCEPTION handling, the procedure catches the error, logs it to an error_log table, marks the transaction as 'failed', and continues processing the remaining 9,999 transactions.
@@ -5127,9 +4420,7 @@ $$;
 
 ## 2. Cursors — Row-by-Row Processing
 
-A cursor iterates over a result set one row at a time — necessary when each row requires individual,
-complex processing that cannot be expressed as a set-based operation. Cursors are slower than set-
-based operations and should only be used when set-based logic is impossible.
+A cursor iterates over a result set one row at a time — necessary when each row requires individual, complex processing that cannot be expressed as a set-based operation. Cursors are slower than set-based operations and should only be used when set-based logic is impossible.
 
 :::scenario
 A bank's interest calculation: each account has a different interest rate, tier, balance history, and compounding rule. The calculation for each account is too complex for a single UPDATE — a cursor processes each account individually, computes the exact interest, and inserts a transaction record.
@@ -5169,10 +4460,7 @@ $$;
 
 ## 3. Dynamic SQL — EXECUTE
 
-Dynamic SQL constructs and executes SQL statements as strings at runtime. This enables procedures
-that adapt based on parameters — building different queries based on input. Essential for meta-
-programming, generic utility procedures, and table-independent reporting tools.
-Dynamic SQL with EXECUTE:
+Dynamic SQL constructs and executes SQL statements as strings at runtime. This enables procedures that adapt based on parameters — building different queries based on input. Essential for meta-programming, generic utility procedures, and table-independent reporting tools. Dynamic SQL with EXECUTE:
 
 \`\`\`sql
 -- MySQL dynamic SQL:
@@ -5210,10 +4498,7 @@ $$ LANGUAGE plpgsql;
 
   45: `# Materialized Views
 
-A materialized view is like a regular view, but its results are physically stored on disk like a table. Instead
-of re-executing the underlying complex query every time, the materialized view returns pre-computed
-results instantly. They are essential for performance in data warehousing, reporting, and dashboards
-where complex aggregate queries run frequently on large datasets. Supported natively in PostgreSQL.
+A materialized view is like a regular view, but its results are physically stored on disk like a table. Instead of re-executing the underlying complex query every time, the materialized view returns pre-computed results instantly. They are essential for performance in data warehousing, reporting, and dashboards where complex aggregate queries run frequently on large datasets. Supported natively in PostgreSQL.
 
 ## 1. Creating Materialized Views
 
@@ -5222,8 +4507,7 @@ where complex aggregate queries run frequently on large datasets. Supported nati
 CREATE MATERIALIZED VIEW stores the query result as physical data. The first creation executes the
 \`\`\`
 
-query and stores results. Subsequent reads are instant — they hit the stored data, not the source tables.
-The tradeoff: data may be stale until refreshed.
+query and stores results. Subsequent reads are instant — they hit the stored data, not the source tables. The tradeoff: data may be stale until refreshed.
 
 :::scenario
 A BI dashboard shows 'Daily Sales Summary by Region' — a query that JOINs 8 tables and processes 50 million rows, taking 45 seconds. Wrapped in a materialized view and refreshed nightly, the dashboard loads in 50 milliseconds from the pre-computed summary.
@@ -5236,12 +4520,7 @@ CREATE MATERIALIZED VIEW mv_sales_summary AS
 SELECT
 \`\`\`
 
-DATE_TRUNC('month', o.order_date) AS month,
-c.region,
-p.category,
-COUNT(o.id) AS order_count,
-SUM(o.amount) AS total_revenue,
-AVG(o.amount) AS avg_order_value
+DATE_TRUNC('month', o.order_date) AS month, c.region, p.category, COUNT(o.id) AS order_count, SUM(o.amount) AS total_revenue, AVG(o.amount) AS avg_order_value
 FROM orders o
 JOIN customers c ON o.customer_id = c.id
 JOIN products p ON o.product_id = p.id
@@ -5260,10 +4539,7 @@ SELECT * FROM mv_sales_summary WHERE region = 'South' ORDER BY month;
 REFRESH MATERIALIZED VIEW re-executes the underlying query and updates the stored data.
 \`\`\`
 
-Without CONCURRENTLY, it locks the view during refresh (readers blocked). REFRESH
-CONCURRENTLY allows reads during refresh but requires a unique index on the view. Schedule
-refreshes using pg_cron, cron jobs, or triggers.
-Refresh strategies:
+Without CONCURRENTLY, it locks the view during refresh (readers blocked). REFRESH CONCURRENTLY allows reads during refresh but requires a unique index on the view. Schedule refreshes using pg_cron, cron jobs, or triggers. Refresh strategies:
 
 \`\`\`sql
 -- Full refresh (blocks reads):
@@ -5280,11 +4556,8 @@ SELECT cron.schedule('refresh-mv', '0 2 * * *',
 
 ## 3. Materialized Views vs Summary Tables
 
-MySQL lacks native materialized views. The alternative is a summary table maintained by triggers or
-scheduled jobs. A trigger-based approach updates the summary table on every
-INSERT/UPDATE/DELETE — always current but adds write overhead. A scheduled job refreshes the
-table periodically — slightly stale but no write overhead.
-MySQL summary table + trigger approach:
+MySQL lacks native materialized views. The alternative is a summary table maintained by triggers or scheduled jobs. A trigger-based approach updates the summary table on every
+INSERT/UPDATE/DELETE — always current but adds write overhead. A scheduled job refreshes the table periodically — slightly stale but no write overhead. MySQL summary table + trigger approach:
 
 \`\`\`sql
 -- Summary table:
@@ -5298,8 +4571,7 @@ DELIMITER //
 CREATE TRIGGER trg_update_daily_summary
 \`\`\`
 
-AFTER INSERT ON orders
-FOR EACH ROW
+AFTER INSERT ON orders FOR EACH ROW
 
 \`\`\`sql
 BEGIN
@@ -5326,47 +4598,23 @@ DELIMITER ;
 
   46: `# Connection Pooling
 
-Every database connection requires server resources: memory, file descriptors, authentication overhead.
-Opening a new connection per request is expensive — it can take 20-100ms just to establish the
-connection. Connection pooling maintains a pool of pre-opened connections that are reused across
-requests, dramatically reducing latency and allowing databases to serve far more concurrent users.
+Every database connection requires server resources: memory, file descriptors, authentication overhead. Opening a new connection per request is expensive — it can take 20-100ms just to establish the connection. Connection pooling maintains a pool of pre-opened connections that are reused across requests, dramatically reducing latency and allowing databases to serve far more concurrent users.
 
 ## 1. Why Connection Pooling Matters
 
-Without pooling, a web application with 1,000 concurrent users would try to open 1,000 database
-connections simultaneously. MySQL's default max_connections is 151 — the excess connections are
-rejected. With a connection pool of 20 connections shared across 1,000 users, requests queue briefly
-but succeed. The pool handles the mismatch between application concurrency and database capacity.
+Without pooling, a web application with 1,000 concurrent users would try to open 1,000 database connections simultaneously. MySQL's default max_connections is 151 — the excess connections are rejected. With a connection pool of 20 connections shared across 1,000 users, requests queue briefly but succeed. The pool handles the mismatch between application concurrency and database capacity.
 
 :::scenario
 An e-commerce platform receives 5,000 requests per second during a sale. Each request needs a DB query. Without pooling: attempting 5,000 simultaneous connections crashes the database. With PgBouncer using 50 pooled connections: requests share the pool, average wait is 1ms, the database handles the load gracefully.
 :::
 
 Connection lifecycle without pooling:
-Request → Open TCP connection → Authenticate → Execute query → Close connection
-Time: 20-100ms just for connection setup + auth
-Request → Borrow connection from pool → Execute query → Return to pool
-Time: <1ms for pool checkout (connection already open and authenticated)
+Request → Open TCP connection → Authenticate → Execute query → Close connection Time: 20-100ms just for connection setup + auth Request → Borrow connection from pool → Execute query → Return to pool Time: <1ms for pool checkout (connection already open and authenticated)
 
 ## 2. PgBouncer — PostgreSQL Connection Pooler
 
-PgBouncer is a lightweight connection pooler for PostgreSQL. It sits between the application and
-PostgreSQL, maintaining a pool of server connections and multiplexing client connections. Three pooling
-modes: Session pooling (connection held for entire session), Transaction pooling (connection returned
-after each transaction — most efficient), Statement pooling (returned after each statement).
-PgBouncer configuration (pgbouncer.ini):
-[databases]
-mydb = host=127.0.0.1 port=5432 dbname=production
-[pgbouncer]
-listen_port = 6432 -- PgBouncer listens on this port
-listen_addr = *
-auth_type = md5
-pool_mode = transaction -- most efficient mode
-max_client_conn = 1000 -- max client connections to PgBouncer
-default_pool_size = 25 -- connections to PostgreSQL per database
-min_pool_size = 5
-reserve_pool_size = 5
-server_idle_timeout = 600
+PgBouncer is a lightweight connection pooler for PostgreSQL. It sits between the application and PostgreSQL, maintaining a pool of server connections and multiplexing client connections. Three pooling modes: Session pooling (connection held for entire session), Transaction pooling (connection returned after each transaction — most efficient), Statement pooling (returned after each statement). PgBouncer configuration (pgbouncer.ini):
+[databases] mydb = host=127.0.0.1 port=5432 dbname=production [pgbouncer] listen_port = 6432 -- PgBouncer listens on this port listen_addr = * auth_type = md5 pool_mode = transaction -- most efficient mode max_client_conn = 1000 -- max client connections to PgBouncer default_pool_size = 25 -- connections to PostgreSQL per database min_pool_size = 5 reserve_pool_size = 5 server_idle_timeout = 600
 
 \`\`\`sql
 -- Application connects to port 6432 instead of 5432:
@@ -5389,10 +4637,7 @@ SHOW STATS; -- queries per second, bytes, wait times
 
 ## 3. ProxySQL — MySQL Connection Pooler
 
-ProxySQL is a high-performance proxy/pooler for MySQL that also enables read/write splitting (routing
-SELECTs to replicas, writes to primary), query routing based on rules, query rewriting, and connection
-multiplexing. It is the standard tool for production MySQL deployments.
-ProxySQL read/write splitting config:
+ProxySQL is a high-performance proxy/pooler for MySQL that also enables read/write splitting (routing SELECTs to replicas, writes to primary), query routing based on rules, query rewriting, and connection multiplexing. It is the standard tool for production MySQL deployments. ProxySQL read/write splitting config:
 
 \`\`\`sql
 -- In ProxySQL admin interface:
@@ -5413,25 +4658,9 @@ SAVE MYSQL SERVERS TO DISK;
 
 ## 4. Application-Level Pooling
 
-Most application frameworks include built-in connection pools. SQLAlchemy (Python), HikariCP (Java),
-node-postgres (Node.js) all manage connection pools. Key settings: pool size (max connections),
-connection timeout, idle timeout, max lifetime. These should be tuned based on your database's
-max_connections and expected concurrency.
-Python SQLAlchemy pool config:
-from sqlalchemy import create_engine
-engine = create_engine(
-'postgresql://user:pass@localhost/mydb',
-pool_size=10, # maintain 10 connections
-max_overflow=20, # allow up to 20 extra under load
-pool_timeout=30, # wait up to 30s for connection
-pool_recycle=3600, # recycle connections after 1 hour
-pool_pre_ping=True # test connection before use
-)
-MySQL pool settings (my.cnf):
-[mysqld]
-max_connections = 200 -- max simultaneous connections
-wait_timeout = 600 -- close idle connections after 10 min
-interactive_timeout = 600
+Most application frameworks include built-in connection pools. SQLAlchemy (Python), HikariCP (Java), node-postgres (Node.js) all manage connection pools. Key settings: pool size (max connections), connection timeout, idle timeout, max lifetime. These should be tuned based on your database's max_connections and expected concurrency. Python SQLAlchemy pool config:
+from sqlalchemy import create_engine engine = create_engine( 'postgresql://user:pass@localhost/mydb', pool_size=10, # maintain 10 connections max_overflow=20, # allow up to 20 extra under load pool_timeout=30, # wait up to 30s for connection pool_recycle=3600, # recycle connections after 1 hour pool_pre_ping=True # test connection before use ) MySQL pool settings (my.cnf):
+[mysqld] max_connections = 200 -- max simultaneous connections wait_timeout = 600 -- close idle connections after 10 min interactive_timeout = 600
 
 ## Assignment Tasks
 
@@ -5446,27 +4675,16 @@ interactive_timeout = 600
 
   47: `# Backup & Recovery
 
-Data loss is catastrophic and often irreversible. A robust backup and recovery strategy is not optional —
-it is a core responsibility of anyone managing a production database. This topic covers full backups,
-incremental backups, point-in-time recovery (PITR), hot vs cold backups, and backup verification —
-because a backup you have never tested may not work when you need it most.
+Data loss is catastrophic and often irreversible. A robust backup and recovery strategy is not optional — it is a core responsibility of anyone managing a production database. This topic covers full backups, incremental backups, point-in-time recovery (PITR), hot vs cold backups, and backup verification — because a backup you have never tested may not work when you need it most.
 
 ## 1. Backup Types
 
-Full backup captures the entire database. Incremental backup captures only changes since the last
-backup — faster and smaller. Differential backup captures changes since the last FULL backup. Logical
-backup exports SQL statements (portable, slow to restore). Physical backup copies data files directly
-(fast restore, version-specific). Hot backup occurs while database is running. Cold backup requires
-database shutdown.
-Backup strategy comparison:
-FULL BACKUP: Complete snapshot of all data
-+ Complete, simple to restore
+Full backup captures the entire database. Incremental backup captures only changes since the last backup — faster and smaller. Differential backup captures changes since the last FULL backup. Logical backup exports SQL statements (portable, slow to restore). Physical backup copies data files directly (fast restore, version-specific). Hot backup occurs while database is running. Cold backup requires database shutdown. Backup strategy comparison:
+FULL BACKUP: Complete snapshot of all data + Complete, simple to restore
 - Large size, slow to create
-INCREMENTAL: Only changes since last backup
-+ Fast, small
+INCREMENTAL: Only changes since last backup + Fast, small
 - Restore requires: full + all incrementals in sequence
-DIFFERENTIAL: Changes since last FULL backup
-+ Restore requires only: full + latest differential
+DIFFERENTIAL: Changes since last FULL backup + Restore requires only: full + latest differential
 - Grows over time until next full backup
 Typical strategy: Full backup weekly + daily incrementals
 
@@ -5477,8 +4695,7 @@ Typical strategy: Full backup weekly + daily incrementals
 mysqldump creates logical SQL backups — portable, human-readable, easy to restore subsets. MySQL
 \`\`\`
 
-Enterprise Backup and Percona XtraBackup create physical hot backups — much faster to restore for
-large databases. Binary log backup enables point-in-time recovery.
+Enterprise Backup and Percona XtraBackup create physical hot backups — much faster to restore for large databases. Binary log backup enables point-in-time recovery.
 
 :::scenario
 A database gets corrupted at 3:47 PM on Tuesday. With weekly full backup + daily binary log backups, you can restore the full backup (Monday night) and then replay binary logs up to 3:46 PM on Tuesday — losing only 1 minute of data. This is Point-in-Time Recovery (PITR).
@@ -5521,9 +4738,7 @@ mysqlbinlog --start-datetime='2024-11-18 23:00:00' \\
 pg_dump creates logical backups. pg_basebackup creates physical backups for streaming replication
 \`\`\`
 
-setup or PITR. WAL (Write-Ahead Log) archiving captures all changes since the base backup, enabling
-point-in-time recovery. pg_restore restores custom-format pg_dump files with parallelism support.
-PostgreSQL backup commands:
+setup or PITR. WAL (Write-Ahead Log) archiving captures all changes since the base backup, enabling point-in-time recovery. pg_restore restores custom-format pg_dump files with parallelism support. PostgreSQL backup commands:
 
 \`\`\`sql
 -- Logical backup (entire cluster):
@@ -5546,11 +4761,7 @@ archive_command = 'cp %p /archive/%f' -- copy WAL to archive dir
 
 ## 4. Backup Verification and Testing
 
-The most dangerous backup is one that has never been tested. Backup files can be corrupted. Database
-versions may have changed. Never assume a backup works — test it regularly on a staging server. A
-recovery test should verify: restore completes without errors, data is consistent, application works with
-restored data.
-Backup verification checklist:
+The most dangerous backup is one that has never been tested. Backup files can be corrupted. Database versions may have changed. Never assume a backup works — test it regularly on a staging server. A recovery test should verify: restore completes without errors, data is consistent, application works with restored data. Backup verification checklist:
 Monthly backup test procedure:
 
 ## 1. Take latest backup
@@ -5561,8 +4772,7 @@ Monthly backup test procedure:
 
 ## 3. Run consistency checks:
 
-MySQL: CHECK TABLE tablename;
-PostgreSQL: SELECT * FROM pg_catalog.pg_tables WHERE schemaname='public';
+MySQL: CHECK TABLE tablename; PostgreSQL: SELECT * FROM pg_catalog.pg_tables WHERE schemaname='public';
 
 \`\`\`sql
 VACUUM ANALYZE;
@@ -5593,22 +4803,17 @@ SELECT pg_check_catalog();
 | 1 | Set up a complete backup script that runs mysqldump with -- single-transaction, compresses the output, and appends the date to the filename. Test it. | Easy | Practical |
 | 2 | Enable MySQL binary logging. Make several data changes. Simulate data loss by dropping a table. Restore from backup + binary logs to recover the dropped data. | Hard | Practical |
 | 3 | In PostgreSQL, configure WAL archiving. Take a base backup. Make changes. Restore the base backup and use WAL to recover to a specific point in time. | Hard | Practical |
-| 4 | Design a comprehensive backup strategy for a production e- commerce database that must have: RPO (Recovery Point Objective) of 15 minutes and RTO (Recovery Time Objective) of 1 hour. | Hard | Design |
+| 4 | Design a comprehensive backup strategy for a production e-commerce database that must have: RPO (Recovery Point Objective) of 15 minutes and RTO (Recovery Time Objective) of 1 hour. | Hard | Design |
 | 5 | Write and execute a backup verification procedure: restore to staging, compare row counts with production, run consistency checks, document the recovery time. | Hard | Practical |
 `,
 
   48: `# Security & Hardening
 
-Database security is multi-layered: preventing unauthorized access, protecting data in transit and at rest,
-defending against SQL injection, auditing who does what, and minimizing attack surface. A single security
-misconfiguration can expose millions of records. Security hardening is not a one-time task — it is an
-ongoing practice.
+Database security is multi-layered: preventing unauthorized access, protecting data in transit and at rest, defending against SQL injection, auditing who does what, and minimizing attack surface. A single security misconfiguration can expose millions of records. Security hardening is not a one-time task — it is an ongoing practice.
 
 ## 1. SSL/TLS Encrypted Connections
 
-By default, database connections are unencrypted — anyone on the network can intercept credentials
-and data. SSL/TLS encrypts the connection between application and database. Critical for any database
-accessible over a network, especially in cloud environments.
+By default, database connections are unencrypted — anyone on the network can intercept credentials and data. SSL/TLS encrypts the connection between application and database. Critical for any database accessible over a network, especially in cloud environments.
 
 :::scenario
 An application connects to a cloud-hosted MySQL database. Without SSL, a man-in-the-middle attack on the network can capture the database password and all query results. With SSL enforced, all traffic is encrypted — captured packets are useless without the private key.
@@ -5620,8 +4825,7 @@ MySQL SSL configuration:
 -- Require SSL for all connections (my.cnf):
 \`\`\`
 
-[mysqld]
-require_secure_transport = ON
+[mysqld] require_secure_transport = ON
 
 \`\`\`sql
 -- Create user that MUST use SSL:
@@ -5632,9 +4836,7 @@ SHOW STATUS LIKE 'Ssl_cipher';
 \`\`\`
 
 PostgreSQL SSL setup (postgresql.conf):
-ssl = on
-ssl_cert_file = 'server.crt'
-ssl_key_file = 'server.key'
+ssl = on ssl_cert_file = 'server.crt' ssl_key_file = 'server.key'
 
 \`\`\`sql
 -- pg_hba.conf — require SSL for external connections:
@@ -5650,11 +4852,7 @@ postgresql://user:pass@host/db?sslmode=require
 
 ## 2. SQL Injection Prevention
 
-SQL injection is the most dangerous web application vulnerability — attackers inject malicious SQL via
-user input. Defense: always use parameterized queries (prepared statements) — never concatenate user
-input into SQL strings. Parameterized queries treat input as data, not code — the injected SQL is never
-executed.
-SQL injection — vulnerable code:
+SQL injection is the most dangerous web application vulnerability — attackers inject malicious SQL via user input. Defense: always use parameterized queries (prepared statements) — never concatenate user input into SQL strings. Parameterized queries treat input as data, not code — the injected SQL is never executed. SQL injection — vulnerable code:
 
 \`\`\`sql
 -- DANGEROUS: string concatenation (vulnerable):
@@ -5688,10 +4886,7 @@ ps.setString(1, userInput);
 
 ## 3. Role-Based Access Control (RBAC)
 
-RBAC groups permissions into roles, then assigns roles to users. Instead of granting individual
-permissions to each user, grant permissions to roles (read_only, app_writer, analyst, admin) and assign
-users to roles. This is more manageable and less error-prone than per-user permission management.
-PostgreSQL RBAC:
+RBAC groups permissions into roles, then assigns roles to users. Instead of granting individual permissions to each user, grant permissions to roles (read_only, app_writer, analyst, admin) and assign users to roles. This is more manageable and less error-prone than per-user permission management. PostgreSQL RBAC:
 
 \`\`\`sql
 -- Create roles:
@@ -5711,10 +4906,7 @@ GRANT analyst TO data_team;
 
 ## 4. Database Hardening Checklist
 
-Hardening reduces the attack surface. Key steps: remove anonymous users, remove test databases,
-change default ports, disable remote root login, enable audit logging, restrict bind-address, remove
-unused features, keep software updated.
-MySQL hardening steps:
+Hardening reduces the attack surface. Key steps: remove anonymous users, remove test databases, change default ports, disable remote root login, enable audit logging, restrict bind-address, remove unused features, keep software updated. MySQL hardening steps:
 
 \`\`\`sql
 -- Run MySQL secure installation wizard:
@@ -5753,18 +4945,12 @@ FLUSH PRIVILEGES;
 
   49: `# PostgreSQL Extensions
 
-PostgreSQL's extension system is one of its greatest strengths — it allows adding powerful new
-capabilities without modifying the core. Extensions are installable modules that add new data types,
-functions, operators, and index types. PostGIS adds world-class geospatial capabilities.
-pg_stat_statements identifies slow queries. uuid-ossp generates UUIDs. pgcrypto adds encryption
-functions.
+PostgreSQL's extension system is one of its greatest strengths — it allows adding powerful new capabilities without modifying the core. Extensions are installable modules that add new data types, functions, operators, and index types. PostGIS adds world-class geospatial capabilities. pg_stat_statements identifies slow queries. uuid-ossp generates UUIDs. pgcrypto adds encryption functions.
 
 ## 1. Managing Extensions
 
-Extensions are installed with CREATE EXTENSION. They must be available on the server (installed via
-OS package manager). Some require superuser privileges. List installed extensions with SELECT *
-FROM pg_extension. Upgrade with ALTER EXTENSION ... UPDATE.
-Extension management:
+Extensions are installed with CREATE EXTENSION. They must be available on the server (installed via OS package manager). Some require superuser privileges. List installed extensions with SELECT *
+FROM pg_extension. Upgrade with ALTER EXTENSION ... UPDATE. Extension management:
 
 \`\`\`sql
 -- Install an extension:
@@ -5783,9 +4969,7 @@ DROP EXTENSION IF EXISTS uuid-ossp;
 
 ## 2. pg_stat_statements — Query Performance Analysis
 
-pg_stat_statements is the most important extension for performance tuning. It tracks execution statistics
-for every SQL query: total time, calls, rows, mean time, I/O. This lets you identify the top N slowest queries
-by total time, mean time, or call frequency — the essential first step in performance optimization.
+pg_stat_statements is the most important extension for performance tuning. It tracks execution statistics for every SQL query: total time, calls, rows, mean time, I/O. This lets you identify the top N slowest queries by total time, mean time, or call frequency — the essential first step in performance optimization.
 
 :::scenario
 A DBA notices the database is slow but doesn't know which queries are the culprit. pg_stat_statements shows that one specific query runs 50,000 times per hour and has a mean execution time of 200ms — that one query is consuming 2.8 hours of CPU per hour. Optimizing it saves the database.
@@ -5808,10 +4992,7 @@ SELECT
 LEFT(query, 80) AS query_preview,
 \`\`\`
 
-calls,
-ROUND(total_exec_time::numeric, 2) AS total_ms,
-ROUND(mean_exec_time::numeric, 2) AS mean_ms,
-rows
+calls, ROUND(total_exec_time::numeric, 2) AS total_ms, ROUND(mean_exec_time::numeric, 2) AS mean_ms, rows
 FROM pg_stat_statements
 ORDER BY total_exec_time DESC
 LIMIT 10;
@@ -5824,10 +5005,7 @@ SELECT pg_stat_statements_reset();
 
 ## 3. PostGIS — Geospatial Extension
 
-PostGIS adds geospatial data types (geometry, geography) and hundreds of spatial functions to
-PostgreSQL. It enables storing and querying location data: find restaurants within 500m, calculate
-distances between cities, check if a point is inside a polygon. PostgreSQL + PostGIS is the gold standard
-for open-source geospatial databases.
+PostGIS adds geospatial data types (geometry, geography) and hundreds of spatial functions to PostgreSQL. It enables storing and querying location data: find restaurants within 500m, calculate distances between cities, check if a point is inside a polygon. PostgreSQL + PostGIS is the gold standard for open-source geospatial databases.
 
 :::scenario
 A food delivery app (like Zomato) needs to find all restaurants within 5km of a user's location. PostGIS ST_DWithin query with a spatial index returns results in milliseconds from a table of 100,000 restaurants — far faster than calculating distances in application code.
@@ -5848,13 +5026,8 @@ SELECT name, ST_Distance(location::geography,
 
 ST_SetSRID(ST_MakePoint(78.4744, 17.3753), 4326)::geography) AS dist_meters
 FROM restaurants
-WHERE ST_DWithin(
-location::geography,
-ST_SetSRID(ST_MakePoint(78.4744, 17.3753), 4326)::geography,
-5000 -- 5000 meters = 5km
-)
-ORDER BY dist_meters;
-Spatial index for performance:
+WHERE ST_DWithin( location::geography, ST_SetSRID(ST_MakePoint(78.4744, 17.3753), 4326)::geography, 5000 -- 5000 meters = 5km )
+ORDER BY dist_meters; Spatial index for performance:
 
 \`\`\`sql
 -- GiST index on geometry column (essential for spatial queries):
@@ -5864,8 +5037,7 @@ CREATE INDEX idx_restaurant_location ON restaurants USING GIST(location);
 
 ## 4. pgcrypto and uuid-ossp
 
-pgcrypto provides cryptographic functions: password hashing (crypt/gen_salt), symmetric encryption
-(pgp_sym_encrypt), and digest functions. uuid-ossp generates universally unique identifiers (UUIDs) for
+pgcrypto provides cryptographic functions: password hashing (crypt/gen_salt), symmetric encryption (pgp_sym_encrypt), and digest functions. uuid-ossp generates universally unique identifiers (UUIDs) for
 
 \`\`\`sql
 use as primary keys — avoids ID enumeration attacks and works well in distributed systems.
@@ -5912,18 +5084,11 @@ INSERT INTO sessions (user_id) VALUES (101);
 
   50: `# Database Design Patterns
 
-Database design patterns are proven solutions to recurring data modeling problems. Knowing these
-patterns helps you design databases that are scalable, maintainable, and correctly represent complex
-business domains. This topic covers star schema for analytics, EAV for flexible attributes, audit tables for
-change tracking, soft deletes, and temporal data patterns.
+Database design patterns are proven solutions to recurring data modeling problems. Knowing these patterns helps you design databases that are scalable, maintainable, and correctly represent complex business domains. This topic covers star schema for analytics, EAV for flexible attributes, audit tables for change tracking, soft deletes, and temporal data patterns.
 
 ## 1. Star Schema — Data Warehouse Design
 
-The star schema is the standard design for data warehouses and OLAP (Online Analytical Processing)
-systems. It has one central fact table (containing measurable events — sales, orders, transactions)
-surrounded by dimension tables (providing context — date, customer, product, location). Queries are
-simple JOIN-based aggregations. Optimized for read-heavy analytical queries, not write-heavy
-transactional systems.
+The star schema is the standard design for data warehouses and OLAP (Online Analytical Processing) systems. It has one central fact table (containing measurable events — sales, orders, transactions) surrounded by dimension tables (providing context — date, customer, product, location). Queries are simple JOIN-based aggregations. Optimized for read-heavy analytical queries, not write-heavy transactional systems.
 
 :::scenario
 Flipkart's analytics warehouse: fact_orders table records every order event. Dimensions: dim_customer, dim_product, dim_date, dim_location. A monthly sales by region report is a simple fact JOIN dimensions with GROUP BY — no complex sub-queries needed. The star structure makes business intelligence tools easy to use.
@@ -5962,11 +5127,7 @@ GROUP BY 1, 2, 3 ORDER BY revenue DESC;
 
 ## 2. EAV — Entity-Attribute-Value Pattern
 
-EAV stores dynamic attributes as rows (entity_id, attribute_name, attribute_value) instead of columns.
-This allows adding new attributes without ALTER TABLE. However, EAV is widely criticized: queries are
-complex, no data type enforcement, poor performance for multi-attribute queries. Use only when attribute
-flexibility is truly required and the downsides are acceptable.
-EAV pattern:
+EAV stores dynamic attributes as rows (entity_id, attribute_name, attribute_value) instead of columns. This allows adding new attributes without ALTER TABLE. However, EAV is widely criticized: queries are complex, no data type enforcement, poor performance for multi-attribute queries. Use only when attribute flexibility is truly required and the downsides are acceptable. EAV pattern:
 
 \`\`\`sql
 CREATE TABLE product_attributes (
@@ -5983,8 +5144,7 @@ INSERT INTO product_attributes VALUES
 SELECT p.name,
 \`\`\`
 
-MAX(CASE WHEN pa.attr_name='ram' THEN pa.attr_value END) AS ram,
-MAX(CASE WHEN pa.attr_name='storage' THEN pa.attr_value END) AS storage
+MAX(CASE WHEN pa.attr_name='ram' THEN pa.attr_value END) AS ram, MAX(CASE WHEN pa.attr_name='storage' THEN pa.attr_value END) AS storage
 FROM products p JOIN product_attributes pa ON p.id = pa.product_id
 GROUP BY p.name;
 
@@ -5995,10 +5155,7 @@ GROUP BY p.name;
 
 ## 3. Audit Tables and Soft Deletes
 
-Audit tables record the history of every change to important data — who changed what, when, and what
-the old value was. Soft deletes mark records as deleted (is_deleted=TRUE, deleted_at=NOW()) instead
-of physically removing them — allowing recovery, audit trails, and historical analysis.
-Audit table pattern:
+Audit tables record the history of every change to important data — who changed what, when, and what the old value was. Soft deletes mark records as deleted (is_deleted=TRUE, deleted_at=NOW()) instead of physically removing them — allowing recovery, audit trails, and historical analysis. Audit table pattern:
 
 \`\`\`sql
 CREATE TABLE employees_audit (
@@ -6052,19 +5209,11 @@ CREATE INDEX idx_active_users ON users(email) WHERE is_deleted = FALSE;
 
   51: `# Cloud Databases
 
-Modern production databases increasingly run on managed cloud services rather than self-managed
-servers. Cloud databases handle infrastructure, patching, backups, failover, and scaling automatically —
-letting teams focus on applications rather than database operations. Understanding the major cloud
-database offerings, their tradeoffs, and when to use managed vs self-managed is essential knowledge
-for modern data engineering.
+Modern production databases increasingly run on managed cloud services rather than self-managed servers. Cloud databases handle infrastructure, patching, backups, failover, and scaling automatically — letting teams focus on applications rather than database operations. Understanding the major cloud database offerings, their tradeoffs, and when to use managed vs self-managed is essential knowledge for modern data engineering.
 
 ## 1. AWS RDS and Aurora
 
-Amazon RDS (Relational Database Service) is a managed service supporting MySQL, PostgreSQL,
-MariaDB, Oracle, and SQL Server. AWS handles: hardware provisioning, OS patching, database
-software updates, backups, failover, and monitoring. Aurora is AWS's cloud-native relational database
-— compatible with MySQL and PostgreSQL but with 3x MySQL performance and 5x PostgreSQL
-throughput, plus distributed storage.
+Amazon RDS (Relational Database Service) is a managed service supporting MySQL, PostgreSQL, MariaDB, Oracle, and SQL Server. AWS handles: hardware provisioning, OS patching, database software updates, backups, failover, and monitoring. Aurora is AWS's cloud-native relational database — compatible with MySQL and PostgreSQL but with 3x MySQL performance and 5x PostgreSQL throughput, plus distributed storage.
 
 :::scenario
 A startup migrates from a self-managed MySQL server to RDS MySQL. They eliminate: 6 hours/week of DBA time for patching and backup management, 2 hours/year of downtime for maintenance windows. RDS Multi-AZ provides automatic failover in 60 seconds if the primary instance fails.
@@ -6072,28 +5221,13 @@ A startup migrates from a self-managed MySQL server to RDS MySQL. They eliminate
 
 Key RDS concepts:
 RDS INSTANCE TYPES:
-db.t3.micro -- development/testing (2 vCPU, 1GB RAM)
-db.r6g.large -- production (2 vCPU, 16GB RAM, memory-optimized)
-db.m6g.4xlarge -- high-performance (16 vCPU, 64GB RAM)
-KEY FEATURES:
-Multi-AZ: Automatic failover to standby in 60 seconds
-Read Replicas: Up to 15 Aurora replicas, 5 RDS replicas
-Automated Backups: 1-35 day retention, PITR to any second
-Performance Insights: Visual query performance monitoring
-Enhanced Monitoring: 1-second OS-level metrics
-AURORA ADVANTAGES OVER RDS:
-Storage: Auto-scales 10GB → 128TB
-Replication: <10ms replica lag vs seconds for RDS
-Failover: 30 seconds vs 60-120 seconds
-Aurora Serverless: Auto-scales compute, pay per use
+db.t3.micro -- development/testing (2 vCPU, 1GB RAM) db.r6g.large -- production (2 vCPU, 16GB RAM, memory-optimized) db.m6g.4xlarge -- high-performance (16 vCPU, 64GB RAM) KEY FEATURES:
+Multi-AZ: Automatic failover to standby in 60 seconds Read Replicas: Up to 15 Aurora replicas, 5 RDS replicas Automated Backups: 1-35 day retention, PITR to any second Performance Insights: Visual query performance monitoring Enhanced Monitoring: 1-second OS-level metrics AURORA ADVANTAGES OVER RDS:
+Storage: Auto-scales 10GB → 128TB Replication: <10ms replica lag vs seconds for RDS Failover: 30 seconds vs 60-120 seconds Aurora Serverless: Auto-scales compute, pay per use
 
 ## 2. Google Cloud SQL and Cloud Spanner
 
-Cloud SQL is Google's managed MySQL and PostgreSQL service — similar to AWS RDS. Cloud
-Spanner is Google's globally distributed relational database — offers SQL semantics with horizontal
-scaling and global ACID transactions. Spanner is used by Google's own products at planetary scale. It's
-appropriate when you need both relational consistency AND global scale.
-Cloud services comparison:
+Cloud SQL is Google's managed MySQL and PostgreSQL service — similar to AWS RDS. Cloud Spanner is Google's globally distributed relational database — offers SQL semantics with horizontal scaling and global ACID transactions. Spanner is used by Google's own products at planetary scale. It's appropriate when you need both relational consistency AND global scale. Cloud services comparison:
 
 | Service | Provider | Type | Use Case |
 |---|---|---|---|
@@ -6108,24 +5242,10 @@ Cloud services comparison:
 
 ## 3. Managed vs Self-Managed — Decision Framework
 
-Managed databases cost more per resource unit but save significant DBA time and reduce operational
-risk. Self-managed gives maximum control and lowest cost at scale but requires skilled DBAs and
-operational overhead. Most startups and mid-size companies should use managed databases. Large
-companies at scale often run both.
-Decision framework:
+Managed databases cost more per resource unit but save significant DBA time and reduce operational risk. Self-managed gives maximum control and lowest cost at scale but requires skilled DBAs and operational overhead. Most startups and mid-size companies should use managed databases. Large companies at scale often run both. Decision framework:
 CHOOSE MANAGED (RDS/Cloud SQL) WHEN:
-✓ Small-to-medium team without dedicated DBA
-✓ Availability and failover must be automatic
-✓ Want automated backups and PITR
-✓ Need to scale quickly
-✓ Cost of DBA time > cost premium of managed service
-CHOOSE SELF-MANAGED WHEN:
-✓ Very large scale (1000s of servers) where cost matters
-✓ Need custom configurations not supported by managed
-✓ Regulatory requirement to control all infrastructure
-✓ Have dedicated DBA team
-✓ Need cutting-edge versions before managed supports them
-Migration to cloud database (checklist):
+✓ Small-to-medium team without dedicated DBA ✓ Availability and failover must be automatic ✓ Want automated backups and PITR ✓ Need to scale quickly ✓ Cost of DBA time > cost premium of managed service CHOOSE SELF-MANAGED WHEN:
+✓ Very large scale (1000s of servers) where cost matters ✓ Need custom configurations not supported by managed ✓ Regulatory requirement to control all infrastructure ✓ Have dedicated DBA team ✓ Need cutting-edge versions before managed supports them Migration to cloud database (checklist):
 Pre-migration:
 
 ## 1. Audit schema and data types (cloud may differ slightly)
@@ -6140,10 +5260,7 @@ Pre-migration:
 ## 4. Plan for minimal downtime strategy
 
 Migration approaches:
-A. Dump/restore (simple, has downtime)
-B. AWS DMS (Data Migration Service) for near-zero downtime
-C. Logical replication from on-prem to cloud then cutover
-Post-migration:
+A. Dump/restore (simple, has downtime) B. AWS DMS (Data Migration Service) for near-zero downtime C. Logical replication from on-prem to cloud then cutover Post-migration:
 
 ## 1. Validate row counts and data integrity
 
