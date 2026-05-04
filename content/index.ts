@@ -4,14 +4,12 @@
 
 import pythonContent from "./courses/python"
 import sqlContent from "./courses/sql"
-import htmlCssContent from "./courses/html-css"
 import excelContent from "./courses/excel"
 import dsaContent from "./courses/dsa"
 
 const courseContent: Record<string, Record<number, string>> = {
   python: pythonContent,
   sql: sqlContent,
-  "html-css": htmlCssContent,
   excel: excelContent,
   dsa: dsaContent,
 }
