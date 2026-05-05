@@ -2,30 +2,7 @@
 // Images are served from /pyimages/pimg*.png
 
 const pythonContent: Record<number, string> = {
-  1: `# Python Programming
-## COMPLETE BEGINNER COURSE
-Foundations — Level 1
-10 Comprehensive Lessons
-Variables  •  Control Flow  •  Loops  •  Functions  •  Data Structures
-
-📚Course Overview
-
-| Lesson | Topic |
-| --- | --- |
-| Lesson 1 | Introduction to Python |
-| Lesson 2 | Variables & Data Types |
-| Lesson 3 | Operators |
-| Lesson 4 | Control Flow Statements |
-| Lesson 5 | Loops |
-| Lesson 6 | Strings |
-| Lesson 7 | Lists |
-| Lesson 8 | Tuples & Sets |
-| Lesson 9 | Dictionaries |
-| Lesson 10 | Functions |
-
-
-# LESSON 1
-## Introduction to Python
+  1: `
 Get started with the world's most popular programming language
 
 ## What is Python?
@@ -269,8 +246,7 @@ Why Use Comments?
 > • Comments start with # and are ignored by Python
 > • Indentation defines code blocks — always use 4 spaces`,
 
-  2: `# 📦 LESSON 2
-## Variables & Data Types
+  2: `
 Storing and working with different kinds of information
 
 ## 📌  What is a Variable?
@@ -684,8 +660,7 @@ In 10 years, you will be 30
 > • Type casting: int(), float(), str(), bool()
 > • input() returns a string — convert with int() or float() for numbers`,
 
-  3: `# ⚙️ LESSON 3
-## Operators
+  3: `
 Performing operations on data — the building blocks of logic
 
 ## 📌  What are Operators?
@@ -1161,8 +1136,7 @@ if True:
 > • Ternary: value_if_true if condition else value_if_false
 > • Always indent code blocks with 4 spaces!`,
 
-  5: `# 🔁 LESSON 5
-## Loops
+  5: `
 Repeating actions efficiently with for and while loops
 
 ## 📌  What are Loops?
@@ -1487,8 +1461,7 @@ Deep-dive into Python's most-used data structures and reusable functions
 | 📖  Lesson 9 | Dictionaries — key-value data, nesting, comprehension, patterns |
 | ⚡  Lesson 10 | Functions — params, return, defaults, *args/**kwargs, lambda, scope |`,
 
-  6: `# 📝 LESSON 6
-## Strings
+  6: `
 Master Python's most-used data type — text processing & formatting
 
 ## 📌  What Is a String?
@@ -1886,8 +1859,7 @@ print(a)       # Hello (unchanged)
 > • f-strings: f'Hi {name}!' — the modern, preferred way to format
 > • Methods always RETURN new strings — they never change the original`,
 
-  7: `# 📋 LESSON 7
-## Lists
+  7: `
 Python's most versatile and widely-used data structure
 
 ## 📌  What Is a List?
